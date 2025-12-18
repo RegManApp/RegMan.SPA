@@ -1,34 +1,23 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import { Navbar, Sidebar } from './common';
 
-const Layout = () => {
-  const { user, logout, isAdmin } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+export const Layout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="app-container">
-      <nav className="navbar">
-        <div className="nav-brand">
-          <Link to="/dashboard">Student Management</Link>
-        </div>
-        <div className="nav-links">
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/courses">Courses</Link>
-          {isAdmin() && <Link to="/admin">Admin</Link>}
-        </div>
-        <div className="nav-user">
-          <span>Welcome, {user?.email}</span>
-          <button onClick={handleLogout} className="btn-logout">Logout</button>
-        </div>
-      </nav>
-      <main className="main-content">
-        <Outlet />
-      </main>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      
+      {/* Main content */}
+      <div className="lg:pl-64">
+        <main className="py-6">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
