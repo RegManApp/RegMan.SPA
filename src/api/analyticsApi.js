@@ -42,6 +42,11 @@ export const analyticsApi = {
   getSectionCapacity: () => {
     return axiosInstance.get("/analytics/section-capacity");
   },
+
+  // Get system summary for admin dashboard
+  getSystemSummary: () => {
+    return axiosInstance.get("/analytics/system-summary");
+  },
 };
 
 export default analyticsApi;
