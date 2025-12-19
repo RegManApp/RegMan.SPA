@@ -14,6 +14,7 @@ import {
   ClipboardDocumentCheckIcon,
   ChartBarIcon,
   ClockIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../utils/helpers';
@@ -29,11 +30,13 @@ const iconMap = {
   CalendarDaysIcon,
   ClipboardDocumentCheckIcon,
   ChartBarIcon,
+  ChatIcon: ChatBubbleLeftRightIcon,
   ClockIcon,
 };
 
 const adminNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+  { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
   { name: 'Analytics', href: '/analytics', icon: 'ChartBarIcon' },
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
   { name: 'Students', href: '/students', icon: 'UsersIcon' },
@@ -47,6 +50,7 @@ const adminNavigation = [
 
 const instructorNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+  { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
   { name: 'Office Hours', href: '/office-hours', icon: 'ClockIcon' },
   { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
@@ -57,6 +61,7 @@ const instructorNavigation = [
 
 const studentNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+  { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
   { name: 'Book Office Hours', href: '/book-office-hours', icon: 'ClockIcon' },
   { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
