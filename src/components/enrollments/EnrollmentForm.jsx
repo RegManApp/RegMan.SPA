@@ -66,10 +66,24 @@ const EnrollmentForm = ({
     }
   };
 
-  const studentOptions = students.map((student) => ({
-    value: student.id,
-    label: `${getFullName(student.user?.firstName, student.user?.lastName)} (${student.studentNumber})`,
-  }));
+  // const studentOptions = students.map((student) => ({
+  //   value: student.id,
+  //   label: `${getFullName(student.user?.firstName, student.user?.lastName)} (${student.studentNumber})`,
+  // }));
+  const studentOptions = students.map((student) => {
+    // Prefer fullName, fallback to user.fullName, fallback to Unknown
+    const name = student.fullName || student.user?.fullName || 'Unknown';
+    return {
+      value: student.id,
+      label: `${student.studentNumber || ''} - ${name}`.trim(),
+      search: `${student.studentNumber || ''} ${name}`.toLowerCase(),
+    };
+  });
+
+  // Custom filter for Select to allow searching by student number or name
+  const filterStudentOption = (option, input) => {
+    return option.data.search.includes(input.toLowerCase());
+  };
 
   const courseOptions = courses.map((course) => ({
     value: course.id,
@@ -108,12 +122,12 @@ const EnrollmentForm = ({
           <>
             <Select
               label="Student"
-              placeholder="Select a student"
+              placeholder="Select a student (search by ID or name)"
               options={studentOptions}
               error={errors.studentId?.message}
+              filterOption={filterStudentOption}
               {...register('studentId')}
             />
-
             <Select
               label="Course"
               placeholder="Select a course"
@@ -121,7 +135,6 @@ const EnrollmentForm = ({
               error={errors.courseId?.message}
               {...register('courseId')}
             />
-
             <Select
               label="Semester"
               placeholder="Select a semester"

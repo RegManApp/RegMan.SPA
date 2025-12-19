@@ -149,32 +149,41 @@ const AdminDashboard = ({
           }
         >
           <div className="space-y-4">
-            {recentStudents.slice(0, 5).map((student) => (
-              <div
-                key={student.id}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                    <span className="text-primary-600 dark:text-primary-400 font-medium">
-                      {student.user?.firstName?.[0]}
-                      {student.user?.lastName?.[0]}
-                    </span>
+            {recentStudents.slice(0, 5).map((student) => {
+              // Try to get initials from first/last, else from fullName
+              const initials = student.user?.firstName || student.user?.lastName
+                ? `${student.user?.firstName?.[0] || ''}${student.user?.lastName?.[0] || ''}`
+                : (student.fullName?.split(' ').map(n => n[0]).join('') || 'U');
+              // Prefer first/last, else fullName
+              const name = student.user?.firstName || student.user?.lastName
+                ? getFullName(student.user?.firstName, student.user?.lastName)
+                : student.fullName || student.user?.fullName || 'Unknown';
+              return (
+                <div
+                  key={student.id}
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                      <span className="text-primary-600 dark:text-primary-400 font-medium">
+                        {initials}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {name}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {student.studentNumber}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {getFullName(student.user?.firstName, student.user?.lastName)}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {student.studentNumber}
-                    </p>
-                  </div>
+                  <Badge className={getStudentLevelColor(student.studentLevel)} size="sm">
+                    {getStudentLevelLabel(student.studentLevel)}
+                  </Badge>
                 </div>
-                <Badge className={getStudentLevelColor(student.studentLevel)} size="sm">
-                  {getStudentLevelLabel(student.studentLevel)}
-                </Badge>
-              </div>
-            ))}
+              );
+            })}
             {recentStudents.length === 0 && !isLoading && (
               <p className="text-center text-gray-500 dark:text-gray-400 py-4">
                 No students yet

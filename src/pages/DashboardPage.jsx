@@ -85,6 +85,9 @@ const DashboardPage = () => {
           <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
             Dashboard
           </h1>
+          <p className="mt-1 text-lg text-gray-700 dark:text-gray-300">
+            Welcome, {user?.fullName || user?.email || 'User'}
+          </p>
         </div>
       </div>
 
