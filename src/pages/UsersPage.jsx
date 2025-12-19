@@ -105,11 +105,12 @@ const UsersPage = () => {
 
   const handleRoleChange = async (userId, role) => {
     try {
-      await userApi.assignRole(userId, role);
+      await userApi.updateRole(userId, role);
       toast.success('Role assigned successfully');
       loadUsers();
     } catch (error) {
       console.error('Failed to assign role:', error);
+      toast.error('Failed to assign role');
     }
   };
 
@@ -155,6 +156,7 @@ const UsersPage = () => {
             </option>
             <option value="Admin">Admin</option>
             <option value="Student">Student</option>
+            <option value="Instructor">Instructor</option>
           </select>
           <Button
             variant="ghost"
