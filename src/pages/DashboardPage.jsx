@@ -8,6 +8,7 @@ import { enrollmentApi } from '../api/enrollmentApi';
 import { courseApi } from '../api/courseApi';
 import { instructorApi } from '../api/instructorApi';
 import { scheduleApi } from '../api/scheduleApi';
+import { normalizeCourses } from '../utils/helpers';
 
 const DashboardPage = () => {
   const { user, isAdmin, isStudent, isInstructor } = useAuth();
@@ -64,7 +65,8 @@ const DashboardPage = () => {
 
         setStudentProfile(profileRes.data || profileRes);
         setMyEnrollments(enrollmentsRes.data || enrollmentsRes || []);
-        setAvailableCourses(coursesRes.data || coursesRes || []);
+        const coursesData = coursesRes.data || coursesRes || [];
+        setAvailableCourses(normalizeCourses(Array.isArray(coursesData) ? coursesData : coursesData.items || []));
       }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
