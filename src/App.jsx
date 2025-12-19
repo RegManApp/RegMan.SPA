@@ -19,6 +19,7 @@ import {
   SchedulesPage,
   AdvisingPage,
   AnalyticsPage,
+  ChatPage,
   OfficeHoursPage,
   BookOfficeHourPage,
   CalendarPage,
@@ -155,6 +156,8 @@ function App() {
 
               {/* Profile - All authenticated users */}
               <Route path="/profile" element={<ProfilePage />} />
+              {/* Chat - All authenticated users */}
+              <Route path="/chat" element={<ChatPage />} />
               
               {/* Settings - Redirect to Profile */}
               <Route path="/settings" element={<Navigate to="/profile" replace />} />
