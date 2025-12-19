@@ -29,9 +29,9 @@ export const courseApi = {
   },
 
   // Update course (Admin only)
-  // Request: { id, courseName?, courseCode?, creditHours?, courseCategoryId?, description? }
+  // Request: { courseId, courseName?, courseCode?, creditHours?, courseCategoryId?, description? }
   update: (id, courseData) => {
-    return axiosInstance.put("/course", { id: Number(id), ...courseData });
+    return axiosInstance.put("/course", { courseId: Number(id), ...courseData });
   },
 
   // Delete course (Admin only)

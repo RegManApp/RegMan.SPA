@@ -6,6 +6,7 @@ import { courseApi } from '../api/courseApi';
 import { enrollmentApi } from '../api/enrollmentApi';
 import { CourseList, CourseCard, CourseForm, CourseDetails } from '../components/courses';
 import { PageLoading, Breadcrumb, Button } from '../components/common';
+import { normalizeCourse, normalizeCourses } from '../utils/helpers';
 import { Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 
 const CoursesPage = () => {
@@ -39,11 +40,22 @@ const CoursesPage = () => {
         pageSize,
         search: searchQuery,
       });
+      // The axios interceptor unwraps the data, so response.data is the actual payload
       const data = response.data;
-      // Handle both camelCase and PascalCase from backend
-      setCourses(data.items || data.Items || data || []);
-      setTotalPages(data.totalPages || data.TotalPages || 1);
-      setTotalItems(data.totalItems || data.TotalItems || (data.length || 0));
+      // Handle various response formats from backend
+      let items = [];
+      if (Array.isArray(data)) {
+        items = data;
+      } else if (data?.items) {
+        items = data.items;
+      } else if (data?.Items) {
+        items = data.Items;
+      } else if (data) {
+        items = [data]; // Single item response
+      }
+      setCourses(normalizeCourses(items));
+      setTotalPages(data?.totalPages || data?.TotalPages || 1);
+      setTotalItems(data?.totalItems || data?.TotalItems || items.length || 0);
     } catch (error) {
       console.error('Failed to load courses:', error);
       toast.error('Failed to load courses');
@@ -55,14 +67,19 @@ const CoursesPage = () => {
   const loadCourseDetails = useCallback(async (courseId) => {
     setIsLoading(true);
     try {
-      const response = await courseApi.getById(courseId);
-      setSelectedCourse(response.data);
+      // Ensure courseId is a valid number
+      const numericId = Number(courseId);
+      if (isNaN(numericId) || numericId <= 0) {
+        throw new Error('Invalid course ID');
+      }
+      const response = await courseApi.getById(numericId);
+      setSelectedCourse(normalizeCourse(response.data));
 
       // Load enrolled students for admin
       if (isAdmin()) {
         setIsLoadingStudents(true);
         try {
-          const studentsRes = await courseApi.getEnrolledStudents(courseId);
+          const studentsRes = await courseApi.getEnrolledStudents(numericId);
           setEnrolledStudents(studentsRes.data || []);
         } catch (err) {
           console.error('Failed to load enrolled students:', err);

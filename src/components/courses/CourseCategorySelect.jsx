@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Select, Button, Modal, Input } from '../common';
 import { courseCategoryApi } from '../../api';
+import { normalizeCategory, normalizeCategories } from '../../utils/helpers';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -20,7 +21,8 @@ const CourseCategorySelect = ({
   const loadCategories = async () => {
     try {
       const response = await courseCategoryApi.getAll();
-      setCategories(response.data || []);
+      const data = response.data || response || [];
+      setCategories(normalizeCategories(Array.isArray(data) ? data : data.items || []));
     } catch (error) {
       console.error('Failed to load categories:', error);
     } finally {
@@ -42,8 +44,9 @@ const CourseCategorySelect = ({
     try {
       const response = await courseCategoryApi.create(newCategory);
       toast.success('Category created successfully');
-      setCategories([...categories, response.data]);
-      onChange?.({ target: { value: response.data.id } });
+      const createdCategory = normalizeCategory(response.data);
+      setCategories([...categories, createdCategory]);
+      onChange?.({ target: { value: createdCategory.id } });
       setIsModalOpen(false);
       setNewCategory({ name: '', description: '' });
     } catch (error) {
