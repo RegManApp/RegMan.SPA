@@ -32,7 +32,11 @@ const initialState = {
   isAuthenticated: false,
   isLoading: true,
   error: null,
+  savedAccounts: [],
 };
+
+// Maximum number of saved accounts
+const MAX_SAVED_ACCOUNTS = 10;
 
 // Action types
 const AUTH_ACTIONS = {
@@ -42,6 +46,7 @@ const AUTH_ACTIONS = {
   LOGOUT: 'LOGOUT',
   UPDATE_USER: 'UPDATE_USER',
   CLEAR_ERROR: 'CLEAR_ERROR',
+  SET_SAVED_ACCOUNTS: 'SET_SAVED_ACCOUNTS',
 };
 
 // Reducer
@@ -80,6 +85,8 @@ const authReducer = (state, action) => {
       };
     case AUTH_ACTIONS.CLEAR_ERROR:
       return { ...state, error: null };
+    case AUTH_ACTIONS.SET_SAVED_ACCOUNTS:
+      return { ...state, savedAccounts: action.payload };
     default:
       return state;
   }
@@ -158,6 +165,17 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      }
+
+      // Load saved accounts from localStorage
+      const savedAccountsData = localStorage.getItem('savedAccounts');
+      if (savedAccountsData) {
+        try {
+          const accounts = JSON.parse(savedAccountsData);
+          dispatch({ type: AUTH_ACTIONS.SET_SAVED_ACCOUNTS, payload: accounts });
+        } catch {
+          localStorage.removeItem('savedAccounts');
+        }
       }
     };
 
@@ -321,11 +339,125 @@ export const AuthProvider = ({ children }) => {
     return titles[state.user?.instructorTitle] || state.user?.instructorTitle || 'Instructor';
   }, [state.user]);
 
+  // Save current account to saved accounts list
+  const saveCurrentAccount = useCallback(() => {
+    if (!state.user) return;
+    
+    const accessToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
+    
+    if (!accessToken || !refreshToken) return;
+    
+    const accountData = {
+      id: state.user.id,
+      email: state.user.email,
+      fullName: state.user.fullName,
+      firstName: state.user.firstName,
+      lastName: state.user.lastName,
+      role: state.user.role,
+      instructorTitle: state.user.instructorTitle,
+      accessToken,
+      refreshToken,
+      savedAt: new Date().toISOString(),
+    };
+    
+    // Get existing saved accounts
+    let savedAccounts = [...state.savedAccounts];
+    
+    // Check if account already exists
+    const existingIndex = savedAccounts.findIndex(acc => acc.id === state.user.id);
+    if (existingIndex !== -1) {
+      // Update existing account
+      savedAccounts[existingIndex] = accountData;
+    } else {
+      // Add new account (limit to MAX_SAVED_ACCOUNTS)
+      if (savedAccounts.length >= MAX_SAVED_ACCOUNTS) {
+        toast.error(`Maximum ${MAX_SAVED_ACCOUNTS} accounts can be saved`);
+        return;
+      }
+      savedAccounts.push(accountData);
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('savedAccounts', JSON.stringify(savedAccounts));
+    dispatch({ type: AUTH_ACTIONS.SET_SAVED_ACCOUNTS, payload: savedAccounts });
+    toast.success('Account saved for quick switch');
+  }, [state.user, state.savedAccounts]);
+
+  // Switch to a saved account
+  const switchAccount = useCallback(async (accountId) => {
+    const account = state.savedAccounts.find(acc => acc.id === accountId);
+    if (!account) {
+      toast.error('Account not found');
+      return;
+    }
+    
+    // Check if token is expired
+    if (isTokenExpired(account.accessToken)) {
+      toast.error('Session expired. Please login again.');
+      removeAccount(accountId);
+      return;
+    }
+    
+    // Save current account before switching (if logged in)
+    if (state.user && state.user.id !== accountId) {
+      saveCurrentAccount();
+    }
+    
+    // Clear current session
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('user');
+    
+    // Set new session (use localStorage for saved accounts)
+    localStorage.setItem('accessToken', account.accessToken);
+    localStorage.setItem('refreshToken', account.refreshToken);
+    localStorage.setItem('rememberMe', 'true');
+    
+    const user = {
+      id: account.id,
+      email: account.email,
+      fullName: account.fullName,
+      firstName: account.firstName,
+      lastName: account.lastName,
+      role: account.role,
+      instructorTitle: account.instructorTitle,
+    };
+    
+    localStorage.setItem('user', JSON.stringify(user));
+    dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: user });
+    toast.success(`Switched to ${account.fullName || account.email}`);
+  }, [state.savedAccounts, state.user, saveCurrentAccount]);
+
+  // Remove a saved account
+  const removeAccount = useCallback((accountId) => {
+    const savedAccounts = state.savedAccounts.filter(acc => acc.id !== accountId);
+    localStorage.setItem('savedAccounts', JSON.stringify(savedAccounts));
+    dispatch({ type: AUTH_ACTIONS.SET_SAVED_ACCOUNTS, payload: savedAccounts });
+    toast.success('Account removed from saved list');
+  }, [state.savedAccounts]);
+
+  // Get saved accounts (excluding current user)
+  const getSavedAccounts = useCallback(() => {
+    return state.savedAccounts.filter(acc => acc.id !== state.user?.id);
+  }, [state.savedAccounts, state.user]);
+
+  // Clear all saved accounts
+  const clearAllSavedAccounts = useCallback(() => {
+    localStorage.removeItem('savedAccounts');
+    dispatch({ type: AUTH_ACTIONS.SET_SAVED_ACCOUNTS, payload: [] });
+    toast.success('All saved accounts cleared');
+  }, []);
+
   const value = {
     user: state.user,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     error: state.error,
+    savedAccounts: state.savedAccounts,
     login,
     register,
     logout,
@@ -339,6 +471,12 @@ export const AuthProvider = ({ children }) => {
     isProfessor,
     isLecturer,
     getInstructorDegreeLabel,
+    // Switch user functions
+    saveCurrentAccount,
+    switchAccount,
+    removeAccount,
+    getSavedAccounts,
+    clearAllSavedAccounts,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

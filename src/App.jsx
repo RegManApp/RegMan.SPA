@@ -17,6 +17,8 @@ import {
   InstructorsPage,
   InstructorDetailPage,
   SchedulesPage,
+  AdvisingPage,
+  AnalyticsPage,
 } from './pages';
 import { ROLES } from './utils/constants';
 
@@ -101,6 +103,26 @@ function App() {
                 element={
                   <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.INSTRUCTOR]}>
                     <SchedulesPage />
+                  </RoleGuard>
+                }
+              />
+
+              {/* Advising - Admin and Instructor */}
+              <Route
+                path="/advising"
+                element={
+                  <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.INSTRUCTOR]}>
+                    <AdvisingPage />
+                  </RoleGuard>
+                }
+              />
+
+              {/* Analytics - Admin only */}
+              <Route
+                path="/analytics"
+                element={
+                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                    <AnalyticsPage />
                   </RoleGuard>
                 }
               />
