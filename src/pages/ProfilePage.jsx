@@ -13,6 +13,7 @@ import {
   Avatar,
   Badge,
 } from '../components/common';
+import GpaWhatIf from '../components/gpa/GpaWhatIf';
 import { getFullName, getRoleColor, formatDate } from '../utils/helpers';
 
 const ProfilePage = () => {
@@ -395,6 +396,10 @@ const ProfilePage = () => {
                   {profile.profile.gpa?.toFixed(2) || '0.00'}
                 </p>
                 <p className="text-xs text-gray-500">out of 4.00</p>
+              </div>
+              {/* GPA What-If Calculator */}
+              <div className="mt-4">
+                <GpaWhatIf currentGpaFromProfile={profile.profile.gpa} />
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Academic Standing</p>
