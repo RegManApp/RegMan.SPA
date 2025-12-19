@@ -155,6 +155,9 @@ function App() {
 
               {/* Profile - All authenticated users */}
               <Route path="/profile" element={<ProfilePage />} />
+              
+              {/* Settings - Redirect to Profile */}
+              <Route path="/settings" element={<Navigate to="/profile" replace />} />
             </Route>
 
             {/* 404 */}

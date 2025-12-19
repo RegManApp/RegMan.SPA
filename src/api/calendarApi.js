@@ -2,30 +2,33 @@ import axiosInstance from "./axiosInstance";
 
 // Helper to format time from ISO string
 const formatTime = (isoString) => {
-  if (!isoString) return '';
+  if (!isoString) return "";
   const date = new Date(isoString);
-  return date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: true 
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
   });
 };
 
 // Helper to transform backend events to frontend format
 const transformEvents = (backendEvents) => {
   if (!Array.isArray(backendEvents)) return [];
-  
-  return backendEvents.map(event => ({
+
+  return backendEvents.map((event) => ({
     ...event,
     // Add date property from start for calendar grid matching
-    date: event.start ? new Date(event.start).toISOString().split('T')[0] : null,
+    date: event.start
+      ? new Date(event.start).toISOString().split("T")[0]
+      : null,
     // Format times for display
     startTime: formatTime(event.start),
     endTime: formatTime(event.end),
     // Map backend properties to frontend expected properties
     location: event.extendedProps?.room || null,
     instructorName: event.extendedProps?.instructorName || null,
-    description: event.extendedProps?.purpose || event.extendedProps?.courseCode || null,
+    description:
+      event.extendedProps?.purpose || event.extendedProps?.courseCode || null,
   }));
 };
 
