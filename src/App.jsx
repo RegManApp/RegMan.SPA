@@ -23,6 +23,7 @@ import {
   OfficeHoursPage,
   BookOfficeHourPage,
   CalendarPage,
+  GpaPage,
 } from './pages';
 import { ROLES } from './utils/constants';
 
@@ -159,6 +160,17 @@ function App() {
               {/* Chat - All authenticated users */}
               <Route path="/chat" element={<ChatPage />} />
               
+              {/* GPA - Students view their own, Admin can view any student */}
+              <Route path="/gpa" element={<GpaPage />} />
+              <Route
+                path="/students/:studentId/gpa"
+                element={
+                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                    <GpaPage />
+                  </RoleGuard>
+                }
+              />
+
               {/* Settings - Redirect to Profile */}
               <Route path="/settings" element={<Navigate to="/profile" replace />} />
             </Route>

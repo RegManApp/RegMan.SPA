@@ -77,6 +77,11 @@ const StudentDetails = ({ student, onEdit, onBack }) => {
             <Button variant="outline" onClick={onBack}>
               Back
             </Button>
+            <Link to={`/students/${student.id || student.studentProfile?.id}/gpa`}>
+              <Button variant="outline">
+                View GPA Details
+              </Button>
+            </Link>
             <Button onClick={() => onEdit?.(student)}>
               Edit Student
             </Button>

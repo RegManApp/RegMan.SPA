@@ -2,7 +2,7 @@ import axiosInstance from "./axiosInstance";
 
 export const enrollmentApi = {
   // Get all enrollments with pagination and filtering (Admin)
-  // Query: studentId?, courseId?, status?, semester?, pageNumber=1, pageSize=10
+  // Query: search?, status?, page=1, pageSize=10
   getAll: (params = {}) => {
     return axiosInstance.get("/admin/enrollments", { params });
   },
@@ -20,11 +20,6 @@ export const enrollmentApi = {
   // Get enrollments by student ID (Admin)
   getByStudent: (studentId) => {
     return axiosInstance.get(`/admin/students/${studentId}/enrollments`);
-  },
-
-  // Get enrollments by course ID
-  getByCourse: (courseId) => {
-    return axiosInstance.get(`/course/${courseId}/enrollments`);
   },
 
   // Enroll in a course (Student) - through cart
@@ -48,7 +43,7 @@ export const enrollmentApi = {
   },
 
   // Create new enrollment (Admin force enroll)
-  // Request: { studentId, sectionId }
+  // Request: { sectionId }
   create: (studentId, sectionId) => {
     return axiosInstance.post(`/admin/students/${studentId}/force-enroll`, {
       sectionId,
@@ -56,12 +51,9 @@ export const enrollmentApi = {
   },
 
   // Update enrollment (grade, status)
-  // Request: { id, grade?, status? }
+  // Request: { grade?, status?, declineReason? }
   update: (id, enrollmentData) => {
-    return axiosInstance.put(`/enrollment/${id}`, {
-      id: Number(id),
-      ...enrollmentData,
-    });
+    return axiosInstance.put(`/enrollment/${id}`, enrollmentData);
   },
 
   // Delete enrollment (Admin only)
@@ -72,6 +64,16 @@ export const enrollmentApi = {
   // Drop enrollment (Student or Admin)
   drop: (id) => {
     return axiosInstance.post(`/enrollment/${id}/drop`);
+  },
+
+  // Approve enrollment (Admin only)
+  approve: (id) => {
+    return axiosInstance.post(`/enrollment/${id}/approve`);
+  },
+
+  // Decline enrollment (Admin only)
+  decline: (id, reason = null) => {
+    return axiosInstance.post(`/enrollment/${id}/decline`, { reason });
   },
 };
 

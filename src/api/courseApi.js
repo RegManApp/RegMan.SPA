@@ -17,31 +17,24 @@ export const courseApi = {
     return axiosInstance.get(`/course/${id}`);
   },
 
-  // Get course summary
-  getSummary: (id) => {
-    return axiosInstance.get(`/course/${id}/summary`);
-  },
-
   // Create new course (Admin only)
-  // Request: { courseName, courseCode, creditHours, courseCategoryId, description? }
+  // Request: { courseName, courseCode, creditHours, courseCategory (enum string or int), description? }
   create: (courseData) => {
     return axiosInstance.post("/course", courseData);
   },
 
   // Update course (Admin only)
-  // Request: { courseId, courseName?, courseCode?, creditHours?, courseCategoryId?, description? }
+  // Request: { courseId, courseName?, courseCode?, creditHours?, courseCategory?, description? }
   update: (id, courseData) => {
-    return axiosInstance.put("/course", { courseId: Number(id), ...courseData });
+    return axiosInstance.put("/course", {
+      courseId: Number(id),
+      ...courseData,
+    });
   },
 
   // Delete course (Admin only)
   delete: (id) => {
     return axiosInstance.delete(`/course/${id}`);
-  },
-
-  // Get enrolled students for a course
-  getEnrolledStudents: (courseId) => {
-    return axiosInstance.get(`/course/${courseId}/students`);
   },
 };
 

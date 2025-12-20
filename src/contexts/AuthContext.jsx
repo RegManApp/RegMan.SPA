@@ -239,7 +239,18 @@ export const AuthProvider = ({ children }) => {
   const register = useCallback(async (userData) => {
     dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
     try {
-      await authApi.register(userData);
+      // Transform userData to match backend DTO
+      // Backend expects: { fullName, email, address, role, password }
+      // Frontend sends: { firstName, lastName, email, password, confirmPassword, role }
+      const transformedData = {
+        fullName: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
+        email: userData.email,
+        address: userData.address || 'N/A',
+        role: 'Student', // Always Student for public registration
+        password: userData.password,
+      };
+      
+      await authApi.register(transformedData);
       toast.success('Registration successful! Please login.');
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
       return true;

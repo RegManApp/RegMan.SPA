@@ -1,8 +1,7 @@
 import axiosInstance from "./axiosInstance";
 
 export const instructorApi = {
-  // Get all instructors with pagination and filtering
-  // Query: firstName?, lastName?, email?, departmentId?, pageNumber=1, pageSize=10
+  // Get all instructors
   getAll: (params = {}) => {
     return axiosInstance.get("/instructor", { params });
   },
@@ -17,22 +16,34 @@ export const instructorApi = {
     return axiosInstance.get(`/instructor/${id}/schedule`);
   },
 
+  // Get my schedule (for logged-in instructor)
+  getMySchedule: () => {
+    return axiosInstance.get("/instructor/my-schedule");
+  },
+
   // Create new instructor (Admin only)
-  // Request: { email, password, firstName, lastName, title }
+  // Request: { email, password, fullName, title, degree?, department? }
   create: (instructorData) => {
     const { firstName, lastName, ...rest } = instructorData;
     return axiosInstance.post("/instructor", {
       ...rest,
-      fullName: `${firstName} ${lastName}`.trim(),
+      fullName:
+        firstName && lastName
+          ? `${firstName} ${lastName}`.trim()
+          : rest.fullName,
     });
   },
 
   // Update instructor (Admin only)
-  // Request: { id, firstName?, lastName?, phoneNumber?, dateOfBirth?, address?, city?, hireDate?, departmentId? }
+  // Request: { fullName?, email?, title?, degree?, department?, address? }
   update: (id, instructorData) => {
+    const { firstName, lastName, ...rest } = instructorData;
     return axiosInstance.put(`/instructor/${id}`, {
-      id: Number(id),
-      ...instructorData,
+      ...rest,
+      fullName:
+        firstName && lastName
+          ? `${firstName} ${lastName}`.trim()
+          : rest.fullName,
     });
   },
 

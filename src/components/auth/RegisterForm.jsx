@@ -84,15 +84,8 @@ const RegisterForm = ({ onSubmit, isLoading }) => {
         {...register('confirmPassword')}
       />
 
-      <Select
-        label="Role"
-        error={errors.role?.message}
-        options={[
-          { value: 'Student', label: 'Student' },
-          { value: 'Admin', label: 'Admin' },
-        ]}
-        {...register('role')}
-      />
+      {/* Role is always Student for public registration - hidden from form */}
+      <input type="hidden" value="Student" {...register('role')} />
 
       <div className="text-xs text-gray-500 dark:text-gray-400">
         Password must contain:
