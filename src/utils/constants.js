@@ -44,12 +44,13 @@ export const STUDENT_LEVELS = [
   { value: 3, label: "Senior" },
 ];
 
-// Enrollment status
+// Enrollment status - must match backend enum: Pending, Enrolled, Dropped, Completed, Declined
 export const ENROLLMENT_STATUSES = [
-  { value: 0, label: "Enrolled" },
-  { value: 1, label: "Completed" },
+  { value: 0, label: "Pending" },
+  { value: 1, label: "Enrolled" },
   { value: 2, label: "Dropped" },
-  { value: 3, label: "Failed" },
+  { value: 3, label: "Completed" },
+  { value: 4, label: "Declined" },
 ];
 
 // Days of week
@@ -141,6 +142,14 @@ export const getStudentLevelLabel = (value) => {
 };
 
 export const getEnrollmentStatusLabel = (value) => {
+  // Handle string values (returned by admin enrollments endpoint)
+  if (typeof value === "string") {
+    const status = ENROLLMENT_STATUSES.find(
+      (s) => s.label.toLowerCase() === value.toLowerCase()
+    );
+    return status?.label || value; // Return the original string if not found
+  }
+  // Handle numeric values
   const status = ENROLLMENT_STATUSES.find((s) => s.value === value);
   return status?.label || "Unknown";
 };

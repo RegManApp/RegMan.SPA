@@ -3,17 +3,16 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { enrollmentApi } from '../api/enrollmentApi';
 import { studentApi } from '../api/studentApi';
-import { courseApi } from '../api/courseApi';
+import { sectionApi } from '../api/sectionApi';
 import { EnrollmentList, EnrollmentForm } from '../components/enrollments';
 import { PageLoading, Breadcrumb } from '../components/common';
-import { normalizeCourses } from '../utils/helpers';
 
 const EnrollmentsPage = () => {
   const { isAdmin } = useAuth();
 
   const [enrollments, setEnrollments] = useState([]);
   const [students, setStudents] = useState([]);
-  const [courses, setCourses] = useState([]);
+  const [sections, setSections] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -57,12 +56,14 @@ const EnrollmentsPage = () => {
   const loadFormData = useCallback(async () => {
     if (isAdmin()) {
       try {
-        const [studentsRes, coursesRes] = await Promise.all([
+        const [studentsRes, sectionsRes] = await Promise.all([
           studentApi.getAll({ pageSize: 100 }),
-          courseApi.getAll({ pageSize: 100 }),
+          sectionApi.getAll(),
         ]);
         setStudents(studentsRes.data?.items || studentsRes.data || []);
-        setCourses(normalizeCourses(coursesRes.data?.items || coursesRes.data || []));
+        // Normalize sections data
+        const sectionData = sectionsRes.data?.items || sectionsRes.data || [];
+        setSections(Array.isArray(sectionData) ? sectionData : []);
       } catch (error) {
         console.error('Failed to load form data:', error);
       }
@@ -105,10 +106,12 @@ const EnrollmentsPage = () => {
   const handleFormSubmit = async (data) => {
     setIsFormLoading(true);
     try {
-      if (formEnrollment?.id) {
-        await enrollmentApi.update(formEnrollment.id, data);
+      const enrollmentId = formEnrollment?.enrollmentId || formEnrollment?.id;
+      if (enrollmentId) {
+        await enrollmentApi.update(enrollmentId, data);
         toast.success('Enrollment updated successfully');
       } else {
+        // data contains { studentUserId, sectionId } for create
         await enrollmentApi.create(data);
         toast.success('Enrollment created successfully');
       }
@@ -166,7 +169,7 @@ const EnrollmentsPage = () => {
         onSubmit={handleFormSubmit}
         enrollment={formEnrollment}
         students={students}
-        courses={courses}
+        sections={sections}
         isLoading={isFormLoading}
       />
     </div>

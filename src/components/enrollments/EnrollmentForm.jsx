@@ -12,10 +12,10 @@ const EnrollmentForm = ({
   onSubmit,
   enrollment,
   students = [],
-  courses = [],
+  sections = [],
   isLoading,
 }) => {
-  const isEditing = !!enrollment?.id;
+  const isEditing = !!enrollment?.enrollmentId || !!enrollment?.id;
 
   const {
     register,
@@ -26,25 +26,23 @@ const EnrollmentForm = ({
   } = useForm({
     resolver: yupResolver(isEditing ? updateEnrollmentSchema : createEnrollmentSchema),
     defaultValues: {
-      studentId: '',
-      courseId: '',
-      semester: '',
+      studentUserId: '',
+      sectionId: '',
       status: 0,
       grade: '',
     },
   });
 
   useEffect(() => {
-    if (enrollment?.id) {
+    if (enrollment?.enrollmentId || enrollment?.id) {
       reset({
         status: enrollment.status ?? 0,
         grade: enrollment.grade || '',
       });
     } else {
       reset({
-        studentId: '',
-        courseId: '',
-        semester: '',
+        studentUserId: '',
+        sectionId: '',
         status: 0,
         grade: '',
       });
@@ -58,25 +56,22 @@ const EnrollmentForm = ({
         status: Number(data.status),
       });
     } else {
+      // Send studentUserId (string) and sectionId (number) for force-enroll
       onSubmit({
-        studentId: Number(data.studentId),
-        courseId: Number(data.courseId),
-        semester: data.semester,
+        studentUserId: data.studentUserId,
+        sectionId: Number(data.sectionId),
       });
     }
   };
 
-  // const studentOptions = students.map((student) => ({
-  //   value: student.id,
-  //   label: `${getFullName(student.user?.firstName, student.user?.lastName)} (${student.studentNumber})`,
-  // }));
+  // Student options using User.Id (string) as value
   const studentOptions = students.map((student) => {
-    // Prefer fullName, fallback to user.fullName, fallback to Unknown
     const name = student.fullName || student.user?.fullName || 'Unknown';
+    const studentNumber = student.studentProfile?.studentId || student.studentId || '';
     return {
-      value: student.id,
-      label: `${student.studentNumber || ''} - ${name}`.trim(),
-      search: `${student.studentNumber || ''} ${name}`.toLowerCase(),
+      value: student.id, // User.Id (string GUID)
+      label: `${studentNumber ? `#${studentNumber} - ` : ''}${name}`.trim(),
+      search: `${studentNumber} ${name}`.toLowerCase(),
     };
   });
 
@@ -85,19 +80,25 @@ const EnrollmentForm = ({
     return option.data.search.includes(input.toLowerCase());
   };
 
-  const courseOptions = courses.map((course) => ({
-    value: course.id,
-    label: `${course.courseCode} - ${course.courseName}`,
-  }));
+  // Section options - show course name + section info
+  // Backend returns sections with CourseSummary nested object
+  const sectionOptions = sections.map((section) => {
+    const courseName = section.courseSummary?.courseName || section.courseName || section.course?.courseName || '';
+    const courseCode = section.courseSummary?.courseCode || section.courseCode || '';
+    const sectionId = section.sectionId || section.id;
+    const sectionName = section.sectionName || `Section ${sectionId}`;
+    const semester = section.semester || '';
+    const seats = section.availableSeats ?? 0;
+    
+    return {
+      value: sectionId,
+      label: `${courseCode ? `${courseCode} - ` : ''}${courseName} - ${sectionName} (${semester}) [${seats} seats]`,
+    };
+  });
 
   const statusOptions = ENROLLMENT_STATUSES.map((status) => ({
     value: status.value,
     label: status.label,
-  }));
-
-  const semesterOptions = SEMESTERS.map((sem) => ({
-    value: sem,
-    label: sem,
   }));
 
   const gradeOptions = [
@@ -124,23 +125,16 @@ const EnrollmentForm = ({
               label="Student"
               placeholder="Select a student (search by ID or name)"
               options={studentOptions}
-              error={errors.studentId?.message}
+              error={errors.studentUserId?.message}
               filterOption={filterStudentOption}
-              {...register('studentId')}
+              {...register('studentUserId')}
             />
             <Select
-              label="Course"
-              placeholder="Select a course"
-              options={courseOptions}
-              error={errors.courseId?.message}
-              {...register('courseId')}
-            />
-            <Select
-              label="Semester"
-              placeholder="Select a semester"
-              options={semesterOptions}
-              error={errors.semester?.message}
-              {...register('semester')}
+              label="Section"
+              placeholder="Select a section to enroll in"
+              options={sectionOptions}
+              error={errors.sectionId?.message}
+              {...register('sectionId')}
             />
           </>
         )}

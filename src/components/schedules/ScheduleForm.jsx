@@ -110,10 +110,16 @@ const ScheduleForm = ({
 
   const sectionOptions = [
     { value: '', label: 'Select Section' },
-    ...sections.map((section) => ({
-      value: (section.sectionId || section.id)?.toString() || '',
-      label: `${section.sectionName || 'Section'} - ${section.courseName || section.course?.courseName || ''} (${section.semester || ''})`,
-    })),
+    ...sections.map((section) => {
+      const sectionId = section.sectionId || section.id;
+      const courseName = section.courseSummary?.courseName || section.courseName || section.course?.courseName || 'Unknown Course';
+      const courseCode = section.courseSummary?.courseCode || section.courseCode || '';
+      const sectionName = section.sectionName || `Section ${sectionId}`;
+      return {
+        value: sectionId?.toString() || '',
+        label: `${courseCode ? courseCode + ' - ' : ''}${courseName} - ${sectionName} (${section.semester || ''})`,
+      };
+    }),
   ];
 
   const roomOptions = [

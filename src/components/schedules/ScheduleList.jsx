@@ -19,7 +19,7 @@ const ScheduleList = ({
 
   const handleDelete = () => {
     if (deleteModal.schedule) {
-      const id = deleteModal.schedule.ScheduleSlotId ?? deleteModal.schedule.id;
+      const id = deleteModal.schedule.scheduleSlotId ?? deleteModal.schedule.ScheduleSlotId ?? deleteModal.schedule.id;
       onDelete?.(id);
       setDeleteModal({ isOpen: false, schedule: null });
     }
@@ -55,21 +55,22 @@ const ScheduleList = ({
       header: 'Course',
       render: (_, schedule) => (
         <div>
-          <p className="font-medium text-gray-900 dark:text-white">{schedule.courseName || schedule.SectionName || ''}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{schedule.courseCode || ''}</p>
+          <p className="font-medium text-gray-900 dark:text-white">{schedule.sectionName || schedule.SectionName || schedule.courseName || ''}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{schedule.slotType || schedule.SlotType || ''}</p>
         </div>
       ),
     },
     {
       key: 'instructorName',
       header: 'Instructor',
+      render: (_, schedule) => schedule.instructorName || schedule.InstructorName || '',
     },
     {
       key: 'dayOfWeek',
       header: 'Day',
       render: (_, schedule) => {
-        // Backend may return a TimeSlot string like "Monday 09:00-10:00"
-        const timeSlotStr = schedule.TimeSlot || schedule.timeSlot || '';
+        // Backend returns TimeSlot string like "Monday 09:00-10:00"
+        const timeSlotStr = schedule.timeSlot || schedule.TimeSlot || '';
         const dayLabel = timeSlotStr.split(' ')[0] || (schedule.dayOfWeek !== undefined ? getDayOfWeekLabel(schedule.dayOfWeek) : '');
         return (
           <Badge className={getDayColor(schedule.dayOfWeek ?? dayLabel)}>
@@ -82,9 +83,10 @@ const ScheduleList = ({
       key: 'time',
       header: 'Time',
       render: (_, schedule) => {
-        if (schedule.TimeSlot) {
-          // TimeSlot often contains both day and time
-          return schedule.TimeSlot.split(' ').slice(1).join(' ') || schedule.TimeSlot;
+        const timeSlotStr = schedule.timeSlot || schedule.TimeSlot || '';
+        if (timeSlotStr) {
+          // TimeSlot often contains both day and time like "Monday 09:00-10:00"
+          return timeSlotStr.split(' ').slice(1).join(' ') || timeSlotStr;
         }
         return `${schedule.startTime || ''}${schedule.startTime && schedule.endTime ? ' - ' : ''}${schedule.endTime || ''}`;
       },
@@ -92,7 +94,7 @@ const ScheduleList = ({
     {
       key: 'roomNumber',
       header: 'Room',
-      render: (_, schedule) => schedule.roomNumber || schedule.Room || '',
+      render: (_, schedule) => schedule.room || schedule.Room || schedule.roomNumber || '',
     },
     {
       key: 'semester',

@@ -123,21 +123,25 @@ export const calculateGPA = (enrollments) => {
 
 /**
  * Get status badge color classes
+ * Backend enum: Pending=0, Enrolled=1, Dropped=2, Completed=3, Declined=4
  */
 export const getStatusColor = (status) => {
   const colors = {
     // Enrollment status (numeric values)
-    0: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400", // Enrolled
-    1: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400", // Completed
+    0: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400", // Pending
+    1: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400", // Enrolled
     2: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400", // Dropped
-    3: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400", // Failed
+    3: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400", // Completed
+    4: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400", // Declined
     // Enrollment status (string values)
+    Pending:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
     Enrolled:
       "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    Dropped: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
     Completed:
       "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-    Dropped: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    Failed:
+    Declined:
       "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
   };
   return (
@@ -250,12 +254,22 @@ export const normalizeCourse = (course) => {
   if (!course) return null;
   return {
     id: course.id ?? course.Id ?? course.courseId ?? course.CourseId,
-    courseName: course.courseName ?? course.CourseName ?? course.name ?? course.Name,
-    courseCode: course.courseCode ?? course.CourseCode ?? course.code ?? course.Code,
+    courseName:
+      course.courseName ?? course.CourseName ?? course.name ?? course.Name,
+    courseCode:
+      course.courseCode ?? course.CourseCode ?? course.code ?? course.Code,
     creditHours: course.creditHours ?? course.CreditHours,
     description: course.description ?? course.Description,
-    categoryName: course.categoryName ?? course.CategoryName ?? course.category?.name ?? course.Category?.Name,
-    courseCategoryId: course.courseCategoryId ?? course.CourseCategoryId ?? course.categoryId ?? course.CategoryId,
+    categoryName:
+      course.categoryName ??
+      course.CategoryName ??
+      course.category?.name ??
+      course.Category?.Name,
+    courseCategoryId:
+      course.courseCategoryId ??
+      course.CourseCategoryId ??
+      course.categoryId ??
+      course.CategoryId,
     enrollmentCount: course.enrollmentCount ?? course.EnrollmentCount ?? 0,
     ...course, // Keep any additional properties
   };
@@ -275,8 +289,13 @@ export const normalizeCourses = (courses) => {
 export const normalizeCategory = (category) => {
   if (!category) return null;
   return {
-    id: category.id ?? category.Id ?? category.categoryId ?? category.CategoryId,
-    name: category.name ?? category.Name ?? category.categoryName ?? category.CategoryName,
+    id:
+      category.id ?? category.Id ?? category.categoryId ?? category.CategoryId,
+    name:
+      category.name ??
+      category.Name ??
+      category.categoryName ??
+      category.CategoryName,
     description: category.description ?? category.Description,
     ...category,
   };

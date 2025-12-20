@@ -22,10 +22,26 @@ export const enrollmentApi = {
   // Force enroll student in a section (Admin)
   // Route: POST /admin/students/{studentUserId}/force-enroll
   // Request: { sectionId }
-  create: (studentUserId, sectionId) => {
-    return axiosInstance.post(`/admin/students/${studentUserId}/force-enroll`, {
-      sectionId,
-    });
+  // Can be called with either:
+  //   create(studentUserId, sectionId) OR
+  //   create({ studentUserId, sectionId })
+  create: (studentUserIdOrData, sectionId) => {
+    // Support both calling conventions
+    if (typeof studentUserIdOrData === "object") {
+      const { studentUserId, sectionId: secId } = studentUserIdOrData;
+      return axiosInstance.post(
+        `/admin/students/${studentUserId}/force-enroll`,
+        {
+          sectionId: secId,
+        }
+      );
+    }
+    return axiosInstance.post(
+      `/admin/students/${studentUserIdOrData}/force-enroll`,
+      {
+        sectionId,
+      }
+    );
   },
 
   // =========================
@@ -43,6 +59,15 @@ export const enrollmentApi = {
   // Request: { grade?, status?, declineReason? }
   update: (id, enrollmentData) => {
     return axiosInstance.put(`/enrollment/${id}`, enrollmentData);
+  },
+
+  // Update grade for an enrollment
+  // Route: PUT /gpa/enrollment/{enrollmentId}/grade
+  // Request: { grade }
+  updateGrade: (enrollmentId, grade) => {
+    return axiosInstance.put(`/gpa/enrollment/${enrollmentId}/grade`, {
+      grade,
+    });
   },
 
   // Delete enrollment (Admin only)

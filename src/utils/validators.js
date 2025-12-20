@@ -259,9 +259,8 @@ export const updateInstructorSchema = yup.object({
  * Enrollment creation validation schema
  */
 export const createEnrollmentSchema = yup.object({
-  studentId: yup.number().required("Student is required"),
-  courseId: yup.number().required("Course is required"),
-  semester: yup.string().required("Semester is required"),
+  studentUserId: yup.string().required("Student is required"),
+  sectionId: yup.number().required("Section is required"),
 });
 
 /**

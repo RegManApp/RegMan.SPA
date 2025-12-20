@@ -36,61 +36,83 @@ const EnrollmentList = ({
 }) => {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, enrollment: null });
 
+  // Helper to get enrollment ID (backend returns enrollmentId, normalize to id)
+  const getEnrollmentId = (enrollment) => enrollment.enrollmentId || enrollment.id;
+
+  // Helper to check enrollment status (handles both number and string from backend)
+  // Backend enum: Pending=0, Enrolled=1, Dropped=2, Completed=3, Declined=4
+  const isStatusEnrolled = (status) => status === 1 || status === 'Enrolled';
+  const isStatusPending = (status) => status === 0 || status === 'Pending';
+  const isStatusCompleted = (status) => status === 3 || status === 'Completed';
+
   const columns = [
     {
       key: 'student',
       header: 'Student',
-      render: (_, enrollment) => (
-        <div>
-          <p className="font-medium text-gray-900 dark:text-white">
-            {getFullName(
-              enrollment.student?.user?.firstName,
-              enrollment.student?.user?.lastName
-            )}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {enrollment.student?.studentNumber}
-          </p>
-        </div>
-      ),
+      render: (_, enrollment) => {
+        // Handle both admin view (nested student object) and direct fields
+        const studentName = enrollment.student?.fullName || 
+                           getFullName(enrollment.student?.user?.firstName, enrollment.student?.user?.lastName) ||
+                           enrollment.studentName || '-';
+        const studentEmail = enrollment.student?.email || enrollment.studentEmail || '';
+        return (
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white">
+              {studentName}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {studentEmail}
+            </p>
+          </div>
+        );
+      },
     },
     {
       key: 'course',
       header: 'Course',
-      render: (_, enrollment) => (
-        <div>
-          <Link
-            to={`/courses/${enrollment.courseId}`}
-            className="font-medium text-primary-600 hover:text-primary-500"
-          >
-            {enrollment.course?.courseName}
-          </Link>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {enrollment.course?.courseCode}
-          </p>
-        </div>
-      ),
+      render: (_, enrollment) => {
+        // Handle both nested and flat structure
+        const courseId = enrollment.courseId || enrollment.section?.course?.courseId;
+        const courseName = enrollment.courseName || enrollment.section?.course?.name || enrollment.course?.courseName || '-';
+        const courseCode = enrollment.courseCode || enrollment.section?.course?.code || enrollment.course?.courseCode || '';
+        return (
+          <div>
+            <Link
+              to={courseId ? `/courses/${courseId}` : '#'}
+              className="font-medium text-primary-600 hover:text-primary-500"
+            >
+              {courseName}
+            </Link>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {courseCode}
+            </p>
+          </div>
+        );
+      },
     },
     {
       key: 'semester',
       header: 'Semester',
-      render: (value) => value || '-',
+      render: (_, enrollment) => enrollment.semester || enrollment.section?.semester || '-',
     },
     {
       key: 'enrollmentDate',
       header: 'Enrolled On',
       sortable: true,
-      render: (value) => formatDate(value),
+      render: (_, enrollment) => formatDate(enrollment.enrollmentDate || enrollment.enrolledAt),
     },
     {
       key: 'grade',
       header: 'Grade',
-      render: (value, enrollment) => {
-        if (isAdmin && enrollment.status === 0) { // Enrolled status
+      render: (_, enrollment) => {
+        const value = enrollment.grade;
+        // Only allow grade updates for Enrolled students
+        const canUpdateGrade = isAdmin && isStatusEnrolled(enrollment.status);
+        if (canUpdateGrade) {
           return (
             <select
               value={value || ''}
-              onChange={(e) => onUpdateGrade?.(enrollment.id, e.target.value)}
+              onChange={(e) => onUpdateGrade?.(getEnrollmentId(enrollment), e.target.value)}
               className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800"
             >
               <option value="">-</option>
@@ -109,53 +131,61 @@ const EnrollmentList = ({
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (value) => (
-        <Badge className={getStatusColor(value)}>{getEnrollmentStatusLabel(value)}</Badge>
-      ),
+      render: (_, enrollment) => {
+        const status = enrollment.status;
+        return (
+          <Badge className={getStatusColor(status)}>{getEnrollmentStatusLabel(status)}</Badge>
+        );
+      },
     },
     {
       key: 'actions',
       header: 'Actions',
-      render: (_, enrollment) => (
-        <div className="flex items-center gap-2">
-          {isAdmin && (
-            <>
+      render: (_, enrollment) => {
+        const enrollmentId = getEnrollmentId(enrollment);
+        const isEnrolled = isStatusEnrolled(enrollment.status);
+        const isPending = isStatusPending(enrollment.status);
+        return (
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={PencilIcon}
+                  onClick={() => onEdit?.({ ...enrollment, id: enrollmentId, enrollmentId })}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={TrashIcon}
+                  className="text-red-600 hover:text-red-700"
+                  onClick={() => setDeleteModal({ isOpen: true, enrollment: { ...enrollment, id: enrollmentId } })}
+                >
+                  Drop
+                </Button>
+              </>
+            )}
+            {!isAdmin && (isEnrolled || isPending) && (
               <Button
-                variant="ghost"
+                variant="danger"
                 size="sm"
-                icon={PencilIcon}
-                onClick={() => onEdit?.(enrollment)}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={TrashIcon}
-                className="text-red-600 hover:text-red-700"
-                onClick={() => setDeleteModal({ isOpen: true, enrollment })}
+                onClick={() => setDeleteModal({ isOpen: true, enrollment: { ...enrollment, id: enrollmentId } })}
               >
                 Drop
               </Button>
-            </>
-          )}
-          {!isAdmin && enrollment.status === 0 && ( // Enrolled status
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setDeleteModal({ isOpen: true, enrollment })}
-            >
-              Drop
-            </Button>
-          )}
-        </div>
-      ),
+            )}
+          </div>
+        );
+      },
     },
   ];
 
   const handleConfirmDelete = async () => {
     if (deleteModal.enrollment) {
-      await onDelete?.(deleteModal.enrollment.id);
+      await onDelete?.(deleteModal.enrollment.id || deleteModal.enrollment.enrollmentId);
       setDeleteModal({ isOpen: false, enrollment: null });
     }
   };
