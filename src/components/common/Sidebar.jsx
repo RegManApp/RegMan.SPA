@@ -36,6 +36,7 @@ const iconMap = {
 
 const adminNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+  { name: 'GPA What-If', href: '/profile#gpa-whatif', icon: 'AcademicCapIcon' },
   { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
   { name: 'Analytics', href: '/analytics', icon: 'ChartBarIcon' },
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
@@ -50,6 +51,7 @@ const adminNavigation = [
 
 const instructorNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+  { name: 'GPA What-If', href: '/profile#gpa-whatif', icon: 'AcademicCapIcon' },
   { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
   { name: 'Office Hours', href: '/office-hours', icon: 'ClockIcon' },
@@ -61,6 +63,7 @@ const instructorNavigation = [
 
 const studentNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+  { name: 'GPA What-If', href: '/profile#gpa-whatif', icon: 'AcademicCapIcon' },
   { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
   { name: 'Book Office Hours', href: '/book-office-hours', icon: 'ClockIcon' },

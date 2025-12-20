@@ -398,7 +398,7 @@ const ProfilePage = () => {
                 <p className="text-xs text-gray-500">out of 4.00</p>
               </div>
               {/* GPA What-If Calculator */}
-              <div className="mt-4">
+              <div id="gpa-whatif" className="mt-4">
                 <GpaWhatIf currentGpaFromProfile={profile.profile.gpa} />
               </div>
               <div>
