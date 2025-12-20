@@ -14,3 +14,6 @@ export { default as gpaApi } from "./gpaApi";
 export { notificationApi } from "./notificationApi";
 export { officeHourApi } from "./officeHourApi";
 export { chatApi } from "./chatApi";
+export { sectionApi } from "./sectionApi";
+export { roomApi } from "./roomApi";
+export { timeSlotApi } from "./timeSlotApi";

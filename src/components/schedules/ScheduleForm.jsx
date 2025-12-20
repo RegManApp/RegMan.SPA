@@ -1,20 +1,26 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { Modal, Input, Select, Button } from '../common';
-import { scheduleSchema } from '../../utils/validators';
-import { DAYS_OF_WEEK, SEMESTERS } from '../../utils/constants';
+import { Modal, Select, Button } from '../common';
+
+// SlotType enum matching backend
+const SLOT_TYPES = [
+  { value: '0', label: 'Lecture' },
+  { value: '1', label: 'Lab' },
+  { value: '2', label: 'Tutorial' },
+];
 
 const ScheduleForm = ({
   isOpen,
   onClose,
   onSubmit,
   schedule = null,
-  courses = [],
+  sections = [],
+  rooms = [],
+  timeSlots = [],
   instructors = [],
   isLoading = false,
 }) => {
-  const isEditing = Boolean(schedule?.id);
+  const isEditing = Boolean(schedule?.scheduleSlotId || schedule?.id);
 
   const {
     register,
@@ -22,81 +28,115 @@ const ScheduleForm = ({
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(scheduleSchema),
     defaultValues: {
-      courseId: '',
+      sectionId: '',
+      roomId: '',
+      timeSlotId: '',
       instructorId: '',
-      dayOfWeek: '',
-      startTime: '',
-      endTime: '',
-      roomNumber: '',
-      semester: '',
+      slotType: '0',
     },
   });
 
   useEffect(() => {
-    if (schedule) {
+    if (schedule && (schedule.scheduleSlotId || schedule.id)) {
       reset({
-        courseId: schedule.courseId || '',
-        instructorId: schedule.instructorId || '',
-        dayOfWeek: schedule.dayOfWeek?.toString() || '',
-        startTime: schedule.startTime || '',
-        endTime: schedule.endTime || '',
-        roomNumber: schedule.roomNumber || '',
-        semester: schedule.semester || '',
+        sectionId: (schedule.sectionId || '')?.toString(),
+        roomId: (schedule.roomId || '')?.toString(),
+        timeSlotId: (schedule.timeSlotId || '')?.toString(),
+        instructorId: (schedule.instructorId || '')?.toString(),
+        slotType: (schedule.slotType ?? 0)?.toString(),
       });
     } else {
       reset({
-        courseId: '',
+        sectionId: '',
+        roomId: '',
+        timeSlotId: '',
         instructorId: '',
-        dayOfWeek: '',
-        startTime: '',
-        endTime: '',
-        roomNumber: '',
-        semester: SEMESTERS[0] || '',
+        slotType: '0',
       });
     }
   }, [schedule, reset]);
 
   const handleFormSubmit = (data) => {
+    const sectionIdNum = Number(data.sectionId);
+    const roomIdNum = Number(data.roomId);
+    const timeSlotIdNum = Number(data.timeSlotId);
+    const instructorIdNum = Number(data.instructorId);
+    const slotTypeNum = Number(data.slotType);
+
+    // Validate all required fields
+    if (isNaN(sectionIdNum) || sectionIdNum <= 0) {
+      return;
+    }
+    if (isNaN(roomIdNum) || roomIdNum <= 0) {
+      return;
+    }
+    if (isNaN(timeSlotIdNum) || timeSlotIdNum <= 0) {
+      return;
+    }
+    if (isNaN(instructorIdNum) || instructorIdNum <= 0) {
+      return;
+    }
+
     const submitData = {
-      ...data,
-      courseId: Number(data.courseId),
-      instructorId: Number(data.instructorId),
-      dayOfWeek: Number(data.dayOfWeek),
+      sectionId: sectionIdNum,
+      roomId: roomIdNum,
+      timeSlotId: timeSlotIdNum,
+      instructorId: instructorIdNum,
+      slotType: slotTypeNum,
     };
     onSubmit(submitData);
   };
 
-  const courseOptions = [
-    { value: '', label: 'Select Course' },
-    ...courses.map((course) => ({
-      value: course.id,
-      label: `${course.courseCode} - ${course.courseName}`,
+  // Helper to format day name
+  const getDayName = (dayNum) => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[dayNum] || 'Unknown';
+  };
+
+  // Helper to format time
+  const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    const parts = timeStr.split(':');
+    if (parts.length >= 2) {
+      const hours = parseInt(parts[0], 10);
+      const minutes = parts[1];
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      return `${displayHours}:${minutes} ${period}`;
+    }
+    return timeStr;
+  };
+
+  const sectionOptions = [
+    { value: '', label: 'Select Section' },
+    ...sections.map((section) => ({
+      value: (section.sectionId || section.id)?.toString() || '',
+      label: `${section.sectionName || 'Section'} - ${section.courseName || section.course?.courseName || ''} (${section.semester || ''})`,
+    })),
+  ];
+
+  const roomOptions = [
+    { value: '', label: 'Select Room' },
+    ...rooms.map((room) => ({
+      value: (room.roomId || room.id)?.toString() || '',
+      label: `${room.building || ''} ${room.roomNumber || ''} (Cap: ${room.capacity || 0})`,
+    })),
+  ];
+
+  const timeSlotOptions = [
+    { value: '', label: 'Select Time Slot' },
+    ...timeSlots.map((slot) => ({
+      value: (slot.timeSlotId || slot.id)?.toString() || '',
+      label: `${getDayName(slot.day)} ${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}`,
     })),
   ];
 
   const instructorOptions = [
     { value: '', label: 'Select Instructor' },
     ...instructors.map((instructor) => ({
-      value: instructor.id,
-      label: instructor.fullName || `${instructor.firstName} ${instructor.lastName}`,
-    })),
-  ];
-
-  const dayOptions = [
-    { value: '', label: 'Select Day' },
-    ...DAYS_OF_WEEK.map((day) => ({
-      value: day.value.toString(),
-      label: day.label,
-    })),
-  ];
-
-  const semesterOptions = [
-    { value: '', label: 'Select Semester' },
-    ...SEMESTERS.map((sem) => ({
-      value: sem,
-      label: sem,
+      value: (instructor.instructorId || instructor.id)?.toString() || '',
+      label: instructor.fullName || `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim() || 'Unknown',
     })),
   ];
 
@@ -104,60 +144,43 @@ const ScheduleForm = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? 'Edit Schedule' : 'Add New Schedule'}
+      title={isEditing ? 'Edit Schedule Slot' : 'Add New Schedule Slot'}
       size="lg"
     >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         <Select
-          label="Course"
-          options={courseOptions}
-          error={errors.courseId?.message}
-          disabled={isEditing}
-          {...register('courseId')}
+          label="Section"
+          options={sectionOptions}
+          error={errors.sectionId?.message}
+          {...register('sectionId', { required: 'Section is required' })}
         />
 
         <Select
           label="Instructor"
           options={instructorOptions}
           error={errors.instructorId?.message}
-          {...register('instructorId')}
+          {...register('instructorId', { required: 'Instructor is required' })}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Select
-            label="Day of Week"
-            options={dayOptions}
-            error={errors.dayOfWeek?.message}
-            {...register('dayOfWeek')}
-          />
-          <Select
-            label="Semester"
-            options={semesterOptions}
-            error={errors.semester?.message}
-            {...register('semester')}
-          />
-        </div>
+        <Select
+          label="Room"
+          options={roomOptions}
+          error={errors.roomId?.message}
+          {...register('roomId', { required: 'Room is required' })}
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Start Time"
-            type="time"
-            error={errors.startTime?.message}
-            {...register('startTime')}
-          />
-          <Input
-            label="End Time"
-            type="time"
-            error={errors.endTime?.message}
-            {...register('endTime')}
-          />
-        </div>
+        <Select
+          label="Time Slot"
+          options={timeSlotOptions}
+          error={errors.timeSlotId?.message}
+          {...register('timeSlotId', { required: 'Time slot is required' })}
+        />
 
-        <Input
-          label="Room Number"
-          error={errors.roomNumber?.message}
-          placeholder="e.g., Room 101"
-          {...register('roomNumber')}
+        <Select
+          label="Slot Type"
+          options={SLOT_TYPES}
+          error={errors.slotType?.message}
+          {...register('slotType')}
         />
 
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -165,7 +188,7 @@ const ScheduleForm = ({
             Cancel
           </Button>
           <Button type="submit" loading={isLoading}>
-            {isEditing ? 'Update Schedule' : 'Create Schedule'}
+            {isEditing ? 'Update' : 'Create'} Schedule
           </Button>
         </div>
       </form>

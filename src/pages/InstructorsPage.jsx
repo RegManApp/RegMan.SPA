@@ -32,15 +32,27 @@ const InstructorsPage = () => {
         search: searchQuery,
       });
       
-      if (response.items) {
-        setInstructors(response.items);
-        setTotalPages(response.totalPages || 1);
-        setTotalItems(response.totalCount || 0);
-      } else if (Array.isArray(response)) {
-        setInstructors(response);
+      // Response data is unwrapped by axios interceptor to response.data
+      const data = response.data || response;
+      let items = [];
+      
+      if (data?.items) {
+        items = data.items;
+        setTotalPages(data.totalPages || 1);
+        setTotalItems(data.totalCount || 0);
+      } else if (Array.isArray(data)) {
+        items = data;
         setTotalPages(1);
-        setTotalItems(response.length);
+        setTotalItems(data.length);
       }
+      
+      // Normalize instructor data - ensure id field exists
+      const normalizedInstructors = items.map(i => ({
+        ...i,
+        id: i.id || i.instructorId,
+        instructorId: i.instructorId || i.id,
+      }));
+      setInstructors(normalizedInstructors);
     } catch (error) {
       console.error('Failed to fetch instructors:', error);
       toast.error('Failed to load instructors');
