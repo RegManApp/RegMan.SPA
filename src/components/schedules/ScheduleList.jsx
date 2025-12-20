@@ -19,7 +19,8 @@ const ScheduleList = ({
 
   const handleDelete = () => {
     if (deleteModal.schedule) {
-      onDelete?.(deleteModal.schedule.id);
+      const id = deleteModal.schedule.ScheduleSlotId ?? deleteModal.schedule.id;
+      onDelete?.(id);
       setDeleteModal({ isOpen: false, schedule: null });
     }
   };
@@ -54,8 +55,8 @@ const ScheduleList = ({
       header: 'Course',
       render: (_, schedule) => (
         <div>
-          <p className="font-medium text-gray-900 dark:text-white">{schedule.courseName}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{schedule.courseCode}</p>
+          <p className="font-medium text-gray-900 dark:text-white">{schedule.courseName || schedule.SectionName || ''}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{schedule.courseCode || ''}</p>
         </div>
       ),
     },
@@ -66,20 +67,32 @@ const ScheduleList = ({
     {
       key: 'dayOfWeek',
       header: 'Day',
-      render: (value) => (
-        <Badge className={getDayColor(value)}>
-          {getDayOfWeekLabel(value)}
-        </Badge>
-      ),
+      render: (_, schedule) => {
+        // Backend may return a TimeSlot string like "Monday 09:00-10:00"
+        const timeSlotStr = schedule.TimeSlot || schedule.timeSlot || '';
+        const dayLabel = timeSlotStr.split(' ')[0] || (schedule.dayOfWeek !== undefined ? getDayOfWeekLabel(schedule.dayOfWeek) : '');
+        return (
+          <Badge className={getDayColor(schedule.dayOfWeek ?? dayLabel)}>
+            {dayLabel}
+          </Badge>
+        );
+      },
     },
     {
       key: 'time',
       header: 'Time',
-      render: (_, schedule) => `${schedule.startTime} - ${schedule.endTime}`,
+      render: (_, schedule) => {
+        if (schedule.TimeSlot) {
+          // TimeSlot often contains both day and time
+          return schedule.TimeSlot.split(' ').slice(1).join(' ') || schedule.TimeSlot;
+        }
+        return `${schedule.startTime || ''}${schedule.startTime && schedule.endTime ? ' - ' : ''}${schedule.endTime || ''}`;
+      },
     },
     {
       key: 'roomNumber',
       header: 'Room',
+      render: (_, schedule) => schedule.roomNumber || schedule.Room || '',
     },
     {
       key: 'semester',
@@ -172,7 +185,7 @@ const ScheduleList = ({
         onClose={() => setDeleteModal({ isOpen: false, schedule: null })}
         onConfirm={handleDelete}
         title="Delete Schedule"
-        message={`Are you sure you want to delete this schedule for ${deleteModal.schedule?.courseName}? This action cannot be undone.`}
+        message={`Are you sure you want to delete this schedule for ${deleteModal.schedule?.courseName || deleteModal.schedule?.SectionName || ''}? This action cannot be undone.`}
         confirmText="Delete"
         variant="danger"
       />
