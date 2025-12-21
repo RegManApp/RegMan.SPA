@@ -6,7 +6,8 @@ import { courseApi } from '../api/courseApi';
 import { enrollmentApi } from '../api/enrollmentApi';
 import { CourseList, CourseCard, CourseForm, CourseDetails } from '../components/courses';
 import { PageLoading, Breadcrumb, Button } from '../components/common';
-import { normalizeCourse, normalizeCourses } from '../utils/helpers';
+import { normalizeCourse, normalizeCourses, normalizeCategories } from '../utils/helpers';
+import { courseCategoryApi } from '../api/courseCategoryApi';
 import { Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 
 const CoursesPage = () => {
@@ -24,6 +25,8 @@ const CoursesPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formCourse, setFormCourse] = useState(null);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [categories, setCategories] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   // Pagination & search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,14 +38,14 @@ const CoursesPage = () => {
   const loadCourses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await courseApi.getAll({
+      const params = {
         page,
         pageSize,
         search: searchQuery,
-      });
-      // The axios interceptor unwraps the data, so response.data is the actual payload
+      };
+      if (categoryFilter) params.courseCategoryId = categoryFilter;
+      const response = await courseApi.getAll(params);
       const data = response.data;
-      // Handle various response formats from backend
       let items = [];
       if (Array.isArray(data)) {
         items = data;
@@ -51,7 +54,7 @@ const CoursesPage = () => {
       } else if (data?.Items) {
         items = data.Items;
       } else if (data) {
-        items = [data]; // Single item response
+        items = [data];
       }
       setCourses(normalizeCourses(items));
       setTotalPages(data?.totalPages || data?.TotalPages || 1);
@@ -62,7 +65,18 @@ const CoursesPage = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, searchQuery]);
+  }, [page, pageSize, searchQuery, categoryFilter]);
+
+  // Load categories for filter and forms
+  const loadCategories = useCallback(async () => {
+    try {
+      const res = await courseCategoryApi.getAll();
+      const data = res.data || res || [];
+      setCategories(normalizeCategories(Array.isArray(data) ? data : data.items || []));
+    } catch (e) {
+      setCategories([]);
+    }
+  }, []);
 
   const loadCourseDetails = useCallback(async (courseId) => {
     setIsLoading(true);
@@ -114,6 +128,10 @@ const CoursesPage = () => {
       loadCourses();
     }
   }, [id, loadCourses, loadCourseDetails]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   useEffect(() => {
     loadMyEnrollments();
@@ -293,6 +311,9 @@ const CoursesPage = () => {
           pageSize={pageSize}
           onPageChange={setPage}
           isAdmin={isAdmin()}
+          categories={categories}
+          categoryFilter={categoryFilter}
+          onCategoryFilter={setCategoryFilter}
         />
       ) : (
         <div className="space-y-4">
@@ -304,6 +325,16 @@ const CoursesPage = () => {
               placeholder="Search courses..."
               className="w-full sm:w-80 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
             />
+            <select
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
             {isAdmin() && (
               <Button onClick={() => handleEdit({})}>Create Course</Button>
             )}

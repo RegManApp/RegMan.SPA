@@ -30,6 +30,9 @@ const CourseList = ({
   pageSize,
   onPageChange,
   isAdmin,
+  categories = [],
+  categoryFilter = '',
+  onCategoryFilter = () => {},
 }) => {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, course: null });
 
@@ -150,6 +153,16 @@ const CourseList = ({
           placeholder="Search courses..."
           className="w-full sm:w-80"
         />
+        <select
+          value={categoryFilter}
+          onChange={e => onCategoryFilter(e.target.value)}
+          className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+        >
+          <option value="">All Categories</option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
         {isAdmin && (
           <Button onClick={() => onEdit?.({})}>Create Course</Button>
         )}
