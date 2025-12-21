@@ -21,7 +21,7 @@ const GpaPage = () => {
   const { isAdmin, user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // For admin: search and select student (with search button)
+  // For admin: live search and select student
   const [studentSearch, setStudentSearch] = useState('');
   const [studentOptions, setStudentOptions] = useState([]);
   const [studentSearchLoading, setStudentSearchLoading] = useState(false);
@@ -31,23 +31,32 @@ const GpaPage = () => {
   // Use either param or selected
   const studentId = paramStudentId || selectedStudent?.studentId;
 
-  // Admin: search students only when clicking search
-  const handleStudentSearch = async () => {
-    setStudentSearchLoading(true);
-    setSearched(true);
-    try {
-      const params = { pageSize: 10, pageNumber: 1 };
-      if (/^\d+$/.test(studentSearch)) params.studentId = studentSearch;
-      else if (studentSearch.includes('@')) params.email = studentSearch;
-      else params.fullName = studentSearch;
-      const res = await studentApi.getAll(params);
-      setStudentOptions(res.data.items || res.data || []);
-    } catch (e) {
+  // Admin: live search students as you type (debounced)
+  useEffect(() => {
+    if (!isAdmin() || !studentSearch) {
       setStudentOptions([]);
-    } finally {
-      setStudentSearchLoading(false);
+      setSearched(false);
+      return;
     }
-  };
+    setStudentSearchLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const params = { pageSize: 10, pageNumber: 1 };
+        if (/^\d+$/.test(studentSearch)) params.studentId = studentSearch;
+        else if (studentSearch.includes('@')) params.email = studentSearch;
+        else params.fullName = studentSearch;
+        const res = await studentApi.getAll(params);
+        setStudentOptions(res.data.items || res.data || []);
+        setSearched(true);
+      } catch (e) {
+        setStudentOptions([]);
+        setSearched(true);
+      } finally {
+        setStudentSearchLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [studentSearch, isAdmin]);
 
   const [gpaData, setGpaData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -176,7 +185,7 @@ const GpaPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Admin: Student search/select with search button */}
+      {/* Admin: Live student search/select */}
       {isAdmin() && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Search Student</label>
@@ -187,7 +196,7 @@ const GpaPage = () => {
               placeholder="Enter ID, name, or email..."
               className="w-64"
             />
-            <Button onClick={handleStudentSearch} loading={studentSearchLoading} size="sm">Search</Button>
+            {studentSearchLoading && <span className="ml-2 text-gray-500">Loading...</span>}
           </div>
           {searched && studentOptions.length === 0 && !studentSearchLoading && (
             <div className="text-red-600 mt-2">No students found.</div>
