@@ -70,8 +70,12 @@ const ProfilePage = () => {
   const onProfileSubmit = async (data) => {
     setIsProfileLoading(true);
     try {
-      await authApi.updateStudentProfile(data);
-      updateUser(data);
+      const payload = {
+        ...data,
+        FullName: `${data.firstName} ${data.lastName}`,
+      };
+      await authApi.updateStudentProfile(payload);
+      updateUser(payload);
       toast.success('Profile updated successfully');
       setIsEditingProfile(false);
     } catch (error) {
