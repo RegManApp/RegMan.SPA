@@ -26,7 +26,7 @@ const CartPage = () => {
   useEffect(() => {
     loadCart();
     adminApi.getRegistrationEndDate().then((res) => {
-      setRegistrationEndDate(res.data?.registrationEndDate || "");
+      setRegistrationEndDate(res.data?.registrationEndDate || res.data?.registrationEndDate || "");
     });
     enrollmentApi.getMyEnrollments().then((res) => {
       setEnrollments(res.data || []);

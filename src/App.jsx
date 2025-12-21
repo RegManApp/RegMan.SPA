@@ -242,8 +242,15 @@ function App() {
                 }
               />
 
-              {/* Settings - Redirect to Profile */}
-              <Route path="/settings" element={<Navigate to="/profile" replace />} />
+              {/* Settings - Admin only */}
+              <Route
+                path="/settings"
+                element={
+                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                    <AdminSettingsPage />
+                  </RoleGuard>
+                }
+              />
             </Route>
 
             {/* 404 */}

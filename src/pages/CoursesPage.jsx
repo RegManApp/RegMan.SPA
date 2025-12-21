@@ -125,14 +125,16 @@ const CoursesPage = () => {
     }
   }, [isAdmin]);
 
+  const { isStudent } = useAuth();
   const loadCartItems = useCallback(async () => {
+    if (!isStudent()) return;
     try {
       const response = await cartApi.viewCart();
       setCartItems(response.data?.items || response.data || []);
     } catch (error) {
       setCartItems([]);
     }
-  }, []);
+  }, [isStudent]);
 
   useEffect(() => {
     if (id) {

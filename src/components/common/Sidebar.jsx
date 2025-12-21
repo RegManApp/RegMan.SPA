@@ -75,6 +75,7 @@ const studentNavigation = [
   { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
   { name: 'Book Office Hours', href: '/book-office-hours', icon: 'ClockIcon' },
   { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
+  { name: 'Cart', href: '/cart', icon: 'ClipboardDocumentListIcon' },
   { name: 'My Enrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
   { name: 'Withdraw Request', href: '/withdraw-request', icon: 'ClipboardDocumentCheckIcon' },
   { name: 'Profile', href: '/profile', icon: 'UserIcon' },
