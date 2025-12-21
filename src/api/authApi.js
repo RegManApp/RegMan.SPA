@@ -16,7 +16,7 @@ export const authApi = {
 
   // Get current student profile
   getStudentMe: () => {
-    return axiosInstance.get("/api/Student/me");
+    return axiosInstance.get("/Student/me");
   },
 
   // Update student profile data
