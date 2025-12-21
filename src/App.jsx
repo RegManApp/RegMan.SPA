@@ -29,6 +29,7 @@ import {
   SectionPage,        
 } from './pages';
 import RoomPage from './pages/RoomPage';
+import RoomDetailsPage from './pages/RoomDetailsPage';
 
 import { ROLES } from './utils/constants';
 
@@ -201,11 +202,20 @@ function App() {
               />
 
               {/* Rooms - Admin only */}
+
               <Route
                 path="/rooms"
                 element={
                   <RoleGuard allowedRoles={[ROLES.ADMIN]}>
                     <RoomPage />
+                  </RoleGuard>
+                }
+              />
+              <Route
+                path="/rooms/:id"
+                element={
+                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                    <RoomDetailsPage />
                   </RoleGuard>
                 }
               />

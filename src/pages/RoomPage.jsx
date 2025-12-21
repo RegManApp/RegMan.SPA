@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { roomApi } from '../api/roomApi';
 import { Button, Modal, Input, Table } from '../components/common';
 import toast from 'react-hot-toast';
@@ -16,6 +17,7 @@ const RoomPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [editId, setEditId] = useState(null);
+  const navigate = useNavigate();
 
   const fetchRooms = async () => {
     setLoading(true);
@@ -89,20 +91,32 @@ const RoomPage = () => {
       </div>
       <Table
         columns={[
-          { Header: 'ID', accessor: 'roomId' },
-          { Header: 'Building', accessor: 'building' },
-          { Header: 'Room Number', accessor: 'roomNumber' },
-          { Header: 'Capacity', accessor: 'capacity' },
-          { Header: 'Type', accessor: 'type' },
+          { key: 'roomId', header: 'ID' },
           {
-            Header: 'Actions',
-            accessor: 'actions',
-            Cell: ({ row }) => (
+            key: 'building',
+            header: 'Building',
+            render: (value, row) => (
+              <button
+                className="text-primary-600 underline hover:text-primary-800"
+                onClick={() => navigate(`/rooms/${row.roomId}`)}
+                type="button"
+              >
+                {value}
+              </button>
+            ),
+          },
+          { key: 'roomNumber', header: 'Room Number' },
+          { key: 'capacity', header: 'Capacity' },
+          { key: 'type', header: 'Type' },
+          {
+            key: 'actions',
+            header: 'Actions',
+            render: (_, row) => (
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleOpenModal(row.original)}>
+                <Button size="sm" onClick={() => handleOpenModal(row)}>
                   Edit
                 </Button>
-                <Button size="sm" variant="danger" onClick={() => handleDelete(row.original.roomId || row.original.id)}>
+                <Button size="sm" variant="danger" onClick={() => handleDelete(row.roomId || row.id)}>
                   Delete
                 </Button>
               </div>
@@ -110,7 +124,7 @@ const RoomPage = () => {
           },
         ]}
         data={rooms}
-        loading={loading}
+        isLoading={loading}
       />
       <Modal isOpen={modalOpen} onClose={handleCloseModal} title={editId ? 'Edit Room' : 'Add Room'}>
         <form onSubmit={handleSubmit} className="space-y-4">
