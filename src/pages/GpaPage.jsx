@@ -185,29 +185,38 @@ const GpaPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Admin: Live student search/select in one field */}
+      {/* Admin: Live student search/select with dropdown */}
       {isAdmin() && (
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Search Student</label>
-          <SearchInput
+          <Input
             value={studentSearch}
-            onChange={setStudentSearch}
+            onChange={e => setStudentSearch(e.target.value)}
             placeholder="Type ID, name, or email..."
             className="w-96"
-            loading={studentSearchLoading}
-            options={studentOptions.map(s => ({
-              value: s.studentProfile?.studentId || s.id,
-              label: `${s.studentProfile?.studentId || s.id} - ${s.fullName || s.user?.fullName || ''} (${s.email || s.user?.email || ''})`
-            }))}
-            onSelect={val => {
-              const found = studentOptions.find(s => (s.studentProfile?.studentId || s.id) == val);
-              setSelectedStudent(found ? {
-                studentId: found.studentProfile?.studentId || found.id,
-                fullName: found.fullName || found.user?.fullName,
-                email: found.email || found.user?.email
-              } : null);
-            }}
           />
+          {studentSearchLoading && <span className="ml-2 text-gray-500">Loading...</span>}
+          {studentSearch && studentOptions.length > 0 && (
+            <ul className="absolute z-10 w-96 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow mt-1 max-h-60 overflow-auto">
+              {studentOptions.map(s => (
+                <li
+                  key={s.studentProfile?.studentId || s.id}
+                  className="px-4 py-2 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900"
+                  onClick={() => {
+                    setSelectedStudent({
+                      studentId: s.studentProfile?.studentId || s.id,
+                      fullName: s.fullName || s.user?.fullName,
+                      email: s.email || s.user?.email
+                    });
+                    setStudentSearch('');
+                    setStudentOptions([]);
+                  }}
+                >
+                  {(s.studentProfile?.studentId || s.id) + ' - ' + (s.fullName || s.user?.fullName || '') + ' (' + (s.email || s.user?.email || '') + ')'}
+                </li>
+              ))}
+            </ul>
+          )}
           {searched && studentOptions.length === 0 && !studentSearchLoading && (
             <div className="text-red-600 mt-2">No students found.</div>
           )}
