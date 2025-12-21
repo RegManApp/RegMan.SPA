@@ -21,12 +21,12 @@ export const authApi = {
 
   // Update student profile data
   updateStudentProfile: (profileData) => {
-    return axiosInstance.put("/api/Student/update-student", profileData);
+    return axiosInstance.put("/Student/update-student", profileData);
   },
 
   // Change student email/password
   changeStudentPassword: (data) => {
-    return axiosInstance.put("/api/Student", data);
+    return axiosInstance.put("/Student", data);
   },
 
   // Logout user - requires refresh token
