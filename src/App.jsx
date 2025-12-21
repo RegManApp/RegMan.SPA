@@ -24,7 +24,11 @@ import {
   BookOfficeHourPage,
   CalendarPage,
   GpaPage,
+  AcademicPlanPage,   
+  TranscriptPage,     
+  SectionPage,        
 } from './pages';
+
 import { ROLES } from './utils/constants';
 
 function App() {
