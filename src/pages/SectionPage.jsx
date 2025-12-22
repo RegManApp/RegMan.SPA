@@ -21,7 +21,7 @@ const defaultForm = {
   roomId: "",
   timeSlotId: "",
   slotType: "Lecture",
-    availableSeats: "",
+  availableSeats: "",
 };
 
 const SectionPage = () => {
@@ -43,6 +43,13 @@ const SectionPage = () => {
   useEffect(() => {
     fetchSections();
     fetchDropdowns();
+    // Fetch all time slots for display in table
+    (async () => {
+      try {
+        const res = await timeSlotApi.getAll();
+        setTimeSlots(Array.isArray(res.data) ? res.data : res.data.items || []);
+      } catch {}
+    })();
   }, []);
 
   const fetchSections = async () => {
@@ -223,25 +230,60 @@ const SectionPage = () => {
       ) : (
         <Table
           columns={[
-            { Header: "ID", accessor: "sectionId" },
-            { Header: "Semester", accessor: "semester" },
-            { Header: "Year", accessor: "year" },
-            { Header: "Instructor", accessor: "instructorId" },
-            { Header: "Course", accessor: "courseId" },
-            { Header: "Seats", accessor: "availableSeats" },
-            { Header: "Room", accessor: "roomId" },
-            { Header: "Time Slot", accessor: "timeSlotId" },
-            { Header: "Type", accessor: "slotType" },
-            // Handled nested data: accessors confirmed to match top-level ViewSectionDTO properties; no changes needed for now
+            { key: "sectionId", header: "ID" },
+            { key: "semester", header: "Semester" },
             {
-              Header: "Actions",
-              accessor: "actions",
-              Cell: ({ row }) => (
+              key: "year",
+              header: "Year",
+              render: (val) => val ? (typeof val === 'string' ? val.slice(0, 4) : new Date(val).getFullYear()) : ""
+            },
+            {
+              key: "instructorId",
+              header: "Instructor",
+              render: (val, row) => {
+                const inst = instructors.find(i => i.id === String(val) || i.instructorId === String(val));
+                return inst ? inst.fullName : val;
+              }
+            },
+            {
+              key: "courseId",
+              header: "Course",
+              render: (val, row) => {
+                const course = courses.find(c => String(c.id) === String(val) || String(c.courseId) === String(val));
+                return course ? (course.courseName || course.name || course.courseCode) : val;
+              }
+            },
+            { key: "availableSeats", header: "Seats" },
+            {
+              key: "roomId",
+              header: "Room",
+              render: (val, row) => {
+                const room = rooms.find(r => String(r.id) === String(val) || String(r.roomId) === String(val));
+                return room ? (room.roomNumber || room.name || val) : val;
+              }
+            },
+            {
+              key: "timeSlotId",
+              header: "Time Slot",
+              render: (val, row) => {
+                const slot = timeSlots.find(s => String(s.timeSlotId) === String(val) || String(s.id) === String(val));
+                return slot ? `${slot.day || ''} ${slot.startTime || ''} - ${slot.endTime || ''}`.trim() : val;
+              }
+            },
+            {
+              key: "slotType",
+              header: "Type",
+              render: (val) => val || "Lecture"
+            },
+            {
+              key: "actions",
+              header: "Actions",
+              render: (_val, row) => (
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleOpenModal(row.original)}>
+                  <Button size="sm" onClick={() => handleOpenModal(row)}>
                     Edit
                   </Button>
-                  <Button size="sm" variant="danger" onClick={() => handleDelete(row.original.sectionId || row.original.id)}>
+                  <Button size="sm" variant="danger" onClick={() => handleDelete(row.sectionId || row.id)}>
                     Delete
                   </Button>
                 </div>
@@ -249,7 +291,7 @@ const SectionPage = () => {
             },
           ]}
           data={sections}
-          loading={loading}
+          isLoading={loading}
         />
       )}
       <Modal isOpen={modalOpen} onClose={handleCloseModal} title={editId ? "Edit Section" : "Add Section"}>
