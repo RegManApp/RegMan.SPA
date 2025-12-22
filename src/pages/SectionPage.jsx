@@ -18,10 +18,10 @@ const defaultForm = {
   year: "",
   instructorId: "",
   courseId: "",
-  availableSeats: 60,
   roomId: "",
   timeSlotId: "",
   slotType: "Lecture",
+    availableSeats: "",
 };
 
 const SectionPage = () => {
@@ -64,8 +64,23 @@ const SectionPage = () => {
         instructorApi.getAll(),
       ]);
       setCourses(Array.isArray(courseRes.data) ? courseRes.data : courseRes.data.items || []);
-      setRooms(Array.isArray(roomRes.data) ? roomRes.data : roomRes.data.items || []);
-      setInstructors(Array.isArray(instructorRes.data) ? instructorRes.data : instructorRes.data.items || []);
+      // Normalize rooms
+      const roomsData = Array.isArray(roomRes.data) ? roomRes.data : roomRes.data.items || [];
+      const normalizedRooms = roomsData.map(r => ({
+        ...r,
+        id: String(r.id || r.roomId),
+        roomId: String(r.roomId || r.id),
+      }));
+      setRooms(normalizedRooms);
+      // Normalize instructors
+      const instructorsData = Array.isArray(instructorRes.data) ? instructorRes.data : instructorRes.data.items || [];
+      const normalizedInstructors = instructorsData.map(i => ({
+        ...i,
+        id: String(i.id || i.instructorId),
+        instructorId: String(i.instructorId || i.id),
+        fullName: i.fullName || `${i.firstName || ''} ${i.lastName || ''}`.trim(),
+      }));
+      setInstructors(normalizedInstructors);
       setTimeSlots([]);
     } catch (e) {
       toast.error("Failed to load dropdown data");
@@ -135,7 +150,16 @@ const SectionPage = () => {
   };
 
   const handleSelectChange = (field) => (selectedOption) => {
-    const value = selectedOption ? selectedOption.value : "";
+    const value = selectedOption
+      ? String(
+          selectedOption.id ||
+          selectedOption.instructorId ||
+          selectedOption.roomId ||
+          selectedOption.courseId ||
+          selectedOption.timeSlotId ||
+          ""
+        )
+      : "";
     setForm(prev => ({ ...prev, [field]: value }));
     if (field === "roomId") {
       fetchTimeSlotsForRoom(value);
@@ -150,11 +174,17 @@ const SectionPage = () => {
       return;
     }
     try {
+      // Convert year to DateTime string and wrap in sectionDTO
+      const payload = {
+        ...form,
+          year: form.year ? `${form.year}-01-01T00:00:00Z` : "",
+          availableSeats: form.availableSeats ? Number(form.availableSeats) : 0,
+      };
       if (editId) {
-        await sectionApi.update(editId, form);
+        await sectionApi.update(editId, payload);
         toast.success("Section updated");
       } else {
-        await sectionApi.create(form);
+        await sectionApi.create(payload);
         toast.success("Section created");
       }
       fetchSections();
@@ -228,7 +258,21 @@ const SectionPage = () => {
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Semester" name="semester" value={form.semester} onChange={handleChange} required />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Semester<span className="text-red-500 ml-1">*</span></label>
+            <select
+              name="semester"
+              value={form.semester}
+              onChange={handleChange}
+              required
+              className="block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="" disabled>Choose semester</option>
+              <option value="Fall">Fall</option>
+              <option value="Spring">Spring</option>
+              <option value="Summer">Summer</option>
+            </select>
+          </div>
           <Input label="Year" name="year" value={form.year} onChange={handleChange} required />
           <SearchableSelect
             label="Instructor"
@@ -237,7 +281,7 @@ const SectionPage = () => {
             onChange={handleSelectChange("instructorId")}
             options={instructors}
             getOptionLabel={opt => opt.fullName || opt.name || opt.email || `ID ${opt.id || opt.instructorId}`}
-            getOptionValue={opt => opt.id || opt.instructorId || ''}
+            getOptionValue={opt => String(opt.id || opt.instructorId || '')}
             required
             disabled={dropdownLoading}
           />
@@ -248,11 +292,25 @@ const SectionPage = () => {
             onChange={handleSelectChange("courseId")}
             options={courses}
             getOptionLabel={opt => `${opt.courseName || opt.name || ''} (${opt.courseCode || ''})`}
-            getOptionValue={opt => opt.id || opt.courseId || ''}
+            getOptionValue={opt => String(opt.id || opt.courseId || '')}
             required
             disabled={dropdownLoading}
           />
-          <Input label="Available Seats" name="availableSeats" value={form.availableSeats} onChange={handleChange} required type="number" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Available Seats<span className="text-red-500 ml-1">*</span></label>
+            <select
+              name="availableSeats"
+              value={form.availableSeats}
+              onChange={handleChange}
+              required
+              className="block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="" disabled>Choose seats</option>
+              {Array.from({ length: 31 }, (_, i) => 30 + i).map(seats => (
+                <option key={seats} value={seats}>{seats}</option>
+              ))}
+            </select>
+          </div>
           <SearchableSelect
             label="Room"
             name="roomId"
@@ -260,7 +318,7 @@ const SectionPage = () => {
             onChange={handleSelectChange("roomId")}
             options={rooms}
             getOptionLabel={opt => `${opt.building || ''} - ${opt.roomNumber || ''}`}
-            getOptionValue={opt => opt.id || opt.roomId || ''}
+            getOptionValue={opt => String(opt.id || opt.roomId || '')}
             required
             disabled={dropdownLoading}
           />
@@ -273,7 +331,7 @@ const SectionPage = () => {
               opt => !bookedTimeSlotIds.includes(opt.id || opt.timeSlotId)
             ) : []}
             getOptionLabel={opt => `${opt.day || ''} ${opt.startTime || ''} - ${opt.endTime || ''}`}
-            getOptionValue={opt => opt.id || opt.timeSlotId || ''}
+            getOptionValue={opt => String(opt.id || opt.timeSlotId || '')}
             required
             disabled={dropdownLoading || !form.roomId}
           />

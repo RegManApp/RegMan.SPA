@@ -67,12 +67,7 @@ const SearchableSelect = ({
   const handleSelect = (option) => {
     setOpen(false);
     setSearch(getOptionLabel(option));
-    onChange({
-      target: {
-        name: props.name,
-        value: getOptionValue(option),
-      },
-    });
+    onChange(option);
   };
 
   // Click outside to close
