@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import cartApi from "../../api/cartApi";
-import CartList from "./CartList";
 import toast from "react-hot-toast";
-import adminApi from '../../api/adminApi';
-import enrollmentApi from '../../api/enrollmentApi';
+import cartApi from "../api/cartApi";
+import adminApi from "../api/adminApi";
+import enrollmentApi from "../api/enrollmentApi";
+import CartList from "../components/cart/CartList";
 
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);

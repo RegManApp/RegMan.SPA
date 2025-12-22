@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import { BookOpenIcon, UserGroupIcon, TagIcon } from '@heroicons/react/24/outline';
 import { Card, Button, Badge } from '../common';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import cartApi from '../../api/cartApi';
-import adminApi from '../../api/adminApi';
+import { formatDate } from '../../utils/helpers';
 
 const CourseCard = ({
   course,
@@ -17,14 +17,24 @@ const CourseCard = ({
   isEnrolled,
   onRemoveFromCart,
   onDrop,
+  onAddToCart,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isDropping, setIsDropping] = useState(false);
+
+  const now = new Date();
+  const end = registrationEndDate ? new Date(registrationEndDate) : null;
+  const isRegistrationOpen = !end || now < end;
+  const isStatusEnrolled = enrollmentStatus === 1 || enrollmentStatus === 'Enrolled';
+  const isStatusPending = enrollmentStatus === 0 || enrollmentStatus === 'Pending';
+  const canDrop = isRegistrationOpen && (isStatusEnrolled || isStatusPending);
+
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
       await cartApi.addToCartByCourse(course.id);
       toast.success('Added to cart');
+      await onAddToCart?.(course.id);
     } catch (error) {
       toast.error('Failed to add to cart');
     } finally {
@@ -37,9 +47,7 @@ const CourseCard = ({
   const handleDrop = async () => {
     setIsDropping(true);
     try {
-      await cartApi.dropCourse(course.id);
-      toast.success('Course dropped');
-      if (onDrop) onDrop(course.id);
+      await onDrop?.(course.id);
     } catch (error) {
       toast.error('Failed to drop course');
     } finally {
@@ -112,12 +120,12 @@ const CourseCard = ({
           >
             Remove from Cart
           </Button>
-        ) : enrollmentStatus === 'approved' && registrationEndDate && new Date() < new Date(registrationEndDate) ? (
+        ) : (isStatusEnrolled || isStatusPending) ? (
           <Button
             variant="danger"
             size="sm"
             onClick={handleDrop}
-            disabled={isDropping}
+            disabled={isDropping || !canDrop}
           >
             {isDropping ? 'Dropping...' : 'Drop'}
           </Button>
@@ -126,12 +134,18 @@ const CourseCard = ({
             variant="primary"
             size="sm"
             onClick={handleAddToCart}
-            disabled={isAdding}
+            disabled={isAdding || !isRegistrationOpen}
           >
             {isAdding ? 'Adding...' : 'Add to Cart'}
           </Button>
         )}
       </div>
+
+      {!isAdmin && registrationEndDate && !isRegistrationOpen && (
+        <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+          Registration closed on {formatDate(registrationEndDate)}. Cart actions are disabled.
+        </p>
+      )}
     </Card>
   );
 };

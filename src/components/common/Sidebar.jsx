@@ -35,87 +35,129 @@ const iconMap = {
 };
 
 const adminNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-  { name: 'GPA & Grades', href: '/gpa', icon: 'AcademicCapIcon' },
-  { name: 'Academic Plan', href: '/academic-plan', icon: 'AcademicCapIcon' },
-  { name: 'Transcript', href: '/transcript', icon: 'ClipboardDocumentListIcon' },
-  { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
-  { name: 'Analytics', href: '/analytics', icon: 'ChartBarIcon' },
-  { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
-  { name: 'Students', href: '/students', icon: 'UsersIcon' },
-  { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
-  { name: 'Sections', href: '/sections', icon: 'ClipboardDocumentListIcon' },
-  { name: 'Rooms', href: '/rooms', icon: 'ClipboardDocumentListIcon' },
-  { name: 'Enrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
-  { name: 'Advising', href: '/advising', icon: 'ClipboardDocumentCheckIcon' },
-  { name: 'Instructors', href: '/instructors', icon: 'AcademicCapIcon' },
-  { name: 'Schedules', href: '/schedules', icon: 'CalendarDaysIcon' },
-  { name: 'Users', href: '/users', icon: 'UserGroupIcon' },
-  { name: 'Withdraw Requests', href: '/admin/withdraw-requests', icon: 'ClipboardDocumentCheckIcon' },
+  {
+    section: 'Core',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+      { name: 'Students', href: '/students', icon: 'UsersIcon' },
+      { name: 'Instructors', href: '/instructors', icon: 'AcademicCapIcon' },
+      { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
+      { name: 'Sections', href: '/sections', icon: 'ClipboardDocumentListIcon' },
+      { name: 'Schedules', href: '/schedules', icon: 'CalendarDaysIcon' },
+      { name: 'Rooms', href: '/rooms', icon: 'ClipboardDocumentListIcon' },
+      { name: 'Enrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
+      { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
+    ],
+  },
+  {
+    section: 'Support',
+    items: [
+      { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
+      { name: 'Advising', href: '/advising', icon: 'ClipboardDocumentCheckIcon' },
+      { name: 'Withdraw Requests', href: '/admin/withdraw-requests', icon: 'ClipboardDocumentCheckIcon' },
+    ],
+  },
+  {
+    section: 'Admin',
+    items: [
+      { name: 'Users', href: '/users', icon: 'UserGroupIcon' },
+      { name: 'Analytics', href: '/analytics', icon: 'ChartBarIcon' },
+      { name: 'GPA & Grades', href: '/gpa', icon: 'AcademicCapIcon' },
+      { name: 'Academic Plan', href: '/academic-plan', icon: 'AcademicCapIcon' },
+      { name: 'Transcript', href: '/transcript', icon: 'ClipboardDocumentListIcon' },
+    ],
+  },
 ];
 
 const instructorNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-  { name: 'GPA & Grades', href: '/gpa', icon: 'AcademicCapIcon' },
-  { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
-  { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
-  { name: 'Office Hours', href: '/office-hours', icon: 'ClockIcon' },
-  { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
-  { name: 'Advising', href: '/advising', icon: 'ClipboardDocumentCheckIcon' },
-  { name: 'Schedules', href: '/schedules', icon: 'CalendarDaysIcon' },
-  { name: 'Profile', href: '/profile', icon: 'UserIcon' },
+  {
+    section: 'Core',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+      { name: 'My Courses', href: '/courses', icon: 'BookOpenIcon' },
+      { name: 'Office Hours', href: '/office-hours', icon: 'ClockIcon' },
+      { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
+    ],
+  },
+  {
+    section: 'Support',
+    items: [
+      { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
+      { name: 'Profile', href: '/profile', icon: 'UserIcon' },
+    ],
+  },
 ];
 
 const studentNavigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
-  { name: 'GPA & Grades', href: '/gpa', icon: 'AcademicCapIcon' },
-  { name: 'Academic Plan', href: '/academic-plan', icon: 'AcademicCapIcon' },
-  { name: 'Transcript', href: '/transcript', icon: 'ClipboardDocumentListIcon' },
-  { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
-  { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
-  { name: 'Book Office Hours', href: '/book-office-hours', icon: 'ClockIcon' },
-  { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
-  { name: 'Cart', href: '/cart', icon: 'ClipboardDocumentListIcon' },
-  { name: 'My Enrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
-  { name: 'Withdraw Request', href: '/withdraw-request', icon: 'ClipboardDocumentCheckIcon' },
-  { name: 'Profile', href: '/profile', icon: 'UserIcon' },
+  {
+    section: 'Core',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: 'HomeIcon' },
+      { name: 'Courses', href: '/courses', icon: 'BookOpenIcon' },
+      { name: 'Cart', href: '/cart', icon: 'ClipboardDocumentListIcon' },
+      { name: 'My Enrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
+      { name: 'Calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
+      { name: 'Book Office Hours', href: '/book-office-hours', icon: 'ClockIcon' },
+    ],
+  },
+  {
+    section: 'Support',
+    items: [
+      { name: 'Chat', href: '/chat', icon: 'ChatIcon' },
+      { name: 'GPA & Grades', href: '/gpa', icon: 'AcademicCapIcon' },
+      { name: 'Academic Plan', href: '/academic-plan', icon: 'AcademicCapIcon' },
+      { name: 'Transcript', href: '/transcript', icon: 'ClipboardDocumentListIcon' },
+      { name: 'Withdraw Request', href: '/withdraw-request', icon: 'ClipboardDocumentCheckIcon' },
+      { name: 'Profile', href: '/profile', icon: 'UserIcon' },
+    ],
+  },
 ];
 
 const SidebarContent = ({ navigation }) => {
   const location = useLocation();
 
   return (
-    <nav className="flex-1 space-y-1 px-2 py-4">
-      {navigation.map((item) => {
-        const Icon = iconMap[item.icon];
-        const isActive = location.pathname === item.href ||
-          (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
+    <nav className="flex-1 px-2 py-4 space-y-6">
+      {navigation.map((group) => (
+        <div key={group.section}>
+          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {group.section}
+          </p>
+          <div className="mt-2 space-y-1">
+            {group.items.map((item) => {
+              const Icon = iconMap[item.icon];
+              const isActive =
+                location.pathname === item.href ||
+                (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
 
-        return (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className={cn(
-              'group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-              isActive
-                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
-                : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-            )}
-          >
-            {Icon && (
-              <Icon
-                className={cn(
-                  'mr-3 h-5 w-5 flex-shrink-0',
-                  isActive
-                    ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
-                )}
-              />
-            )}
-            {item.name}
-          </NavLink>
-        );
-      })}
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    'group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                    isActive
+                      ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  )}
+                >
+                  {Icon && (
+                    <Icon
+                      className={cn(
+                        'mr-3 h-5 w-5 flex-shrink-0',
+                        isActive
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
+                      )}
+                    />
+                  )}
+                  {item.name}
+                </NavLink>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </nav>
   );
 };

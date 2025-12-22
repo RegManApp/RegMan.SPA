@@ -5,17 +5,19 @@ import { useAuth } from '../contexts/AuthContext';
 import { courseApi } from '../api/courseApi';
 import { enrollmentApi } from '../api/enrollmentApi';
 import { CourseList, CourseCard, CourseForm, CourseDetails } from '../components/courses';
-import { PageLoading, Breadcrumb, Button } from '../components/common';
-import { normalizeCourse, normalizeCourses, normalizeCategories } from '../utils/helpers';
+import { PageLoading, Breadcrumb, Button, EmptyState } from '../components/common';
+import { normalizeCourse, normalizeCourses, normalizeCategories, formatDate } from '../utils/helpers';
 import { courseCategoryApi } from '../api/courseCategoryApi';
 import { Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 import adminApi from '../api/adminApi';
 import cartApi from '../api/cartApi';
+import { instructorApi } from '../api/instructorApi';
+import { sectionApi } from '../api/sectionApi';
 
 const CoursesPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, isStudent, isInstructor, user } = useAuth();
 
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -42,6 +44,42 @@ const CoursesPage = () => {
   const loadCourses = useCallback(async () => {
     setIsLoading(true);
     try {
+      if (isInstructor() && !isAdmin()) {
+        const scheduleRes = await instructorApi.getMySchedule().catch(() => ({ data: [] }));
+        const schedule = scheduleRes.data || scheduleRes || [];
+        const instructorId = schedule?.[0]?.instructorId ?? schedule?.[0]?.InstructorId;
+
+        if (!instructorId) {
+          setCourses([]);
+          setTotalPages(1);
+          setTotalItems(0);
+          return;
+        }
+
+        const sectionsRes = await sectionApi.getAll({ instructorId });
+        const sections = sectionsRes.data || [];
+        const summaries = (Array.isArray(sections) ? sections : []).map((s) => s.courseSummary || s.CourseSummary).filter(Boolean);
+        const byId = new Map();
+        summaries.forEach((cs) => {
+          const courseId = cs.courseId ?? cs.CourseId;
+          if (courseId && !byId.has(courseId)) byId.set(courseId, cs);
+        });
+
+        const normalized = normalizeCourses(Array.from(byId.values()));
+        const q = (searchQuery || '').trim().toLowerCase();
+        const filtered = q
+          ? normalized.filter((c) =>
+              (c.courseName || '').toLowerCase().includes(q) ||
+              (c.courseCode || '').toLowerCase().includes(q)
+            )
+          : normalized;
+
+        setCourses(filtered);
+        setTotalPages(1);
+        setTotalItems(filtered.length);
+        return;
+      }
+
       const params = {
         page,
         pageSize,
@@ -126,7 +164,6 @@ const CoursesPage = () => {
     }
   }, [isAdmin]);
 
-  const { isStudent } = useAuth();
   const loadCartItems = useCallback(async () => {
     if (!isStudent()) return;
     try {
@@ -142,6 +179,11 @@ const CoursesPage = () => {
       setCartItems([]);
     }
   }, [isStudent]);
+
+  // Instructor view doesn't support category filtering (course summaries)
+  useEffect(() => {
+    if (isInstructor() && categoryFilter) setCategoryFilter('');
+  }, [isInstructor, categoryFilter]);
 
   useEffect(() => {
     if (id) {
@@ -168,6 +210,10 @@ const CoursesPage = () => {
       setRegistrationEndDate(res.data?.registrationEndDate || "");
     });
   }, []);
+
+  const now = new Date();
+  const registrationEnd = registrationEndDate ? new Date(registrationEndDate) : null;
+  const isRegistrationOpen = !registrationEnd || now < registrationEnd;
 
   const isEnrolled = (courseId) => {
     return myEnrollments.some(
@@ -290,6 +336,11 @@ const CoursesPage = () => {
           <h1 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
             Courses
           </h1>
+          {registrationEndDate && (
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              Registration {isRegistrationOpen ? 'closes' : 'closed'} on {formatDate(registrationEndDate)}.
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
@@ -331,7 +382,7 @@ const CoursesPage = () => {
           pageSize={pageSize}
           onPageChange={setPage}
           isAdmin={isAdmin()}
-          categories={categories}
+          categories={isInstructor() && !isAdmin() ? [] : categories}
           categoryFilter={categoryFilter}
           onCategoryFilter={setCategoryFilter}
         />
@@ -345,38 +396,57 @@ const CoursesPage = () => {
               placeholder="Search courses..."
               className="w-full sm:w-80 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
             />
-            <select
-              value={categoryFilter}
-              onChange={e => setCategoryFilter(e.target.value)}
-              className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
+            {!isInstructor() && categories.length > 0 && (
+              <select
+                value={categoryFilter}
+                onChange={e => setCategoryFilter(e.target.value)}
+                className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">All Categories</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            )}
             {isAdmin() && (
               <Button onClick={() => handleEdit({})}>Create Course</Button>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                cartStatus={getCartStatus(course.id)}
-                enrollmentStatus={getEnrollmentStatus(course.id)}
-                registrationEndDate={registrationEndDate}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                isAdmin={isAdmin()}
-                isEnrolled={false}
-                onRemoveFromCart={handleRemoveFromCart}
-                onDrop={handleDrop}
-              />
-            ))}
-          </div>
+          {!isLoading && courses.length === 0 ? (
+            <EmptyState
+              title="No courses found"
+              description={
+                searchQuery || categoryFilter
+                  ? 'No courses match your search or filter.'
+                  : 'Courses will appear here once they are created.'
+              }
+              action={
+                isAdmin() ? (
+                  <Button onClick={() => handleEdit({})}>Create Course</Button>
+                ) : undefined
+              }
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {courses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  cartStatus={getCartStatus(course.id)}
+                  enrollmentStatus={getEnrollmentStatus(course.id)}
+                  registrationEndDate={registrationEndDate}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  isAdmin={isAdmin()}
+                  isEnrolled={false}
+                  onRemoveFromCart={handleRemoveFromCart}
+                  onDrop={handleDrop}
+                  onAddToCart={loadCartItems}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

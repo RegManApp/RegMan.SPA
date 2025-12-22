@@ -85,11 +85,17 @@ const EnrollmentsPage = () => {
 
   const handleDelete = async (enrollmentId) => {
     try {
-      await enrollmentApi.delete(enrollmentId);
-      toast.success('Enrollment dropped successfully');
+      if (isAdmin()) {
+        await enrollmentApi.delete(enrollmentId);
+        toast.success('Enrollment deleted successfully');
+      } else {
+        await enrollmentApi.drop(enrollmentId);
+        toast.success('Enrollment dropped successfully');
+      }
       loadEnrollments();
     } catch (error) {
       console.error('Failed to delete enrollment:', error);
+      toast.error(isAdmin() ? 'Failed to delete enrollment' : 'Failed to drop enrollment');
     }
   };
 

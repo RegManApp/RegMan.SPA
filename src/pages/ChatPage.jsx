@@ -4,18 +4,26 @@ import { useAuth } from '../contexts/AuthContext';
 import { startConnection, stopConnection, onReceiveMessage, offReceiveMessage, sendMessage as hubSend } from '../api/signalrClient';
 import ConversationList from '../components/chat/ConversationList';
 import ChatWindow from '../components/chat/ChatWindow';
+import { EmptyState, Loading, Button } from '../components/common';
 
 export default function ChatPage() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [selectedConvo, setSelectedConvo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const loadConversations = useCallback(async () => {
     try {
+      setLoadError(false);
+      setIsLoading(true);
       const res = await chatApi.getConversations();
       setConversations(res.data?.conversations || []);
     } catch (e) {
       console.error('Failed to load conversations', e);
+      setLoadError(true);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -59,25 +67,45 @@ export default function ChatPage() {
         />
       </div>
       <div className="w-2/3">
-        <ChatWindow
-          conversation={selectedConvo}
-          onSend={async (receiverId, text) => {
-            try {
-              // Try via SignalR hub first
-              await hubSend(receiverId, text);
-              // refresh list and conversation
-              loadConversations();
-            } catch (e) {
-              // Fallback to REST
+        {isLoading ? (
+          <div className="p-6">
+            <Loading text="Loading conversations..." />
+          </div>
+        ) : loadError ? (
+          <div className="p-6">
+            <EmptyState
+              title="Couldn't load chat"
+              description="Please try again."
+              action={<Button onClick={loadConversations}>Retry</Button>}
+            />
+          </div>
+        ) : conversations.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              title="No conversations yet"
+              description="When you start chatting with someone, conversations will appear here."
+            />
+          </div>
+        ) : (
+          <ChatWindow
+            conversation={selectedConvo}
+            onSend={async (receiverId, text) => {
               try {
-                await chatApi.sendMessage(receiverId, text);
+                // Try via SignalR hub first
+                await hubSend(receiverId, text);
                 loadConversations();
-              } catch (err) {
-                console.error('Failed to send message', err);
+              } catch (e) {
+                // Fallback to REST
+                try {
+                  await chatApi.sendMessage(receiverId, text);
+                  loadConversations();
+                } catch (err) {
+                  console.error('Failed to send message', err);
+                }
               }
-            }
-          }}
-        />
+            }}
+          />
+        )}
       </div>
     </div>
   );

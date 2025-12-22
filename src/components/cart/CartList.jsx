@@ -1,37 +1,119 @@
 import React from "react";
+import { Card, Button, EmptyState, Loading } from "../common";
+import { formatDate } from "../../utils/helpers";
 
-const CartList = ({ cartItems, onRemove, onCheckout, onEnroll, isLoading, registrationEndDate, getEnrollmentStatus, handleDrop }) => {
+const CartList = ({
+  cartItems,
+  onRemove,
+  onCheckout,
+  onEnroll,
+  isLoading,
+  registrationEndDate,
+  getEnrollmentStatus,
+  handleDrop,
+}) => {
+  const now = new Date();
+  const end = registrationEndDate ? new Date(registrationEndDate) : null;
+  const isRegistrationOpen = !end || now < end;
+
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">My Cart</h2>
+      <div>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">My Cart</h2>
+        {registrationEndDate && (
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            Registration {isRegistrationOpen ? "closes" : "closed"} on {formatDate(registrationEndDate)}.
+          </p>
+        )}
+      </div>
+
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="py-8">
+          <Loading text="Loading cart..." />
+        </div>
       ) : cartItems.length === 0 ? (
-        <div>Your cart is empty.</div>
+        <EmptyState
+          title="Your cart is empty"
+          description="Add courses from the Courses page to enroll during registration."
+        />
       ) : (
-        <ul className="divide-y">
+        <div className="space-y-3">
           {cartItems.map((item) => {
-            const status = getEnrollmentStatus(item.courseId);
-            const canDrop = status === 'approved' && registrationEndDate && new Date() < new Date(registrationEndDate);
+            const title =
+              item.courseName || item.sectionName || `Slot ${item.scheduleSlotId}`;
+
+            const enrollmentStatus = item.courseId
+              ? getEnrollmentStatus?.(item.courseId)
+              : null;
+
+            const isAlreadyEnrolled =
+              enrollmentStatus === 1 ||
+              enrollmentStatus === "Enrolled" ||
+              enrollmentStatus === 0 ||
+              enrollmentStatus === "Pending";
+
             return (
-              <li key={item.cartItemId || item.id} className="py-2 flex justify-between items-center">
-                <span>{item.courseName || item.sectionName || `Slot ${item.scheduleSlotId}`}</span>
-                <div className="flex gap-2">
-                  {status === 'added' ? (
-                    <button className="btn btn-danger" onClick={() => onRemove(item.cartItemId || item.id)}>Remove</button>
-                  ) : canDrop ? (
-                    <button className="btn btn-danger" onClick={() => handleDrop(item.courseId)}>Drop</button>
-                  ) : null}
+              <Card key={item.cartItemId || item.id} className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{title}</p>
+                    {isAlreadyEnrolled && (
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        This course is already in your enrollments. Manage drops in My Enrollments.
+                      </p>
+                    )}
+                    {!isRegistrationOpen && (
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Registration is closed. You can’t enroll or checkout right now.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onRemove(item.cartItemId || item.id)}
+                    >
+                      Remove
+                    </Button>
+
+                    {/* Optional: keep drop available if backend allows and registration is open */}
+                    {isRegistrationOpen &&
+                      item.courseId &&
+                      (enrollmentStatus === 1 || enrollmentStatus === "Enrolled" || enrollmentStatus === 0 || enrollmentStatus === "Pending") &&
+                      typeof handleDrop === "function" && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDrop(item.courseId)}
+                        >
+                          Drop
+                        </Button>
+                      )}
+                  </div>
                 </div>
-              </li>
+              </Card>
             );
           })}
-        </ul>
-      )}
-      {cartItems.length > 0 && (
-        <div className="flex gap-2 mt-4">
-          <button className="btn btn-primary" onClick={onEnroll}>Enroll</button>
-          <button className="btn btn-secondary" onClick={onCheckout}>Checkout</button>
+
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              className="w-full sm:w-auto"
+              onClick={onEnroll}
+              disabled={!isRegistrationOpen}
+            >
+              Enroll
+            </Button>
+            <Button
+              className="w-full sm:w-auto"
+              variant="secondary"
+              onClick={onCheckout}
+              disabled={!isRegistrationOpen}
+            >
+              Checkout
+            </Button>
+          </div>
         </div>
       )}
     </div>
