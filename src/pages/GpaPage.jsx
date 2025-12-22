@@ -185,7 +185,7 @@ const GpaPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Admin: Live student search/select with dropdown */}
+      {/* Admin: Live student search/select with dropdown and frontend filtering */}
       {isAdmin() && (
         <div className="mb-4 relative">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Search Student</label>
@@ -198,23 +198,35 @@ const GpaPage = () => {
           {studentSearchLoading && <span className="ml-2 text-gray-500">Loading...</span>}
           {studentSearch && studentOptions.length > 0 && (
             <ul className="absolute z-10 w-96 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow mt-1 max-h-60 overflow-auto">
-              {studentOptions.map(s => (
-                <li
-                  key={s.studentProfile?.studentId || s.id}
-                  className="px-4 py-2 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900"
-                  onClick={() => {
-                    setSelectedStudent({
-                      studentId: s.studentProfile?.studentId || s.id,
-                      fullName: s.fullName || s.user?.fullName,
-                      email: s.email || s.user?.email
-                    });
-                    setStudentSearch('');
-                    setStudentOptions([]);
-                  }}
-                >
-                  {(s.studentProfile?.studentId || s.id) + ' - ' + (s.fullName || s.user?.fullName || '') + ' (' + (s.email || s.user?.email || '') + ')'}
-                </li>
-              ))}
+              {studentOptions
+                .filter(s => {
+                  const search = studentSearch.toLowerCase();
+                  const name = (s.fullName || s.user?.fullName || '').toLowerCase();
+                  const email = (s.email || s.user?.email || '').toLowerCase();
+                  const id = String(s.studentProfile?.studentId || s.id);
+                  return (
+                    name.includes(search) ||
+                    email.includes(search) ||
+                    id.includes(search)
+                  );
+                })
+                .map(s => (
+                  <li
+                    key={s.studentProfile?.studentId || s.id}
+                    className="px-4 py-2 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900"
+                    onClick={() => {
+                      setSelectedStudent({
+                        studentId: s.studentProfile?.studentId || s.id,
+                        fullName: s.fullName || s.user?.fullName,
+                        email: s.email || s.user?.email
+                      });
+                      setStudentSearch('');
+                      setStudentOptions([]);
+                    }}
+                  >
+                    {(s.studentProfile?.studentId || s.id) + ' - ' + (s.fullName || s.user?.fullName || '') + ' (' + (s.email || s.user?.email || '') + ')'}
+                  </li>
+                ))}
             </ul>
           )}
           {searched && studentOptions.length === 0 && !studentSearchLoading && (
