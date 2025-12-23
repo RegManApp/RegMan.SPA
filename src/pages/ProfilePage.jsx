@@ -18,7 +18,7 @@ import { getFullName, getRoleColor, formatDate } from '../utils/helpers';
 import { sanitize } from '../utils/helpers';
 
 const ProfilePage = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, isStudent } = useAuth();
   const [profile, setProfile] = useState(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -89,7 +89,16 @@ const ProfilePage = () => {
   const onPasswordSubmit = async (data) => {
     setIsPasswordLoading(true);
     try {
-      await authApi.changePassword(data);
+      if (isStudent?.()) {
+        await authApi.changeStudentPassword({
+          email: user?.email || '',
+          oldPassword: data.currentPassword,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmNewPassword,
+        });
+      } else {
+        await authApi.changePassword(data);
+      }
       toast.success('Password changed successfully');
       setIsChangingPassword(false);
       resetPassword();
