@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Button, Badge, SearchInput, Card, ConfirmModal, EmptyState } from '../common';
 import { getFullName } from '../../utils/helpers';
@@ -21,6 +21,57 @@ const InstructorList = ({
 }) => {
   const navigate = useNavigate();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, instructor: null });
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const handleSort = (field) => {
+    if (!field) return;
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedInstructors = useMemo(() => {
+    const list = Array.isArray(instructors) ? [...instructors] : [];
+    if (!sortField) return list;
+
+    const getValue = (instructor) => {
+      if (!instructor) return null;
+      switch (sortField) {
+        case 'fullName':
+          return (
+            instructor.fullName ||
+            getFullName(instructor.firstName, instructor.lastName) ||
+            ''
+          ).toString();
+        default:
+          return instructor[sortField] ?? null;
+      }
+    };
+
+    list.sort((a, b) => {
+      const aVal = getValue(a);
+      const bVal = getValue(b);
+
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      let comparison = 0;
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        comparison = aVal.localeCompare(bVal);
+      } else {
+        comparison = aVal < bVal ? -1 : 1;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return list;
+  }, [instructors, sortField, sortDirection]);
 
   const handleDelete = () => {
     if (deleteModal.instructor) {
@@ -126,9 +177,12 @@ const InstructorList = ({
 
         <Table
           columns={columns}
-          data={instructors}
+          data={sortedInstructors}
           isLoading={isLoading}
           emptyMessage="No instructors found."
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={handleSort}
           page={page}
           totalPages={totalPages}
           totalItems={totalItems}
