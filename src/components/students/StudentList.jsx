@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   PencilIcon,
@@ -29,6 +29,68 @@ const StudentList = ({
   onPageChange,
 }) => {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null });
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const handleSort = (field) => {
+    if (!field) return;
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedStudents = useMemo(() => {
+    const list = Array.isArray(students) ? [...students] : [];
+    if (!sortField) return list;
+
+    const getValue = (student) => {
+      if (!student) return null;
+      switch (sortField) {
+        case 'studentId':
+          return (
+            student.studentProfile?.studentId ||
+            student.id?.substring(0, 8) ||
+            ''
+          ).toString();
+        case 'name': {
+          const fullName =
+            student.fullName ||
+            student.user?.fullName ||
+            getFullName(student.user?.firstName, student.user?.lastName) ||
+            '';
+          return fullName.toString();
+        }
+        case 'completedCredits':
+          return Number(student.studentProfile?.completedCredits ?? 0);
+        case 'gpa':
+          return Number(student.studentProfile?.gpa ?? 0);
+        default:
+          return student[sortField] ?? null;
+      }
+    };
+
+    list.sort((a, b) => {
+      const aVal = getValue(a);
+      const bVal = getValue(b);
+
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      let comparison = 0;
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        comparison = aVal.localeCompare(bVal);
+      } else {
+        comparison = aVal < bVal ? -1 : 1;
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return list;
+  }, [students, sortField, sortDirection]);
 
   const columns = [
     {
@@ -160,9 +222,12 @@ const StudentList = ({
 
       <Table
         columns={columns}
-        data={students}
+        data={sortedStudents}
         isLoading={isLoading}
         emptyMessage="No students match your search criteria."
+        sortField={sortField}
+        sortDirection={sortDirection}
+        onSort={handleSort}
       />
 
       {totalPages > 1 && (
