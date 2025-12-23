@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   PencilIcon,
@@ -35,6 +35,8 @@ const EnrollmentList = ({
   isAdmin,
 }) => {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, enrollment: null });
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState('asc');
 
   // Helper to get enrollment ID (backend returns enrollmentId, normalize to id)
   const getEnrollmentId = (enrollment) => enrollment.enrollmentId || enrollment.id;
@@ -44,6 +46,59 @@ const EnrollmentList = ({
   const isStatusEnrolled = (status) => status === 1 || status === 'Enrolled';
   const isStatusPending = (status) => status === 0 || status === 'Pending';
   const isStatusCompleted = (status) => status === 3 || status === 'Completed';
+
+  const handleSort = (field) => {
+    if (!field) return;
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedEnrollments = useMemo(() => {
+    const list = Array.isArray(enrollments) ? [...enrollments] : [];
+    if (!sortField) return list;
+
+    const getValue = (enrollment) => {
+      if (!enrollment) return null;
+      switch (sortField) {
+        case 'enrollmentDate': {
+          const raw = enrollment.enrollmentDate || enrollment.enrolledAt;
+          const ts = raw ? new Date(raw).getTime() : null;
+          return Number.isFinite(ts) ? ts : null;
+        }
+        case 'status': {
+          const status = enrollment.status;
+          // Sort by label for stable UX across numeric/string enums
+          return getEnrollmentStatusLabel(status).toString();
+        }
+        default:
+          return enrollment[sortField] ?? null;
+      }
+    };
+
+    list.sort((a, b) => {
+      const aVal = getValue(a);
+      const bVal = getValue(b);
+
+      if (aVal === bVal) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      let comparison = 0;
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        comparison = aVal.localeCompare(bVal);
+      } else {
+        comparison = aVal < bVal ? -1 : 1;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return list;
+  }, [enrollments, sortField, sortDirection]);
 
   const columns = [
     {
@@ -245,9 +300,12 @@ const EnrollmentList = ({
 
       <Table
         columns={columns}
-        data={enrollments}
+        data={sortedEnrollments}
         isLoading={isLoading}
         emptyMessage="No enrollments match your search criteria."
+        sortField={sortField}
+        sortDirection={sortDirection}
+        onSort={handleSort}
       />
 
       {totalPages > 1 && (
