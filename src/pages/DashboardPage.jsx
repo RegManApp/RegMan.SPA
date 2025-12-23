@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminDashboard, StudentDashboard, InstructorDashboard } from '../components/dashboard';
 import { PageLoading, Breadcrumb } from '../components/common';
@@ -24,11 +24,8 @@ const DashboardPage = () => {
   const [instructorSchedules, setInstructorSchedules] = useState([]);
   const [timeline, setTimeline] = useState(null);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, [user]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
+    if (!user?.id) return;
     setIsLoading(true);
     try {
       if (isAdmin()) {
@@ -67,9 +64,12 @@ const DashboardPage = () => {
         ]);
 
         setStudentProfile(profileRes.data || profileRes);
-        setMyEnrollments(enrollmentsRes.data || enrollmentsRes || []);
-        const coursesData = coursesRes.data || coursesRes || [];
-        setAvailableCourses(normalizeCourses(Array.isArray(coursesData) ? coursesData : coursesData.items || []));
+        const enrollmentsData = enrollmentsRes?.data ?? enrollmentsRes;
+        setMyEnrollments(Array.isArray(enrollmentsData) ? enrollmentsData : (enrollmentsData?.items || []));
+
+        const coursesData = coursesRes?.data ?? coursesRes;
+        const courseItems = Array.isArray(coursesData) ? coursesData : (coursesData?.items || coursesData?.Items || []);
+        setAvailableCourses(normalizeCourses(Array.isArray(courseItems) ? courseItems : []));
         setTimeline(timelineRes);
       }
     } catch (error) {
@@ -77,7 +77,11 @@ const DashboardPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id, isAdmin, isInstructor, isStudent]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   if (isLoading) {
     return <PageLoading />;
