@@ -5,8 +5,10 @@ import { ArrowLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 const InstructorDetails = ({
   instructor,
+  schedules = [],
   onEdit,
   onBack,
+  isLoadingSchedules = false,
 }) => {
   if (!instructor) return null;
 
@@ -121,15 +123,14 @@ const InstructorDetails = ({
         </div>
       </Card>
 
-      {instructor.schedules && instructor.schedules.length > 0 && (
-        <Card title="Teaching Schedule">
-          <Table
-            columns={scheduleColumns}
-            data={instructor.schedules}
-            emptyMessage="No scheduled classes."
-          />
-        </Card>
-      )}
+      <Card title="Teaching Schedule">
+        <Table
+          columns={scheduleColumns}
+          data={schedules}
+          isLoading={isLoadingSchedules}
+          emptyMessage="No scheduled classes."
+        />
+      </Card>
     </div>
   );
 };

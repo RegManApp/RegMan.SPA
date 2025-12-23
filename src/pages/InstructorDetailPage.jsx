@@ -24,8 +24,8 @@ const InstructorDetailPage = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const instructorData = await instructorApi.getById(id);
-        setInstructor(instructorData);
+        const res = await instructorApi.getById(id);
+        setInstructor(res?.data ?? res);
       } catch (error) {
         console.error('Failed to fetch instructor:', error);
         toast.error('Failed to load instructor details');
@@ -38,8 +38,9 @@ const InstructorDetailPage = () => {
     const fetchSchedules = async () => {
       try {
         setIsLoadingSchedules(true);
-        const schedulesData = await scheduleApi.getByInstructor(id);
-        setSchedules(Array.isArray(schedulesData) ? schedulesData : schedulesData.items || []);
+        const res = await scheduleApi.getByInstructor(id);
+        const schedulesData = res?.data ?? res;
+        setSchedules(Array.isArray(schedulesData) ? schedulesData : schedulesData?.items || []);
       } catch (error) {
         console.error('Failed to fetch schedules:', error);
         setSchedules([]);
@@ -70,8 +71,8 @@ const InstructorDetailPage = () => {
       toast.success('Instructor updated successfully');
       handleCloseForm();
       // Refresh instructor data
-      const updatedInstructor = await instructorApi.getById(id);
-      setInstructor(updatedInstructor);
+      const updatedRes = await instructorApi.getById(id);
+      setInstructor(updatedRes?.data ?? updatedRes);
     } catch (error) {
       console.error('Failed to update instructor:', error);
       toast.error(error.message || 'Failed to update instructor');
