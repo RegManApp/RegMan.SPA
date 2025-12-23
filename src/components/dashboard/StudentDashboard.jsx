@@ -18,10 +18,18 @@ const StudentDashboard = ({
   isLoading,
   timeline,
 }) => {
-  // Status 0 = Enrolled, Status 1 = Completed
-  const activeEnrollments = enrollments.filter((e) => e.status === 0);
-  const completedEnrollments = enrollments.filter((e) => e.status === 1);
-  const gpa = calculateGPA(enrollments);
+  const safeEnrollments = Array.isArray(enrollments) ? enrollments : [];
+
+  // Backend enum: Pending=0, Enrolled=1, Dropped=2, Completed=3, Declined=4
+  const activeEnrollments = safeEnrollments.filter((e) => e?.status === 0 || e?.status === 1);
+  const completedEnrollments = safeEnrollments.filter((e) => e?.status === 3);
+  const gpa = calculateGPA(safeEnrollments);
+
+  const firstName =
+    student?.user?.firstName ||
+    student?.firstName ||
+    (student?.fullName ? student.fullName.split(' ')[0] : '') ||
+    'Student';
 
   const countdownTarget = timeline?.status?.countdownTargetUtc ? new Date(timeline.status.countdownTargetUtc) : null;
   const phase = timeline?.status?.phase || 'Closed';
@@ -54,7 +62,7 @@ const StudentDashboard = ({
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white">
         <h1 className="text-2xl font-bold">
-          Welcome back, {student?.user?.firstName || 'Student'}!
+          Welcome back, {firstName}!
         </h1>
         <p className="mt-2 text-primary-100">
           Here's an overview of your academic progress.
@@ -83,7 +91,10 @@ const StudentDashboard = ({
         />
         <StatsCard
           title="Total Credits"
-          value={enrollments.reduce((sum, e) => sum + (e.course?.creditHours || 0), 0)}
+          value={safeEnrollments.reduce((sum, e) => {
+            const credits = e?.course?.creditHours ?? e?.creditHours ?? 0;
+            return sum + (Number(credits) || 0);
+          }, 0)}
           icon={CalendarIcon}
           iconClassName="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
         />
@@ -135,29 +146,29 @@ const StudentDashboard = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {activeEnrollments.map((enrollment) => (
               <div
-                key={enrollment.id}
+                key={enrollment.enrollmentId || enrollment.id}
                 className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-2">
                   <Badge variant="primary" size="sm">
-                    {enrollment.course?.courseCode}
+                    {enrollment.course?.courseCode || enrollment.courseCode || '—'}
                   </Badge>
                   <Badge className={getStatusColor(enrollment.status)} size="sm">
                     {getEnrollmentStatusLabel(enrollment.status)}
                   </Badge>
                 </div>
                 <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                  {enrollment.course?.courseName}
+                  {enrollment.course?.courseName || enrollment.courseName || '—'}
                 </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                  {enrollment.course?.creditHours} Credits • {enrollment.semester || 'Current'}
+                  {(enrollment.course?.creditHours ?? enrollment.creditHours ?? 0)} Credits • {enrollment.semester || 'Current'}
                 </p>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500 dark:text-gray-400">
                     Grade: {enrollment.grade || 'In Progress'}
                   </span>
                   <Link
-                    to={`/courses/${enrollment.courseId}`}
+                    to={`/courses/${enrollment.courseId || enrollment.course?.courseId || enrollment.course?.id}`}
                     className="text-primary-600 hover:text-primary-500"
                   >
                     View Details
