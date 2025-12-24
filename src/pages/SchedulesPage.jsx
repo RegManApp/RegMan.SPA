@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { scheduleApi, instructorApi, sectionApi, roomApi, timeSlotApi } from '../api';
 import { ScheduleList, ScheduleForm, Timetable } from '../components/schedules';
 import { PageHeader, Button, Card } from '../components/common';
 
 const SchedulesPage = () => {
+  const { t } = useTranslation();
   const { user, isAdmin, isInstructor } = useAuth();
   
   const [schedules, setSchedules] = useState([]);
@@ -47,7 +49,7 @@ const SchedulesPage = () => {
       setSchedules(scheduleItems);
     } catch (error) {
       console.error('Failed to fetch schedules:', error);
-      toast.error('Failed to load schedules');
+      toast.error(t('schedules.errors.fetchFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -117,12 +119,12 @@ const SchedulesPage = () => {
         await scheduleApi.delete(existingId);
       }
       await scheduleApi.create(data);
-      toast.success('Schedule saved successfully');
+      toast.success(t('schedules.toasts.saved'));
       handleCloseForm();
       fetchSchedules();
     } catch (error) {
       console.error('Failed to save schedule:', error);
-      toast.error(error.message || 'Failed to save schedule');
+      toast.error(t('schedules.errors.saveFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -131,11 +133,11 @@ const SchedulesPage = () => {
   const handleDelete = async (scheduleId) => {
     try {
       await scheduleApi.delete(scheduleId);
-      toast.success('Schedule deleted successfully');
+      toast.success(t('schedules.toasts.deleted'));
       fetchSchedules();
     } catch (error) {
       console.error('Failed to delete schedule:', error);
-      toast.error(error.message || 'Failed to delete schedule');
+      toast.error(t('schedules.errors.deleteFailed'));
     }
   };
 
