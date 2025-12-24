@@ -18,6 +18,16 @@ export const loginSchema = yup.object({
   password: yup.string().required("Password is required"),
 });
 
+// Localized schema builders (prefer these in UI so language switching updates messages)
+export const getLoginSchema = (t) =>
+  yup.object({
+    email: yup
+      .string()
+      .email(t("validation.email.invalid"))
+      .required(t("validation.email.required")),
+    password: yup.string().required(t("validation.password.required")),
+  });
+
 /**
  * Registration validation schema
  */
@@ -49,6 +59,33 @@ export const registerSchema = yup.object({
     .oneOf([yup.ref("password")], "Passwords must match")
     .required("Please confirm your password"),
 });
+
+export const getRegisterSchema = (t) =>
+  yup.object({
+    firstName: yup
+      .string()
+      .min(2, t("validation.firstName.min", { min: 2 }))
+      .max(50, t("validation.firstName.max", { max: 50 }))
+      .required(t("validation.firstName.required")),
+    lastName: yup
+      .string()
+      .min(2, t("validation.lastName.min", { min: 2 }))
+      .max(50, t("validation.lastName.max", { max: 50 }))
+      .required(t("validation.lastName.required")),
+    email: yup
+      .string()
+      .email(t("validation.email.invalid"))
+      .required(t("validation.email.required")),
+    password: yup
+      .string()
+      .min(8, t("validation.password.min", { min: 8 }))
+      .matches(passwordRegex, t("validation.password.complexity"))
+      .required(t("validation.password.required")),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], t("validation.confirmPassword.match"))
+      .required(t("validation.confirmPassword.required")),
+  });
 
 /**
  * Change password validation schema
