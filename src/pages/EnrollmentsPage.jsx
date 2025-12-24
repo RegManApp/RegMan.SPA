@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { enrollmentApi } from '../api/enrollmentApi';
 import { studentApi } from '../api/studentApi';
@@ -8,6 +9,7 @@ import { EnrollmentList, EnrollmentForm } from '../components/enrollments';
 import { PageLoading, Breadcrumb } from '../components/common';
 
 const EnrollmentsPage = () => {
+  const { t } = useTranslation();
   const { isAdmin } = useAuth();
 
   const [enrollments, setEnrollments] = useState([]);
@@ -41,13 +43,24 @@ const EnrollmentsPage = () => {
         response = await enrollmentApi.getMyEnrollments();
       }
 
-      const data = response.data;
-      setEnrollments(data.items || data);
-      setTotalPages(data.totalPages || 1);
-      setTotalItems(data.totalItems || data.length);
+      const payload = response?.data;
+
+      if (Array.isArray(payload)) {
+        setEnrollments(payload);
+        setTotalPages(1);
+        setTotalItems(payload.length);
+      } else {
+        const items = Array.isArray(payload?.items) ? payload.items : [];
+        setEnrollments(items);
+        setTotalPages(payload?.totalPages || 1);
+        setTotalItems(payload?.totalItems || items.length);
+      }
     } catch (error) {
       console.error('Failed to load enrollments:', error);
-      toast.error('Failed to load enrollments');
+      toast.error(t('enrollments.errors.fetchFailed'));
+      setEnrollments([]);
+      setTotalPages(1);
+      setTotalItems(0);
     } finally {
       setIsLoading(false);
     }
@@ -87,22 +100,22 @@ const EnrollmentsPage = () => {
     try {
       if (isAdmin()) {
         await enrollmentApi.delete(enrollmentId);
-        toast.success('Enrollment deleted successfully');
+        toast.success(t('enrollments.toasts.deleted'));
       } else {
         await enrollmentApi.drop(enrollmentId);
-        toast.success('Enrollment dropped successfully');
+        toast.success(t('enrollments.toasts.dropped'));
       }
       loadEnrollments();
     } catch (error) {
       console.error('Failed to delete enrollment:', error);
-      toast.error(isAdmin() ? 'Failed to delete enrollment' : 'Failed to drop enrollment');
+      toast.error(isAdmin() ? t('enrollments.errors.deleteFailed') : t('enrollments.errors.dropFailed'));
     }
   };
 
   const handleUpdateGrade = async (enrollmentId, grade) => {
     try {
       await enrollmentApi.updateGrade(enrollmentId, grade);
-      toast.success('Grade updated successfully');
+      toast.success(t('enrollments.toasts.gradeUpdated'));
       loadEnrollments();
     } catch (error) {
       console.error('Failed to update grade:', error);
@@ -115,11 +128,11 @@ const EnrollmentsPage = () => {
       const enrollmentId = formEnrollment?.enrollmentId || formEnrollment?.id;
       if (enrollmentId) {
         await enrollmentApi.update(enrollmentId, data);
-        toast.success('Enrollment updated successfully');
+        toast.success(t('enrollments.toasts.updated'));
       } else {
         // data contains { studentUserId, sectionId } for create
         await enrollmentApi.create(data);
-        toast.success('Enrollment created successfully');
+        toast.success(t('enrollments.toasts.created'));
       }
       setIsFormOpen(false);
       setFormEnrollment(null);
