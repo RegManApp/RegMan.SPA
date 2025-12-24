@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -34,6 +35,7 @@ const CourseList = ({
   categoryFilter = '',
   onCategoryFilter = () => {},
 }) => {
+    const { t } = useTranslation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, course: null });
 
   const columns = [
@@ -191,9 +193,12 @@ const CourseList = ({
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, course: null })}
         onConfirm={handleConfirmDelete}
-        title="Delete Course"
-        message={`Are you sure you want to delete "${deleteModal.course?.courseName}"? This will also remove all enrollments. This action cannot be undone.`}
-        confirmText="Delete"
+        title={t('courses.confirmDeleteTitle')}
+        message={t('courses.confirmDeleteMessage', {
+          courseName:
+            deleteModal.course?.courseName || t('courses.confirmDeleteNameFallback'),
+        })}
+        confirmText={t('common.delete')}
         variant="danger"
       />
     </div>
