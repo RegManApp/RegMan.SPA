@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { adminApi } from "../api/adminApi";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { Card, Button, Input } from "../components/common";
 
 const AdminSettingsPage = () => {
+  const { t } = useTranslation();
   const { isAdmin } = useAuth();
   const [registrationStartDate, setRegistrationStartDate] = useState("");
   const [registrationEndDate, setRegistrationEndDate] = useState("");
@@ -40,9 +42,9 @@ const AdminSettingsPage = () => {
         withdrawStartDate,
         withdrawEndDate,
       });
-      toast.success("Timeline updated");
+      toast.success(t('adminSettings.toasts.timelineUpdated'));
     } catch (error) {
-      toast.error("Failed to update timeline");
+      toast.error(t('adminSettings.errors.timelineUpdateFailed'));
     } finally {
       setIsLoading(false);
     }
