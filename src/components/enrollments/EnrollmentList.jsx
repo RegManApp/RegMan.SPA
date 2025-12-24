@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -34,6 +35,7 @@ const EnrollmentList = ({
   onPageChange,
   isAdmin,
 }) => {
+    const { t } = useTranslation();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, enrollment: null });
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
@@ -322,16 +324,22 @@ const EnrollmentList = ({
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, enrollment: null })}
         onConfirm={handleConfirmDelete}
-        title="Drop Enrollment"
-        message={`Are you sure you want to drop this enrollment? ${
+        title={t('enrollments.confirmDropTitle')}
+        message={
           isAdmin
-            ? `This will remove ${getFullName(
-                deleteModal.enrollment?.student?.user?.firstName,
-                deleteModal.enrollment?.student?.user?.lastName
-              )} from ${deleteModal.enrollment?.course?.courseName}.`
-            : 'This action cannot be undone.'
-        }`}
-        confirmText="Drop"
+            ? t('enrollments.confirmDropMessageAdmin', {
+                studentName:
+                  getFullName(
+                    deleteModal.enrollment?.student?.user?.firstName,
+                    deleteModal.enrollment?.student?.user?.lastName
+                  ) || t('enrollments.confirmDropStudentFallback'),
+                courseName:
+                  deleteModal.enrollment?.course?.courseName ||
+                  t('enrollments.confirmDropCourseFallback'),
+              })
+            : t('enrollments.confirmDropMessageStudent')
+        }
+        confirmText={t('enrollments.actions.drop')}
         variant="danger"
       />
     </div>
