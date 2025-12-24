@@ -5,9 +5,12 @@ import { adminApi } from "../api/adminApi";
 import { calendarApi } from "../api/calendarApi";
 import toast from "react-hot-toast";
 import { Card, Button, Input, Modal } from "../components/common";
+import { useTranslation } from "react-i18next";
+import { formatDateTime } from "../utils/formatters";
 
 const WithdrawRequestPage = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [enrollments, setEnrollments] = useState([]);
   const [withdrawStartDate, setWithdrawStartDate] = useState("");
   const [withdrawEndDate, setWithdrawEndDate] = useState("");
@@ -17,9 +20,13 @@ const WithdrawRequestPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    enrollmentApi.getMyEnrollments().then((res) => {
-      setEnrollments(res.data || []);
-    });
+    enrollmentApi
+      .getMyEnrollments()
+      .then((res) => {
+        const data = res?.data;
+        setEnrollments(Array.isArray(data) ? data : []);
+      })
+      .catch(() => setEnrollments([]));
     calendarApi.getTimeline().then((data) => {
       setWithdrawStartDate(data?.withdrawStartDate || "");
       setWithdrawEndDate(data?.withdrawEndDate || "");
@@ -34,6 +41,13 @@ const WithdrawRequestPage = () => {
   const now = new Date();
   const canWithdraw = withdrawStartDate && withdrawEndDate && now >= new Date(withdrawStartDate) && now <= new Date(withdrawEndDate);
 
+  const withdrawStartText = withdrawStartDate
+    ? formatDateTime(withdrawStartDate, { year: 'numeric', month: 'short', day: 'numeric' })
+    : '—';
+  const withdrawEndText = withdrawEndDate
+    ? formatDateTime(withdrawEndDate, { year: 'numeric', month: 'short', day: 'numeric' })
+    : '—';
+
   const handleOpenModal = (enrollment) => {
     setSelectedEnrollment(enrollment);
     setShowModal(true);
@@ -41,17 +55,17 @@ const WithdrawRequestPage = () => {
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
-      toast.error("Please provide a reason");
+      toast.error(t('withdrawRequests.errors.reasonRequired'));
       return;
     }
     setIsSubmitting(true);
     try {
       await adminApi.submitMyWithdrawRequest(selectedEnrollment.enrollmentId, reason);
-      toast.success("Withdraw request submitted");
+      toast.success(t('withdrawRequests.toasts.submitted'));
       setShowModal(false);
       setReason("");
     } catch (error) {
-      toast.error(error?.message || "Failed to submit request");
+      toast.error(error?.message || t('withdrawRequests.errors.submitFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -59,34 +73,34 @@ const WithdrawRequestPage = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <Card title="Withdraw Requests">
-        <p>Withdraw period: {withdrawStartDate} to {withdrawEndDate}</p>
+      <Card title={t('nav.withdrawRequests')}>
+        <p>{t('withdrawRequests.period', { start: withdrawStartText, end: withdrawEndText })}</p>
         {canWithdraw ? (
           <ul className="space-y-4">
             {enrollments.filter(e => e.status === "Enrolled").map(enrollment => (
               <li key={enrollment.enrollmentId} className="flex justify-between items-center">
                 <span>{enrollment.courseName || enrollment.sectionName}</span>
                 <Button onClick={() => handleOpenModal(enrollment)}>
-                  Request Withdraw
+                  {t('withdrawRequests.requestWithdraw')}
                 </Button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-red-500">Withdraw period is not active.</p>
+          <p className="text-red-500">{t('withdrawRequests.periodInactive')}</p>
         )}
       </Card>
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Withdraw Request">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={t('nav.withdrawRequest')}>
         <div className="space-y-4">
-          <label className="block font-medium">Reason for withdraw</label>
+          <label className="block font-medium">{t('withdrawRequests.reasonLabel')}</label>
           <Input
             type="text"
             value={reason}
             onChange={e => setReason(e.target.value)}
-            placeholder="Enter your reason"
+            placeholder={t('withdrawRequests.reasonPlaceholder')}
           />
           <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit Request"}
+            {isSubmitting ? t('common.submitting') : t('withdrawRequests.submitRequest')}
           </Button>
         </div>
       </Modal>
