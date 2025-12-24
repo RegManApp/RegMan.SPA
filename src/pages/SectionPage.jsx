@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import sectionApi from "../api/sectionApi";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
@@ -27,6 +28,7 @@ const defaultForm = {
 };
 
 const SectionPage = () => {
+  const { t } = useTranslation();
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -80,7 +82,7 @@ const SectionPage = () => {
         : (Array.isArray(data?.items) ? data.items : (Array.isArray(data?.Items) ? data.Items : []));
       setSections(items);
     } catch (e) {
-      toast.error("Failed to fetch sections");
+      toast.error(t('sections.errors.fetchFailed'));
     }
     setLoading(false);
   };
@@ -117,7 +119,7 @@ const SectionPage = () => {
       setInstructors(normalizedInstructors);
       setTimeSlots([]);
     } catch (e) {
-      toast.error("Failed to load dropdown data");
+      toast.error(t('sections.errors.dropdownFetchFailed'));
     } finally {
       setDropdownLoading(false);
       setForm(f => ({ ...f, timeSlotId: "" })); // Clear selected time slot
@@ -139,7 +141,7 @@ const SectionPage = () => {
       const bookedIds = (Array.isArray(scheduleSlotRes.data) ? scheduleSlotRes.data : scheduleSlotRes.data.items || []).map(slot => slot.timeSlotId);
       setBookedTimeSlotIds(bookedIds);
     } catch (e) {
-      toast.error("Failed to load time slots for room");
+      toast.error(t('sections.errors.timeSlotsForRoomFailed'));
       setTimeSlots([]);
       setBookedTimeSlotIds([]);
     }
@@ -206,7 +208,7 @@ const SectionPage = () => {
     e.preventDefault();
     // Added form validation: ensure roomId and timeSlotId are selected
     if (!form.roomId || !form.timeSlotId) {
-      toast.error("Please select a room and time slot.");
+      toast.error(t('sections.errors.selectRoomAndTimeSlot'));
       return;
     }
     try {
@@ -218,26 +220,26 @@ const SectionPage = () => {
       };
       if (editId) {
         await sectionApi.update(editId, payload);
-        toast.success("Section updated");
+        toast.success(t('sections.toasts.updated'));
       } else {
         await sectionApi.create(payload);
-        toast.success("Section created");
+        toast.success(t('sections.toasts.created'));
       }
       fetchSections();
       handleCloseModal();
     } catch (error) {
-      toast.error("Failed to save section");
+      toast.error(t('sections.errors.saveFailed'));
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this section?")) return;
+    if (!window.confirm(t('sections.confirmDelete'))) return;
     try {
       await sectionApi.delete(id);
-      toast.success("Section deleted");
+      toast.success(t('sections.toasts.deleted'));
       fetchSections();
     } catch {
-      toast.error("Failed to delete section");
+      toast.error(t('sections.errors.deleteFailed'));
     }
   };
 
