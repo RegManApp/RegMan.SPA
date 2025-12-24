@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { officeHourApi } from '../api/officeHourApi';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import {
   FiCalendar,
   FiClock,
@@ -16,6 +17,7 @@ import {
 } from 'react-icons/fi';
 
 const BookOfficeHourPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [instructors, setInstructors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -48,7 +50,7 @@ const BookOfficeHourPage = () => {
       setInstructors(data);
     } catch (error) {
       console.error('Error fetching instructors:', error);
-      toast.error('Failed to load instructors');
+      toast.error(t('bookOfficeHours.errors.instructorsFetchFailed'));
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ const BookOfficeHourPage = () => {
       setAvailableSlots(data);
     } catch (error) {
       console.error('Error fetching slots:', error);
-      toast.error('Failed to load available slots');
+      toast.error(t('bookOfficeHours.errors.slotsFetchFailed'));
     } finally {
       setLoading(false);
     }
@@ -80,26 +82,26 @@ const BookOfficeHourPage = () => {
     if (!selectedSlot) return;
     try {
       await officeHourApi.bookOfficeHour(selectedSlot.officeHourId, bookingData);
-      toast.success('Office hour booked successfully!');
+      toast.success(t('bookOfficeHours.toasts.booked'));
       setShowBookingModal(false);
       setSelectedSlot(null);
       setBookingData({ purpose: '', studentNotes: '' });
       fetchAvailableSlots(selectedInstructor.instructorId);
       fetchMyBookings();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to book office hour');
+      toast.error(t('bookOfficeHours.errors.bookFailed'));
     }
   };
 
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
-    const reason = window.prompt('Enter reason for cancellation (optional):');
+    if (!window.confirm(t('bookOfficeHours.confirmCancelBooking'))) return;
+    const reason = window.prompt(t('common.prompts.cancelReasonOptional'));
     try {
       await officeHourApi.cancelBooking(bookingId, reason);
-      toast.success('Booking cancelled');
+      toast.success(t('bookOfficeHours.toasts.cancelled'));
       fetchMyBookings();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to cancel booking');
+      toast.error(t('bookOfficeHours.errors.cancelFailed'));
     }
   };
 
