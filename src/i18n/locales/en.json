@@ -1,0 +1,569 @@
+{
+  "app": {
+    "name": "RegMan"
+  },
+  "common": {
+    "language": "Language",
+    "english": "EN",
+    "arabic": "AR",
+    "close": "Close",
+    "open": "Open",
+    "cancel": "Cancel",
+    "save": "Save",
+    "remove": "Remove",
+    "add": "Add",
+    "reset": "Reset",
+    "loading": "Loading...",
+    "submitting": "Submitting...",
+    "deleting": "Deleting...",
+    "back": "Back",
+    "search": "Search",
+    "select": "Select",
+    "user": "User",
+    "id": "ID",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "update": "Update",
+    "confirm": "Confirm",
+    "confirmModal": {
+      "title": "Confirm Action",
+      "message": "Are you sure you want to perform this action?"
+    },
+    "prompts": {
+      "cancelReasonOptional": "Enter reason for cancellation (optional):"
+    }
+  },
+  "nav": {
+    "core": "Core",
+    "support": "Support",
+    "admin": "Admin",
+    "dashboard": "Dashboard",
+    "students": "Students",
+    "instructors": "Instructors",
+    "courses": "Courses",
+    "myCourses": "My Courses",
+    "sections": "Sections",
+    "schedules": "Schedules",
+    "rooms": "Rooms",
+    "enrollments": "Enrollments",
+    "myEnrollments": "My Enrollments",
+    "calendar": "Calendar",
+    "chat": "Chat",
+    "advising": "Advising",
+    "withdrawRequests": "Withdraw Requests",
+    "withdrawRequest": "Withdraw Request",
+    "withdrawHistory": "Withdraw History",
+    "users": "Users",
+    "analytics": "Analytics",
+    "gpaAndGrades": "GPA & Grades",
+    "academicPlan": "Academic Plan",
+    "transcript": "Transcript",
+    "timeSlots": "Time Slots",
+    "adminSettings": "Admin Settings",
+    "officeHours": "Office Hours",
+    "bookOfficeHours": "Book Office Hours",
+    "smartSchedule": "Smart Schedule",
+    "cart": "Cart",
+    "profile": "Profile",
+    "notifications": "Notifications"
+  },
+  "a11y": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar",
+    "toggleTheme": "Toggle theme"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "permissionDenied": "Permission denied",
+    "resourceNotFound": "Resource not found",
+    "serverErrorTryLater": "Server error. Please try again later.",
+    "networkErrorCheckConnection": "Network error. Please check your connection.",
+    "failedToLoadGpa": "Failed to load GPA data",
+    "simulationFailed": "Simulation failed",
+    "studentIdRequired": "StudentId is required",
+    "studentIdPositive": "StudentId must be a positive number",
+    "failedToUpdateGrade": "Failed to update grade"
+  },
+  "gpa": {
+    "title": "GPA & Grades",
+    "studentNameTitle": "{{name}}'s GPA",
+    "studentTitle": "Student GPA",
+    "myTitle": "My GPA",
+    "enterStudentId": "Enter Student ID",
+    "simulate": "Simulate",
+    "backToStudents": "Back to Students",
+    "currentGpa": "Current GPA",
+    "storedGpa": "Stored GPA",
+    "completedCredits": "Completed Credits",
+    "registeredCredits": "Registered Credits",
+    "enrollmentsAndGrades": "Enrollments & Grades",
+    "noEnrollments": "No enrollments found",
+    "course": "Course",
+    "section": "Section",
+    "credits": "Credits",
+    "grade": "Grade",
+    "points": "Points",
+    "status": "Status",
+    "actions": "Actions",
+    "selectGrade": "Select Grade",
+    "editGrade": "Edit Grade",
+    "whatIfTitle": "GPA What-If Calculator",
+    "whatIfDescription": "Add hypothetical courses to see how they would affect your GPA.",
+    "expectedGrade": "Expected Grade",
+    "simulatedGpa": "Simulated GPA",
+    "difference": "Difference",
+    "addCourse": "Add Course",
+    "reset": "Reset",
+    "noStudentSelected": "Enter a Student ID to view data"
+  },
+  "toasts": {
+    "gradeUpdated": "Grade updated successfully"
+  },
+  "withdrawRequests": {
+    "requestWithdraw": "Request Withdraw",
+    "period": "Withdraw period: {{start}} to {{end}}",
+    "periodInactive": "Withdraw period is not active.",
+    "reasonLabel": "Reason",
+    "reasonPlaceholder": "Enter reason...",
+    "submitRequest": "Submit Request",
+    "errors": {
+      "reasonRequired": "Reason is required",
+      "submitFailed": "Failed to submit withdraw request"
+    },
+    "toasts": {
+      "submitted": "Withdraw request submitted"
+    }
+  },
+  "transcript": {
+    "addTranscript": "Add Transcript",
+    "recalcGpa": "Recalculate GPA",
+    "confirmDelete": "Are you sure you want to delete this transcript record?",
+    "addTitle": "Add Transcript Record",
+    "editTitle": "Edit Transcript Record",
+    "fields": {
+      "studentId": "Student ID",
+      "courseId": "Course ID",
+      "semester": "Semester",
+      "year": "Year",
+      "grade": "Grade"
+    },
+    "filters": {
+      "studentIdPlaceholder": "Filter by Student ID",
+      "courseIdPlaceholder": "Filter by Course ID",
+      "semesterPlaceholder": "Filter by Semester",
+      "yearPlaceholder": "Filter by Year",
+      "gradePlaceholder": "Filter by Grade"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch transcript records",
+      "saveFailed": "Failed to save transcript record",
+      "deleteFailed": "Failed to delete transcript record",
+      "gpaRecalcFailed": "Failed to recalculate GPA"
+    },
+    "toasts": {
+      "updated": "Transcript record updated",
+      "created": "Transcript record created",
+      "deleted": "Transcript record deleted",
+      "gpaRecalculated": "GPA recalculated"
+    }
+  },
+  "rooms": {
+    "addRoom": "Add Room",
+    "confirmDelete": "Are you sure you want to delete this room?",
+    "confirmDeleteTimeSlot": "Are you sure you want to delete this time slot?",
+    "addTitle": "Add Room",
+    "editTitle": "Edit Room",
+    "detailsTitle": "Room Details",
+    "timeSlotsTitle": "Time Slots",
+    "noTimeSlots": "No time slots found",
+    "notFound": "Room not found.",
+    "fields": {
+      "building": "Building",
+      "roomNumber": "Room Number",
+      "capacity": "Capacity",
+      "type": "Type"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch rooms",
+      "saveFailed": "Failed to save room",
+      "deleteFailed": "Failed to delete room",
+      "detailsFetchFailed": "Failed to fetch room details",
+      "timeSlotsFetchFailed": "Failed to fetch time slots",
+      "deleteTimeSlotFailed": "Failed to delete time slot"
+    },
+    "toasts": {
+      "updated": "Room updated",
+      "created": "Room created",
+      "deleted": "Room deleted",
+      "timeSlotDeleted": "Time slot deleted"
+    }
+  },
+  "courses": {
+    "noDescription": "No description",
+    "creditsWithValue": "{{count}} Credits",
+    "enrolledWithValue": "{{count}} Enrolled",
+    "viewDetails": "View Details",
+    "removeFromCart": "Remove from Cart",
+    "drop": "Drop",
+    "dropping": "Dropping...",
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "registrationClosedNotice": "Registration closed on {{date}}",
+    "confirmDeleteTitle": "Delete Course",
+    "confirmDeleteMessage": "Are you sure you want to delete \"{{courseName}}\"? This will also remove all enrollments. This action cannot be undone.",
+    "confirmDeleteNameFallback": "this course",
+    "errors": {
+      "fetchFailed": "Failed to load courses",
+      "detailsFetchFailed": "Failed to load course details",
+      "addToCartFailed": "Failed to add course to cart",
+      "dropFailed": "Failed to drop course"
+    },
+    "toasts": {
+      "addedToCart": "Course added to cart",
+      "created": "Course created successfully",
+      "updated": "Course updated successfully",
+      "deleted": "Course deleted successfully",
+      "removedFromCart": "Removed from cart",
+      "dropped": "Course dropped"
+    }
+  },
+  "enrollments": {
+    "confirmDropTitle": "Drop Enrollment",
+    "confirmDropMessageAdmin": "Are you sure you want to drop this enrollment? This will remove {{studentName}} from {{courseName}}.",
+    "confirmDropMessageStudent": "Are you sure you want to drop this enrollment? This action cannot be undone.",
+    "confirmDropStudentFallback": "this student",
+    "confirmDropCourseFallback": "this course",
+    "actions": {
+      "drop": "Drop"
+    },
+    "errors": {
+      "fetchFailed": "Failed to load enrollments",
+      "deleteFailed": "Failed to delete enrollment",
+      "dropFailed": "Failed to drop enrollment"
+    },
+    "toasts": {
+      "deleted": "Enrollment deleted successfully",
+      "dropped": "Enrollment dropped successfully",
+      "updated": "Enrollment updated successfully",
+      "created": "Enrollment created successfully",
+      "gradeUpdated": "Grade updated successfully"
+    }
+  },
+  "cart": {
+    "errors": {
+      "fetchFailed": "Failed to load cart",
+      "removeFailed": "Failed to remove item",
+      "enrollFailed": "Failed to enroll",
+      "checkoutFailed": "Checkout failed"
+    },
+    "toasts": {
+      "enrolled": "Enrolled successfully",
+      "checkoutSuccess": "Checkout successful"
+    }
+  },
+  "academicPlan": {
+    "confirmDelete": "Delete this academic plan?",
+    "errors": {
+      "progressFetchFailed": "Failed to fetch academic progress",
+      "fetchFailed": "Failed to fetch academic plans",
+      "saveFailed": "Failed to save academic plan",
+      "deleteFailed": "Failed to delete academic plan",
+      "assignFailed": "Failed to assign plan",
+      "coursesFetchFailed": "Failed to fetch courses"
+    },
+    "toasts": {
+      "updated": "Academic plan updated",
+      "created": "Academic plan created",
+      "deleted": "Academic plan deleted",
+      "assigned": "Plan assigned to student"
+    }
+  },
+  "advising": {
+    "errors": {
+      "pendingFetchFailed": "Failed to load pending enrollments",
+      "approveFailed": "Failed to approve enrollment",
+      "declineReasonRequired": "Please provide a reason for declining",
+      "declineFailed": "Failed to decline enrollment"
+    },
+    "toasts": {
+      "approved": "Enrollment approved successfully",
+      "declined": "Enrollment declined"
+    }
+  },
+  "calendar": {
+    "errors": {
+      "fetchFailed": "Failed to load calendar events"
+    }
+  },
+  "bookOfficeHours": {
+    "confirmCancelBooking": "Are you sure you want to cancel this booking?",
+    "errors": {
+      "instructorsFetchFailed": "Failed to load instructors",
+      "slotsFetchFailed": "Failed to load available slots",
+      "bookFailed": "Failed to book office hour",
+      "cancelFailed": "Failed to cancel booking"
+    },
+    "toasts": {
+      "booked": "Office hour booked successfully!",
+      "cancelled": "Booking cancelled"
+    }
+  },
+  "analytics": {
+    "errors": {
+      "fetchFailed": "Failed to load analytics data"
+    }
+  },
+  "adminWithdrawRequests": {
+    "errors": {
+      "fetchFailed": "Failed to load withdraw requests",
+      "approveFailed": "Failed to approve request",
+      "denyFailed": "Failed to deny request"
+    },
+    "toasts": {
+      "approved": "Request approved",
+      "denied": "Request denied"
+    }
+  },
+  "adminSettings": {
+    "errors": {
+      "timelineUpdateFailed": "Failed to update timeline"
+    },
+    "toasts": {
+      "timelineUpdated": "Timeline updated"
+    }
+  },
+  "users": {
+    "confirmDeleteTitle": "Delete User",
+    "confirmDeleteMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "confirmDeleteNameFallback": "this user",
+    "errors": {
+      "fetchFailed": "Failed to load users",
+      "updateFailed": "Failed to update user"
+    },
+    "toasts": {
+      "deleted": "User deleted successfully",
+      "updated": "User updated successfully"
+    }
+  },
+  "students": {
+    "confirmDeleteTitle": "Delete Student",
+    "confirmDeleteMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "confirmDeleteNameFallback": "this student",
+    "errors": {
+      "fetchFailed": "Failed to load students",
+      "detailsFetchFailed": "Failed to load student details"
+    },
+    "toasts": {
+      "deleted": "Student deleted successfully",
+      "updated": "Student updated successfully",
+      "created": "Student created successfully"
+    }
+  },
+  "timeSlots": {
+    "toasts": {
+      "updated": "Time slot updated",
+      "created": "Time slot created"
+    }
+  },
+  "smartScheduleBuilder": {
+    "errors": {
+      "coursesFetchFailed": "Failed to load courses",
+      "courseAlreadyAdded": "Course already added",
+      "maxCourses": "Max {{max}} courses for Smart Builder",
+      "minCourses": "Add at least {{min}} course",
+      "buildFailed": "Failed to build schedule"
+    }
+  },
+  "sections": {
+    "confirmDelete": "Delete this section?",
+    "errors": {
+      "fetchFailed": "Failed to fetch sections",
+      "dropdownFetchFailed": "Failed to load dropdown data",
+      "timeSlotsForRoomFailed": "Failed to load time slots for room",
+      "selectRoomAndTimeSlot": "Please select a room and time slot.",
+      "saveFailed": "Failed to save section",
+      "deleteFailed": "Failed to delete section"
+    },
+    "toasts": {
+      "updated": "Section updated",
+      "created": "Section created",
+      "deleted": "Section deleted"
+    }
+  },
+  "schedules": {
+    "confirmDeleteTitle": "Delete Schedule",
+    "confirmDeleteMessage": "Are you sure you want to delete this schedule for {{name}}? This action cannot be undone.",
+    "confirmDeleteNameFallback": "this schedule",
+    "errors": {
+      "fetchFailed": "Failed to load schedules",
+      "saveFailed": "Failed to save schedule",
+      "deleteFailed": "Failed to delete schedule"
+    },
+    "toasts": {
+      "saved": "Schedule saved successfully",
+      "deleted": "Schedule deleted successfully"
+    }
+  },
+  "profile": {
+    "toasts": {
+      "updated": "Profile updated successfully",
+      "passwordChanged": "Password changed successfully"
+    }
+  },
+  "officeHours": {
+    "confirmDelete": "Are you sure you want to delete this office hour?",
+    "errors": {
+      "fetchFailed": "Failed to load office hours",
+      "createFailed": "Failed to create office hour",
+      "deleteFailed": "Failed to delete office hour",
+      "confirmBookingFailed": "Failed to confirm booking",
+      "cancelBookingFailed": "Failed to cancel booking",
+      "completeBookingFailed": "Failed to complete booking",
+      "noShowFailed": "Failed to mark no-show",
+      "addNotesFailed": "Failed to add notes"
+    },
+    "toasts": {
+      "created": "Office hour created successfully",
+      "deleted": "Office hour deleted",
+      "bookingConfirmed": "Booking confirmed",
+      "bookingCancelled": "Booking cancelled",
+      "bookingCompleted": "Booking marked as completed",
+      "bookingNoShow": "Marked as no-show",
+      "notesAdded": "Notes added successfully"
+    }
+  },
+  "instructors": {
+    "confirmDeleteTitle": "Delete Instructor",
+    "confirmDeleteMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+    "confirmDeleteNameFallback": "this instructor",
+    "errors": {
+      "fetchFailed": "Failed to load instructors",
+      "saveFailed": "Failed to save instructor",
+      "deleteFailed": "Failed to delete instructor",
+      "detailsFetchFailed": "Failed to load instructor details",
+      "updateFailed": "Failed to update instructor"
+    },
+    "toasts": {
+      "updated": "Instructor updated successfully",
+      "created": "Instructor created successfully",
+      "deleted": "Instructor deleted successfully"
+    }
+  },
+  "auth": {
+    "loginSuccess": "Login successful!",
+    "loginFailed": "Login failed",
+    "registrationSuccess": "Registration successful! Please login.",
+    "registrationFailed": "Registration failed",
+    "logoutSuccess": "Logged out successfully",
+    "maxSavedAccounts": "Maximum {{max}} accounts can be saved",
+    "accountSaved": "Account saved for quick switch",
+    "accountNotFound": "Account not found",
+    "sessionExpired": "Session expired. Please login again.",
+    "switchedTo": "Switched to {{name}}",
+    "accountRemoved": "Account removed from saved list",
+    "accountsCleared": "All saved accounts cleared"
+  },
+  "authPages": {
+    "login": {
+      "title": "Sign in to your account",
+      "subtitle": "Student Management System",
+      "noAccount": "Don't have an account?"
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "Join our Student Management System",
+      "haveAccount": "Already have an account?"
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "firstName": "First Name",
+      "lastName": "Last Name"
+    },
+    "placeholders": {
+      "email": "Enter your email",
+      "password": "Enter your password",
+      "firstName": "Enter your first name",
+      "lastName": "Enter your last name",
+      "createPassword": "Create a password",
+      "confirmPassword": "Confirm your password"
+    },
+    "actions": {
+      "show": "Show",
+      "hide": "Hide",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign in",
+      "signUp": "Sign up",
+      "createAccount": "Create Account"
+    },
+    "passwordRules": {
+      "title": "Password must contain:",
+      "minLength": "At least 8 characters",
+      "uppercase": "One uppercase letter",
+      "lowercase": "One lowercase letter",
+      "number": "One number",
+      "special": "One special character (@$!%*?&)"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid": "Invalid email address",
+      "required": "Email is required"
+    },
+    "password": {
+      "required": "Password is required",
+      "min": "Password must be at least {{min}} characters",
+      "complexity": "Password must contain at least one uppercase, one lowercase, one number, and one special character (@$!%*?&)"
+    },
+    "confirmPassword": {
+      "match": "Passwords must match",
+      "required": "Please confirm your password"
+    },
+    "firstName": {
+      "min": "First name must be at least {{min}} characters",
+      "max": "First name must be less than {{max}} characters",
+      "required": "First name is required"
+    },
+    "lastName": {
+      "min": "Last name must be at least {{min}} characters",
+      "max": "Last name must be less than {{max}} characters",
+      "required": "Last name is required"
+    }
+  },
+  "instructorTitles": {
+    "Instructor": "Instructor",
+    "TeachingAssistant": "Teaching Assistant",
+    "AssistantLecturer": "Assistant Lecturer",
+    "Lecturer": "Lecturer",
+    "AssistantProfessor": "Assistant Professor",
+    "AssociateProfessor": "Associate Professor",
+    "Professor": "Professor"
+  },
+  "accountSwitcher": {
+    "saveThisAccount": "Save this account",
+    "switchAccount": "Switch Account",
+    "removeAccount": "Remove account",
+    "yourProfile": "Your Profile",
+    "settings": "Settings",
+    "addAnotherAccount": "Add another account",
+    "confirmClearTitle": "Clear all saved accounts?",
+    "confirmClearYes": "Yes, clear all",
+    "clearAllSavedAccounts": "Clear all saved accounts",
+    "demoTools": "Demo Tools",
+    "seedDemoData": "Seed demo data",
+    "confirmResetDemoTitle": "Reset demo database?",
+    "confirmResetDemoYes": "Yes, reset",
+    "resetDemoDatabase": "Reset demo database",
+    "signOut": "Sign out",
+    "toasts": {
+      "switchedToEmail": "Switched to {{email}}",
+      "demoSeeded": "Demo data seeded",
+      "demoReset": "Demo database reset",
+      "loggedInAsAdminDemo": "Logged in as admin@demo.local"
+    }
+  }
+}

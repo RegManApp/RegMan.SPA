@@ -1,0 +1,568 @@
+{
+  "app": {
+    "name": "RegMan"
+  },
+  "common": {
+    "language": "اللغة",
+    "english": "EN",
+    "arabic": "AR",
+    "close": "إغلاق",
+    "open": "فتح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "remove": "إزالة",
+    "add": "إضافة",
+    "reset": "إعادة ضبط",
+    "loading": "جارٍ التحميل...",
+    "submitting": "جارٍ الإرسال...",
+    "deleting": "جارٍ الحذف...",
+    "back": "رجوع",
+    "search": "بحث",
+    "select": "اختيار",
+    "user": "مستخدم",
+    "id": "المعرّف",
+    "actions": "الإجراءات",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "create": "إنشاء",
+    "update": "تحديث",
+    "confirm": "تأكيد",
+    "confirmModal": {
+      "title": "تأكيد الإجراء",
+      "message": "هل أنت متأكد أنك تريد تنفيذ هذا الإجراء؟"
+    },
+    "prompts": {
+      "cancelReasonOptional": "أدخل سبب الإلغاء (اختياري):"
+    }
+  },
+  "nav": {
+    "core": "الأساسي",
+    "support": "الدعم",
+    "admin": "الإدارة",
+    "dashboard": "لوحة التحكم",
+    "students": "الطلاب",
+    "instructors": "المدرسون",
+    "courses": "المقررات",
+    "myCourses": "مقرراتي",
+    "sections": "الشُّعب",
+    "schedules": "الجداول",
+    "rooms": "القاعات",
+    "enrollments": "التسجيلات",
+    "myEnrollments": "تسجيلاتي",
+    "calendar": "التقويم",
+    "chat": "المحادثة",
+    "advising": "الإرشاد",
+    "withdrawRequests": "طلبات الانسحاب",
+    "withdrawRequest": "طلب انسحاب",
+    "withdrawHistory": "سجل الانسحاب",
+    "users": "المستخدمون",
+    "analytics": "التحليلات",
+    "gpaAndGrades": "المعدل والدرجات",
+    "academicPlan": "الخطة الأكاديمية",
+    "transcript": "السجل الأكاديمي",
+    "timeSlots": "الفترات الزمنية",
+    "adminSettings": "إعدادات الإدارة",
+    "officeHours": "ساعات المكتب",
+    "bookOfficeHours": "حجز ساعات المكتب",
+    "smartSchedule": "الجدول الذكي",
+    "cart": "السلة",
+    "profile": "الملف الشخصي",
+    "notifications": "الإشعارات"
+  },
+  "a11y": {
+    "openSidebar": "فتح الشريط الجانبي",
+    "closeSidebar": "إغلاق الشريط الجانبي",
+    "toggleTheme": "تبديل السمة"
+  },
+  "errors": {
+    "generic": "حدث خطأ ما",
+    "permissionDenied": "تم رفض الإذن",
+    "resourceNotFound": "المورد غير موجود",
+    "serverErrorTryLater": "خطأ في الخادم. حاول مرة أخرى لاحقًا.",
+    "networkErrorCheckConnection": "خطأ في الشبكة. تحقق من الاتصال.",
+    "failedToLoadGpa": "فشل تحميل بيانات المعدل",
+    "simulationFailed": "فشلت المحاكاة",
+    "studentIdRequired": "معرّف الطالب مطلوب",
+    "studentIdPositive": "يجب أن يكون معرّف الطالب رقمًا موجبًا",
+    "failedToUpdateGrade": "فشل تحديث الدرجة"
+  },
+  "gpa": {
+    "title": "المعدل والدرجات",
+    "studentNameTitle": "معدل {{name}}",
+    "studentTitle": "معدل الطالب",
+    "myTitle": "معدلي",
+    "enterStudentId": "أدخل معرّف الطالب",
+    "simulate": "محاكاة",
+    "backToStudents": "العودة إلى الطلاب",
+    "currentGpa": "المعدل الحالي",
+    "storedGpa": "المعدل المخزن",
+    "completedCredits": "الساعات المكتملة",
+    "registeredCredits": "الساعات المسجلة",
+    "enrollmentsAndGrades": "التسجيلات والدرجات",
+    "noEnrollments": "لا توجد تسجيلات",
+    "course": "المقرر",
+    "section": "الشعبة",
+    "credits": "الساعات",
+    "grade": "الدرجة",
+    "points": "النقاط",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "selectGrade": "اختر الدرجة",
+    "editGrade": "تعديل الدرجة",
+    "whatIfTitle": "حاسبة ماذا لو",
+    "whatIfDescription": "أضف مقررات افتراضية لمعرفة تأثيرها على معدلك.",
+    "expectedGrade": "الدرجة المتوقعة",
+    "simulationResults": "نتائج المحاكاة",
+    "simulatedGpa": "المعدل المُحاكى",
+    "difference": "الفرق",
+    "addCourse": "إضافة مقرر"
+  },
+  "toasts": {
+    "gradeUpdated": "تم تحديث الدرجة بنجاح"
+  },
+  "withdrawRequests": {
+    "requestWithdraw": "طلب انسحاب",
+    "period": "فترة الانسحاب: من {{start}} إلى {{end}}",
+    "periodInactive": "فترة الانسحاب غير مفعّلة.",
+    "reasonLabel": "سبب الانسحاب",
+    "reasonPlaceholder": "اكتب السبب...",
+    "submitRequest": "إرسال الطلب",
+    "errors": {
+      "reasonRequired": "السبب مطلوب",
+      "submitFailed": "فشل إرسال طلب الانسحاب"
+    },
+    "toasts": {
+      "submitted": "تم إرسال طلب الانسحاب"
+    }
+  },
+  "transcript": {
+    "addTranscript": "إضافة سجل",
+    "recalcGpa": "إعادة حساب المعدل",
+    "confirmDelete": "هل أنت متأكد من حذف هذا السجل؟",
+    "addTitle": "إضافة سجل",
+    "editTitle": "تعديل سجل",
+    "fields": {
+      "studentId": "معرّف الطالب",
+      "courseId": "معرّف المقرر",
+      "semester": "الفصل الدراسي",
+      "year": "السنة",
+      "grade": "الدرجة"
+    },
+    "filters": {
+      "studentIdPlaceholder": "تصفية حسب معرّف الطالب",
+      "courseIdPlaceholder": "تصفية حسب معرّف المقرر",
+      "semesterPlaceholder": "تصفية حسب الفصل الدراسي",
+      "yearPlaceholder": "تصفية حسب السنة",
+      "gradePlaceholder": "تصفية حسب الدرجة"
+    },
+    "errors": {
+      "fetchFailed": "فشل جلب السجلات",
+      "saveFailed": "فشل حفظ السجل",
+      "deleteFailed": "فشل حذف السجل",
+      "gpaRecalcFailed": "فشل إعادة حساب المعدل"
+    },
+    "toasts": {
+      "updated": "تم تحديث السجل",
+      "created": "تم إنشاء السجل",
+      "deleted": "تم حذف السجل",
+      "gpaRecalculated": "تمت إعادة حساب المعدل"
+    }
+  },
+  "rooms": {
+    "addRoom": "إضافة قاعة",
+    "confirmDelete": "هل أنت متأكد من حذف هذه القاعة؟",
+    "confirmDeleteTimeSlot": "هل أنت متأكد من حذف هذه الفترة الزمنية؟",
+    "addTitle": "إضافة قاعة",
+    "editTitle": "تعديل القاعة",
+    "detailsTitle": "تفاصيل القاعة",
+    "timeSlotsTitle": "الفترات الزمنية",
+    "noTimeSlots": "لا توجد فترات زمنية",
+    "notFound": "لم يتم العثور على القاعة.",
+    "fields": {
+      "building": "المبنى",
+      "roomNumber": "رقم القاعة",
+      "capacity": "السعة",
+      "type": "النوع"
+    },
+    "errors": {
+      "fetchFailed": "فشل جلب القاعات",
+      "saveFailed": "فشل حفظ القاعة",
+      "deleteFailed": "فشل حذف القاعة",
+      "detailsFetchFailed": "فشل جلب تفاصيل القاعة",
+      "timeSlotsFetchFailed": "فشل جلب الفترات الزمنية",
+      "deleteTimeSlotFailed": "فشل حذف الفترة الزمنية"
+    },
+    "toasts": {
+      "updated": "تم تحديث القاعة",
+      "created": "تم إنشاء القاعة",
+      "deleted": "تم حذف القاعة",
+      "timeSlotDeleted": "تم حذف الفترة الزمنية"
+    }
+  },
+  "enrollments": {
+    "confirmDropTitle": "إسقاط تسجيل",
+    "confirmDropMessageAdmin": "هل أنت متأكد أنك تريد إسقاط هذا التسجيل؟ سيؤدي ذلك إلى إزالة {{studentName}} من {{courseName}}.",
+    "confirmDropMessageStudent": "هل أنت متأكد أنك تريد إسقاط هذا التسجيل؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDropStudentFallback": "هذا الطالب",
+    "confirmDropCourseFallback": "هذا المقرر",
+    "actions": {
+      "drop": "إسقاط"
+    },
+    "errors": {
+      "fetchFailed": "فشل تحميل التسجيلات",
+      "deleteFailed": "فشل حذف التسجيل",
+      "dropFailed": "فشل إسقاط التسجيل"
+    },
+    "toasts": {
+      "deleted": "تم حذف التسجيل بنجاح",
+      "dropped": "تم إسقاط التسجيل بنجاح",
+      "updated": "تم تحديث التسجيل بنجاح",
+      "created": "تم إنشاء التسجيل بنجاح",
+      "gradeUpdated": "تم تحديث التقدير بنجاح"
+    }
+  },
+  "cart": {
+    "errors": {
+      "fetchFailed": "فشل تحميل السلة",
+      "removeFailed": "فشل إزالة العنصر",
+      "enrollFailed": "فشل التسجيل",
+      "checkoutFailed": "فشل إنهاء الدفع"
+    },
+    "toasts": {
+      "enrolled": "تم التسجيل بنجاح",
+      "checkoutSuccess": "تم إنهاء الدفع بنجاح"
+    }
+  },
+  "academicPlan": {
+    "confirmDelete": "هل تريد حذف هذه الخطة الأكاديمية؟",
+    "errors": {
+      "progressFetchFailed": "فشل جلب التقدم الأكاديمي",
+      "fetchFailed": "فشل جلب الخطط الأكاديمية",
+      "saveFailed": "فشل حفظ الخطة الأكاديمية",
+      "deleteFailed": "فشل حذف الخطة الأكاديمية",
+      "assignFailed": "فشل تعيين الخطة",
+      "coursesFetchFailed": "فشل جلب المقررات"
+    },
+    "toasts": {
+      "updated": "تم تحديث الخطة الأكاديمية",
+      "created": "تم إنشاء الخطة الأكاديمية",
+      "deleted": "تم حذف الخطة الأكاديمية",
+      "assigned": "تم تعيين الخطة للطالب"
+    }
+  },
+  "advising": {
+    "errors": {
+      "pendingFetchFailed": "فشل تحميل التسجيلات المعلقة",
+      "approveFailed": "فشل الموافقة على التسجيل",
+      "declineReasonRequired": "يرجى إدخال سبب الرفض",
+      "declineFailed": "فشل رفض التسجيل"
+    },
+    "toasts": {
+      "approved": "تمت الموافقة على التسجيل بنجاح",
+      "declined": "تم رفض التسجيل"
+    }
+  },
+  "calendar": {
+    "errors": {
+      "fetchFailed": "فشل تحميل أحداث التقويم"
+    }
+  },
+  "bookOfficeHours": {
+    "confirmCancelBooking": "هل أنت متأكد من إلغاء هذا الحجز؟",
+    "errors": {
+      "instructorsFetchFailed": "فشل تحميل المدرسين",
+      "slotsFetchFailed": "فشل تحميل الفترات المتاحة",
+      "bookFailed": "فشل حجز ساعة مكتبية",
+      "cancelFailed": "فشل إلغاء الحجز"
+    },
+    "toasts": {
+      "booked": "تم حجز الساعة المكتبية بنجاح!",
+      "cancelled": "تم إلغاء الحجز"
+    }
+  },
+  "analytics": {
+    "errors": {
+      "fetchFailed": "فشل تحميل بيانات التحليلات"
+    }
+  },
+  "adminWithdrawRequests": {
+    "errors": {
+      "fetchFailed": "فشل تحميل طلبات الانسحاب",
+      "approveFailed": "فشل الموافقة على الطلب",
+      "denyFailed": "فشل رفض الطلب"
+    },
+    "toasts": {
+      "approved": "تمت الموافقة على الطلب",
+      "denied": "تم رفض الطلب"
+    }
+  },
+  "adminSettings": {
+    "errors": {
+      "timelineUpdateFailed": "فشل تحديث الجدول الزمني"
+    },
+    "toasts": {
+      "timelineUpdated": "تم تحديث الجدول الزمني"
+    }
+  },
+  "courses": {
+    "noDescription": "لا يوجد وصف",
+    "creditsWithValue": "{{count}} ساعات",
+    "enrolledWithValue": "{{count}} مسجل",
+    "viewDetails": "عرض التفاصيل",
+    "removeFromCart": "إزالة من السلة",
+    "drop": "حذف",
+    "dropping": "جارٍ الحذف...",
+    "addToCart": "إضافة إلى السلة",
+    "adding": "جارٍ الإضافة...",
+    "registrationClosedNotice": "أُغلِق التسجيل في {{date}}",
+    "confirmDeleteTitle": "حذف المقرر",
+    "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف \"{{courseName}}\"؟ سيتم أيضًا حذف جميع التسجيلات. لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteNameFallback": "هذا المقرر",
+    "errors": {
+      "fetchFailed": "فشل تحميل المقررات",
+      "detailsFetchFailed": "فشل تحميل تفاصيل المقرر",
+      "addToCartFailed": "فشلت إضافة المقرر إلى السلة",
+      "dropFailed": "فشل حذف المقرر"
+    },
+    "toasts": {
+      "addedToCart": "تمت إضافة المقرر إلى السلة",
+      "created": "تم إنشاء المقرر بنجاح",
+      "updated": "تم تحديث المقرر بنجاح",
+      "deleted": "تم حذف المقرر بنجاح",
+      "removedFromCart": "تمت الإزالة من السلة",
+      "dropped": "تم إسقاط المقرر"
+    }
+  },
+  "users": {
+    "confirmDeleteTitle": "حذف المستخدم",
+    "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteNameFallback": "هذا المستخدم",
+    "errors": {
+      "fetchFailed": "فشل تحميل المستخدمين",
+      "updateFailed": "فشل تحديث المستخدم"
+    },
+    "toasts": {
+      "deleted": "تم حذف المستخدم بنجاح",
+      "updated": "تم تحديث المستخدم بنجاح"
+    }
+  },
+  "students": {
+    "confirmDeleteTitle": "حذف الطالب",
+    "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteNameFallback": "هذا الطالب",
+    "errors": {
+      "fetchFailed": "فشل تحميل الطلاب",
+      "detailsFetchFailed": "فشل تحميل تفاصيل الطالب"
+    },
+    "toasts": {
+      "deleted": "تم حذف الطالب بنجاح",
+      "updated": "تم تحديث الطالب بنجاح",
+      "created": "تم إنشاء الطالب بنجاح"
+    }
+  },
+  "timeSlots": {
+    "toasts": {
+      "updated": "تم تحديث الفترة الزمنية",
+      "created": "تم إنشاء الفترة الزمنية"
+    }
+  },
+  "smartScheduleBuilder": {
+    "errors": {
+      "coursesFetchFailed": "فشل تحميل المقررات",
+      "courseAlreadyAdded": "تمت إضافة المقرر بالفعل",
+      "maxCourses": "الحد الأقصى {{max}} مقررات لباني الجدول الذكي",
+      "minCourses": "أضف {{min}} مقرر على الأقل",
+      "buildFailed": "فشل إنشاء الجدول"
+    }
+  },
+  "sections": {
+    "confirmDelete": "هل تريد حذف هذه الشعبة؟",
+    "errors": {
+      "fetchFailed": "فشل جلب الشعب",
+      "dropdownFetchFailed": "فشل تحميل بيانات القوائم",
+      "timeSlotsForRoomFailed": "فشل تحميل الفترات الزمنية للقاعة",
+      "selectRoomAndTimeSlot": "يرجى اختيار قاعة وفترة زمنية.",
+      "saveFailed": "فشل حفظ الشعبة",
+      "deleteFailed": "فشل حذف الشعبة"
+    },
+    "toasts": {
+      "updated": "تم تحديث الشعبة",
+      "created": "تم إنشاء الشعبة",
+      "deleted": "تم حذف الشعبة"
+    }
+  },
+  "schedules": {
+    "confirmDeleteTitle": "حذف الجدول",
+    "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذا الجدول لـ {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteNameFallback": "هذا الجدول",
+    "errors": {
+      "fetchFailed": "فشل تحميل الجداول",
+      "saveFailed": "فشل حفظ الجدول",
+      "deleteFailed": "فشل حذف الجدول"
+    },
+    "toasts": {
+      "saved": "تم حفظ الجدول بنجاح",
+      "deleted": "تم حذف الجدول بنجاح"
+    }
+  },
+  "profile": {
+    "toasts": {
+      "updated": "تم تحديث الملف الشخصي بنجاح",
+      "passwordChanged": "تم تغيير كلمة المرور بنجاح"
+    }
+  },
+  "officeHours": {
+    "confirmDelete": "هل أنت متأكد من حذف هذه الساعة المكتبية؟",
+    "errors": {
+      "fetchFailed": "فشل تحميل الساعات المكتبية",
+      "createFailed": "فشل إنشاء ساعة مكتبية",
+      "deleteFailed": "فشل حذف الساعة المكتبية",
+      "confirmBookingFailed": "فشل تأكيد الحجز",
+      "cancelBookingFailed": "فشل إلغاء الحجز",
+      "completeBookingFailed": "فشل إتمام الحجز",
+      "noShowFailed": "فشل وضع علامة عدم الحضور",
+      "addNotesFailed": "فشل إضافة الملاحظات"
+    },
+    "toasts": {
+      "created": "تم إنشاء ساعة مكتبية بنجاح",
+      "deleted": "تم حذف الساعة المكتبية",
+      "bookingConfirmed": "تم تأكيد الحجز",
+      "bookingCancelled": "تم إلغاء الحجز",
+      "bookingCompleted": "تم وضع علامة تم الإتمام",
+      "bookingNoShow": "تم وضع علامة عدم الحضور",
+      "notesAdded": "تمت إضافة الملاحظات بنجاح"
+    }
+  },
+  "instructors": {
+    "confirmDeleteTitle": "حذف المدرس",
+    "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteNameFallback": "هذا المدرس",
+    "errors": {
+      "fetchFailed": "فشل تحميل المدرسين",
+      "saveFailed": "فشل حفظ بيانات المدرس",
+      "deleteFailed": "فشل حذف المدرس",
+      "detailsFetchFailed": "فشل تحميل تفاصيل المدرس",
+      "updateFailed": "فشل تحديث بيانات المدرس"
+    },
+    "toasts": {
+      "updated": "تم تحديث بيانات المدرس بنجاح",
+      "created": "تم إنشاء المدرس بنجاح",
+      "deleted": "تم حذف المدرس بنجاح"
+    }
+  },
+  "auth": {
+    "loginSuccess": "تم تسجيل الدخول بنجاح!",
+    "loginFailed": "فشل تسجيل الدخول",
+    "registrationSuccess": "تم التسجيل بنجاح! الرجاء تسجيل الدخول.",
+    "registrationFailed": "فشل التسجيل",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح",
+    "maxSavedAccounts": "يمكن حفظ {{max}} حسابات كحد أقصى",
+    "accountSaved": "تم حفظ الحساب للتبديل السريع",
+    "accountNotFound": "الحساب غير موجود",
+    "sessionExpired": "انتهت الجلسة. الرجاء تسجيل الدخول مرة أخرى.",
+    "switchedTo": "تم التبديل إلى {{name}}",
+    "accountRemoved": "تمت إزالة الحساب من قائمة الحسابات المحفوظة",
+    "accountsCleared": "تم مسح جميع الحسابات المحفوظة"
+  },
+  "authPages": {
+    "login": {
+      "title": "تسجيل الدخول إلى حسابك",
+      "subtitle": "نظام إدارة الطلاب",
+      "noAccount": "ليس لديك حساب؟"
+    },
+    "register": {
+      "title": "إنشاء حساب جديد",
+      "subtitle": "انضم إلى نظام إدارة الطلاب",
+      "haveAccount": "لديك حساب بالفعل؟"
+    },
+    "fields": {
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة"
+    },
+    "placeholders": {
+      "email": "أدخل بريدك الإلكتروني",
+      "password": "أدخل كلمة المرور",
+      "firstName": "أدخل الاسم الأول",
+      "lastName": "أدخل اسم العائلة",
+      "createPassword": "أنشئ كلمة مرور",
+      "confirmPassword": "أكد كلمة المرور"
+    },
+    "actions": {
+      "show": "إظهار",
+      "hide": "إخفاء",
+      "rememberMe": "تذكرني",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "signIn": "تسجيل الدخول",
+      "signUp": "إنشاء حساب",
+      "createAccount": "إنشاء حساب"
+    },
+    "passwordRules": {
+      "title": "يجب أن تحتوي كلمة المرور على:",
+      "minLength": "8 أحرف على الأقل",
+      "uppercase": "حرف كبير واحد",
+      "lowercase": "حرف صغير واحد",
+      "number": "رقم واحد",
+      "special": "رمز خاص واحد (@$!%*?&)"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid": "عنوان بريد إلكتروني غير صالح",
+      "required": "البريد الإلكتروني مطلوب"
+    },
+    "password": {
+      "required": "كلمة المرور مطلوبة",
+      "min": "يجب أن تكون كلمة المرور {{min}} أحرف على الأقل",
+      "complexity": "يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم ورمز خاص واحد على الأقل (@$!%*?&)"
+    },
+    "confirmPassword": {
+      "match": "يجب أن تتطابق كلمتا المرور",
+      "required": "يرجى تأكيد كلمة المرور"
+    },
+    "firstName": {
+      "min": "يجب أن يكون الاسم الأول {{min}} أحرف على الأقل",
+      "max": "يجب ألا يزيد الاسم الأول عن {{max}} حرفًا",
+      "required": "الاسم الأول مطلوب"
+    },
+    "lastName": {
+      "min": "يجب أن يكون اسم العائلة {{min}} أحرف على الأقل",
+      "max": "يجب ألا يزيد اسم العائلة عن {{max}} حرفًا",
+      "required": "اسم العائلة مطلوب"
+    }
+  },
+  "instructorTitles": {
+    "Instructor": "مدرس",
+    "TeachingAssistant": "معيد",
+    "AssistantLecturer": "محاضر مساعد",
+    "Lecturer": "محاضر",
+    "AssistantProfessor": "أستاذ مساعد",
+    "AssociateProfessor": "أستاذ مشارك",
+    "Professor": "أستاذ"
+  },
+  "accountSwitcher": {
+    "saveThisAccount": "حفظ هذا الحساب",
+    "switchAccount": "تبديل الحساب",
+    "removeAccount": "إزالة الحساب",
+    "yourProfile": "ملفي الشخصي",
+    "settings": "الإعدادات",
+    "addAnotherAccount": "إضافة حساب آخر",
+    "confirmClearTitle": "مسح جميع الحسابات المحفوظة؟",
+    "confirmClearYes": "نعم، امسح الكل",
+    "clearAllSavedAccounts": "مسح جميع الحسابات المحفوظة",
+    "demoTools": "أدوات العرض",
+    "seedDemoData": "تهيئة بيانات العرض",
+    "confirmResetDemoTitle": "إعادة ضبط قاعدة بيانات العرض؟",
+    "confirmResetDemoYes": "نعم، أعد الضبط",
+    "resetDemoDatabase": "إعادة ضبط قاعدة بيانات العرض",
+    "signOut": "تسجيل الخروج",
+    "toasts": {
+      "switchedToEmail": "تم التبديل إلى {{email}}",
+      "demoSeeded": "تمت تهيئة بيانات العرض",
+      "demoReset": "تمت إعادة ضبط قاعدة بيانات العرض",
+      "loggedInAsAdminDemo": "تم تسجيل الدخول كـ admin@demo.local"
+    }
+  }
+}
