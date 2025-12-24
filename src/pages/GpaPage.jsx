@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import gpaApi from '../api/gpaApi';
 import { PageLoading, Breadcrumb, Button, Input, Select } from '../components/common';
+import { useTranslation } from 'react-i18next';
 
 const GRADE_OPTIONS = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'F'];
 
@@ -18,6 +19,7 @@ const GpaPage = () => {
   const { studentId: paramStudentId } = useParams();
   const navigate = useNavigate();
   const { isAdmin, user } = useAuth();
+  const { t } = useTranslation();
 
   // Admin must explicitly enter a student id and click an action
   const [adminStudentId, setAdminStudentId] = useState(paramStudentId || '');
@@ -52,12 +54,12 @@ const GpaPage = () => {
       }
       setGpaData(response.data);
     } catch (error) {
-      const message = error?.response?.data?.message || error?.message || 'Failed to load GPA data';
+      const message = error?.response?.data?.message || error?.message || t('errors.failedToLoadGpa');
       toast.error(message);
     } finally {
       setIsLoading(false);
     }
-  }, [activeStudentId, isAdmin]);
+  }, [activeStudentId, isAdmin, t]);
 
   // Load GPA data on mount (Student only)
   useEffect(() => {
@@ -74,11 +76,11 @@ const GpaPage = () => {
   const handleAdminSimulate = useCallback(async () => {
     const trimmed = String(adminStudentId || '').trim();
     if (!trimmed) {
-      toast.error('StudentId is required');
+      toast.error(t('errors.studentIdRequired'));
       return;
     }
     if (!/^\d+$/.test(trimmed) || Number(trimmed) <= 0) {
-      toast.error('StudentId must be a positive number');
+      toast.error(t('errors.studentIdPositive'));
       return;
     }
 
@@ -101,13 +103,13 @@ const GpaPage = () => {
       const simRes = await gpaApi.simulate(simulateCourses, studentId);
       setSimulatedGpa(simRes.data);
     } catch (error) {
-      const message = error?.response?.data?.message || error?.message || 'Simulation failed';
+      const message = error?.response?.data?.message || error?.message || t('errors.simulationFailed');
       toast.error(message);
     } finally {
       setIsLoading(false);
       setIsSimulating(false);
     }
-  }, [adminStudentId, buildSimulateCoursesPayload]);
+  }, [adminStudentId, buildSimulateCoursesPayload, t]);
 
   const handleGradeUpdate = async (enrollmentId) => {
     if (!newGrade) return;
@@ -115,7 +117,7 @@ const GpaPage = () => {
     setIsSaving(true);
     try {
       const response = await gpaApi.updateGrade(enrollmentId, newGrade);
-      toast.success('Grade updated successfully');
+      toast.success(t('toasts.gradeUpdated'));
       setEditingGrade(null);
       setNewGrade('');
       
@@ -140,7 +142,7 @@ const GpaPage = () => {
       }
     } catch (error) {
       console.error('Failed to update grade:', error);
-      toast.error('Failed to update grade');
+      toast.error(t('errors.failedToUpdateGrade'));
     } finally {
       setIsSaving(false);
     }
@@ -173,16 +175,16 @@ const GpaPage = () => {
       {/* Admin: Live student search/select with dropdown and frontend filtering */}
       {isAdmin() && (
         <div className="mb-4 relative">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Enter Student ID</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('gpa.enterStudentId')}</label>
           <div className="flex gap-2 items-center">
           <Input
             value={adminStudentId}
             onChange={e => setAdminStudentId(e.target.value)}
-            placeholder="Enter Student ID"
+            placeholder={t('gpa.enterStudentId')}
             className="w-96"
           />
           <Button onClick={handleAdminSimulate} loading={isSimulating}>
-            Simulate
+            {t('gpa.simulate')}
           </Button>
           </div>
         </div>
@@ -190,8 +192,8 @@ const GpaPage = () => {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          ...(studentId ? [{ name: 'Students', href: '/students' }] : []),
-          { name: 'GPA & Grades', href: studentId ? `/students/${studentId}/gpa` : '/gpa', current: true }
+          ...(studentId ? [{ name: t('nav.students'), href: '/students' }] : []),
+          { name: t('gpa.title'), href: studentId ? `/students/${studentId}/gpa` : '/gpa', current: true }
         ]}
       />
 
@@ -199,7 +201,7 @@ const GpaPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {gpaData?.studentName ? `${gpaData.studentName}'s GPA` : (isAdmin() ? 'Student GPA' : 'My GPA')}
+            {gpaData?.studentName ? t('gpa.studentNameTitle', { name: gpaData.studentName }) : (isAdmin() ? t('gpa.studentTitle') : t('gpa.myTitle'))}
           </h1>
           {gpaData?.studentEmail && (
             <p className="text-sm text-gray-500 dark:text-gray-400">{gpaData.studentEmail}</p>
@@ -207,7 +209,7 @@ const GpaPage = () => {
         </div>
         {studentId && (
           <Button variant="outline" onClick={() => navigate('/students')}>
-            Back to Students
+            {t('gpa.backToStudents')}
           </Button>
         )}
       </div>
@@ -215,25 +217,25 @@ const GpaPage = () => {
       {/* GPA Summary Card */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Current GPA</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.currentGpa')}</div>
           <div className="text-3xl font-bold text-primary-600">
             {(gpaData?.currentGPA ?? 0).toFixed(2)}
           </div>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Stored GPA</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.storedGpa')}</div>
           <div className="text-3xl font-bold text-gray-700 dark:text-gray-300">
             {(gpaData?.storedGPA ?? 0).toFixed(2)}
           </div>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Completed Credits</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.completedCredits')}</div>
           <div className="text-3xl font-bold text-green-600">
             {gpaData?.completedCredits ?? 0}
           </div>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">Registered Credits</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.registeredCredits')}</div>
           <div className="text-3xl font-bold text-blue-600">
             {gpaData?.registeredCredits ?? 0}
           </div>
@@ -243,20 +245,20 @@ const GpaPage = () => {
       {/* Enrollments Table */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Enrollments & Grades</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('gpa.enrollmentsAndGrades')}</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Course</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Section</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Credits</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Grade</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Points</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.course')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.section')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.credits')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.grade')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.points')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.status')}</th>
                 {canEditGrades && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">{t('gpa.actions')}</th>
                 )}
               </tr>
             </thead>
@@ -264,7 +266,7 @@ const GpaPage = () => {
               {gpaData?.enrollments?.length === 0 ? (
                 <tr>
                   <td colSpan={canEditGrades ? 7 : 6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    No enrollments found
+                    {t('gpa.noEnrollments')}
                   </td>
                 </tr>
               ) : (
@@ -286,7 +288,7 @@ const GpaPage = () => {
                           value={newGrade}
                           onChange={(e) => setNewGrade(e.target.value)}
                           options={[
-                            { value: '', label: 'Select Grade' },
+                            { value: '', label: t('gpa.selectGrade') },
                             ...GRADE_OPTIONS.map(g => ({ value: g, label: g }))
                           ]}
                           className="w-24"
@@ -328,7 +330,7 @@ const GpaPage = () => {
                               loading={isSaving}
                               disabled={!newGrade || isSaving}
                             >
-                              Save
+                              {t('common.save')}
                             </Button>
                             <Button
                               size="sm"
@@ -338,7 +340,7 @@ const GpaPage = () => {
                                 setNewGrade('');
                               }}
                             >
-                              Cancel
+                              {t('common.cancel')}
                             </Button>
                           </div>
                         ) : (
@@ -350,7 +352,7 @@ const GpaPage = () => {
                               setNewGrade(enrollment.grade || '');
                             }}
                           >
-                            Edit Grade
+                            {t('gpa.editGrade')}
                           </Button>
                         )}
                       </td>
@@ -365,16 +367,16 @@ const GpaPage = () => {
 
       {/* What-If Calculator */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">GPA What-If Calculator</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('gpa.whatIfTitle')}</h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Add hypothetical courses to see how they would affect your GPA.
+          {t('gpa.whatIfDescription')}
         </p>
 
         <div className="space-y-3">
           {simulatedCourses.map((course) => (
             <div key={course.id} className="flex gap-4 items-end">
               <div className="w-32">
-                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Credits</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('gpa.credits')}</label>
                 <Input
                   type="number"
                   min={1}
@@ -384,7 +386,7 @@ const GpaPage = () => {
                 />
               </div>
               <div className="w-40">
-                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Grade</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{t('gpa.expectedGrade')}</label>
                 <select
                   className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
                   value={course.grade}
@@ -400,21 +402,21 @@ const GpaPage = () => {
                 size="sm"
                 onClick={() => removeSimulatedCourse(course.id)}
               >
-                Remove
+                {t('common.remove')}
               </Button>
             </div>
           ))}
 
           <div className="flex gap-2 pt-2">
             <Button size="sm" onClick={addSimulatedCourse}>
-              Add Course
+              {t('gpa.addCourse')}
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={() => setSimulatedCourses([{ id: Date.now(), creditHours: 3, grade: 'A' }])}
             >
-              Reset
+              {t('common.reset')}
             </Button>
           </div>
         </div>
@@ -423,19 +425,19 @@ const GpaPage = () => {
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Current GPA</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.currentGpa')}</div>
               <div className="text-2xl font-bold text-gray-700 dark:text-gray-300">
                 {(simulatedGpa?.currentGPA ?? gpaData?.currentGPA ?? 0).toFixed(2)}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Simulated GPA</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.simulatedGpa')}</div>
               <div className="text-2xl font-bold text-primary-600">
                 {simulatedGpa ? simulatedGpa.simulatedGPA.toFixed(2) : '-'}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Difference</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{t('gpa.difference')}</div>
               {simulatedGpa && (
                 <div className={`text-2xl font-bold ${
                   simulatedGpa.simulatedGPA > (simulatedGpa.currentGPA ?? gpaData?.currentGPA ?? 0)
