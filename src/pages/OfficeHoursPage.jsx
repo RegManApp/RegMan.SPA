@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { officeHourApi } from '../api/officeHourApi';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import {
   FiPlus,
   FiCalendar,
@@ -18,6 +19,7 @@ import {
 } from 'react-icons/fi';
 
 const OfficeHoursPage = () => {
+  const { t } = useTranslation();
   const { user, isInstructor, isAdmin } = useAuth();
   const [officeHours, setOfficeHours] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ const OfficeHoursPage = () => {
       setOfficeHours(data);
     } catch (error) {
       console.error('Error fetching office hours:', error);
-      toast.error('Failed to load office hours');
+      toast.error(t('officeHours.errors.fetchFailed'));
     } finally {
       setLoading(false);
     }
@@ -70,7 +72,7 @@ const OfficeHoursPage = () => {
     e.preventDefault();
     try {
       await officeHourApi.createOfficeHour(formData);
-      toast.success('Office hour created successfully');
+      toast.success(t('officeHours.toasts.created'));
       setShowCreateModal(false);
       setFormData({
         date: '',
@@ -82,59 +84,59 @@ const OfficeHoursPage = () => {
       });
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create office hour');
+      toast.error(t('officeHours.errors.createFailed'));
     }
   };
 
   const handleDeleteOfficeHour = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this office hour?')) return;
+    if (!window.confirm(t('officeHours.confirmDelete'))) return;
     try {
       await officeHourApi.deleteOfficeHour(id);
-      toast.success('Office hour deleted');
+      toast.success(t('officeHours.toasts.deleted'));
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to delete office hour');
+      toast.error(t('officeHours.errors.deleteFailed'));
     }
   };
 
   const handleConfirmBooking = async (bookingId) => {
     try {
       await officeHourApi.confirmBooking(bookingId);
-      toast.success('Booking confirmed');
+      toast.success(t('officeHours.toasts.bookingConfirmed'));
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to confirm booking');
+      toast.error(t('officeHours.errors.confirmBookingFailed'));
     }
   };
 
   const handleCancelBooking = async (bookingId) => {
-    const reason = window.prompt('Enter reason for cancellation (optional):');
+    const reason = window.prompt(t('common.prompts.cancelReasonOptional'));
     try {
       await officeHourApi.cancelBooking(bookingId, reason);
-      toast.success('Booking cancelled');
+      toast.success(t('officeHours.toasts.bookingCancelled'));
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to cancel booking');
+      toast.error(t('officeHours.errors.cancelBookingFailed'));
     }
   };
 
   const handleCompleteBooking = async (bookingId) => {
     try {
       await officeHourApi.completeBooking(bookingId);
-      toast.success('Booking marked as completed');
+      toast.success(t('officeHours.toasts.bookingCompleted'));
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to complete booking');
+      toast.error(t('officeHours.errors.completeBookingFailed'));
     }
   };
 
   const handleMarkNoShow = async (bookingId) => {
     try {
       await officeHourApi.markNoShow(bookingId);
-      toast.success('Marked as no-show');
+      toast.success(t('officeHours.toasts.bookingNoShow'));
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to mark no-show');
+      toast.error(t('officeHours.errors.noShowFailed'));
     }
   };
 
@@ -142,13 +144,13 @@ const OfficeHoursPage = () => {
     if (!selectedBooking) return;
     try {
       await officeHourApi.addInstructorNotes(selectedBooking.bookingId, instructorNotes);
-      toast.success('Notes added successfully');
+      toast.success(t('officeHours.toasts.notesAdded'));
       setShowNotesModal(false);
       setSelectedBooking(null);
       setInstructorNotes('');
       fetchOfficeHours();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to add notes');
+      toast.error(t('officeHours.errors.addNotesFailed'));
     }
   };
 
