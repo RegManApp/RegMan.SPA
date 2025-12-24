@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../api/authApi';
 import { profileSchema, changePasswordSchema } from '../utils/validators';
@@ -18,6 +19,7 @@ import { getFullName, getRoleColor, formatDate } from '../utils/helpers';
 import { sanitize } from '../utils/helpers';
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const { user, updateUser, isStudent } = useAuth();
   const [profile, setProfile] = useState(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -77,7 +79,7 @@ const ProfilePage = () => {
       };
       await authApi.updateStudentProfile(payload);
       updateUser(payload);
-      toast.success('Profile updated successfully');
+      toast.success(t('profile.toasts.updated'));
       setIsEditingProfile(false);
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -99,7 +101,7 @@ const ProfilePage = () => {
       } else {
         await authApi.changePassword(data);
       }
-      toast.success('Password changed successfully');
+      toast.success(t('profile.toasts.passwordChanged'));
       setIsChangingPassword(false);
       resetPassword();
     } catch (error) {
