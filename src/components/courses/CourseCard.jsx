@@ -5,6 +5,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import cartApi from '../../api/cartApi';
 import { formatDate } from '../../utils/helpers';
+import { useTranslation } from 'react-i18next';
 
 const CourseCard = ({
   course,
@@ -19,6 +20,7 @@ const CourseCard = ({
   onDrop,
   onAddToCart,
 }) => {
+  const { t } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
   const [isDropping, setIsDropping] = useState(false);
 
@@ -33,10 +35,10 @@ const CourseCard = ({
     setIsAdding(true);
     try {
       await cartApi.addToCartByCourse(course.id);
-      toast.success('Added to cart');
+      toast.success(t('courses.toasts.addedToCart'));
       await onAddToCart?.(course.id);
     } catch (error) {
-      toast.error('Failed to add to cart');
+      toast.error(t('courses.errors.addToCartFailed'));
     } finally {
       setIsAdding(false);
     }
@@ -49,7 +51,7 @@ const CourseCard = ({
     try {
       await onDrop?.(course.id);
     } catch (error) {
-      toast.error('Failed to drop course');
+      toast.error(t('courses.errors.dropFailed'));
     } finally {
       setIsDropping(false);
     }
@@ -73,18 +75,18 @@ const CourseCard = ({
       </h3>
 
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 flex-grow">
-        {course.description || <span className="italic text-gray-400">No description</span>}
+        {course.description || <span className="italic text-gray-400">{t('courses.noDescription')}</span>}
       </p>
 
       <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
         <div className="flex items-center gap-1">
           <BookOpenIcon className="w-4 h-4" />
-          <span>{course.creditHours} Credits</span>
+          <span>{t('courses.creditsWithValue', { count: course.creditHours })}</span>
         </div>
         {course.enrollmentCount !== undefined && (
           <div className="flex items-center gap-1">
             <UserGroupIcon className="w-4 h-4" />
-            <span>{course.enrollmentCount} Enrolled</span>
+            <span>{t('courses.enrolledWithValue', { count: course.enrollmentCount })}</span>
           </div>
         )}
       </div>
@@ -92,7 +94,7 @@ const CourseCard = ({
       <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
         <Link to={`/courses/${course.id}`} className="flex-1">
           <Button variant="outline" size="sm" className="w-full">
-            View Details
+            {t('courses.viewDetails')}
           </Button>
         </Link>
         {isAdmin ? (
@@ -102,14 +104,14 @@ const CourseCard = ({
               size="sm"
               onClick={() => onEdit?.(course)}
             >
-              Edit
+              {t('common.edit')}
             </Button>
             <Button
               variant="danger"
               size="sm"
               onClick={() => onDelete?.(course.id)}
             >
-              Delete
+              {t('common.delete')}
             </Button>
           </>
         ) : cartStatus === 'added' ? (
@@ -118,7 +120,7 @@ const CourseCard = ({
             size="sm"
             onClick={handleRemoveFromCart}
           >
-            Remove from Cart
+            {t('courses.removeFromCart')}
           </Button>
         ) : (isStatusEnrolled || isStatusPending) ? (
           <Button
@@ -127,7 +129,7 @@ const CourseCard = ({
             onClick={handleDrop}
             disabled={isDropping || !canDrop}
           >
-            {isDropping ? 'Dropping...' : 'Drop'}
+            {isDropping ? t('courses.dropping') : t('courses.drop')}
           </Button>
         ) : (
           <Button
@@ -136,14 +138,14 @@ const CourseCard = ({
             onClick={handleAddToCart}
             disabled={isAdding || !isRegistrationOpen}
           >
-            {isAdding ? 'Adding...' : 'Add to Cart'}
+            {isAdding ? t('courses.adding') : t('courses.addToCart')}
           </Button>
         )}
       </div>
 
       {!isAdmin && registrationEndDate && !isRegistrationOpen && (
         <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-          Registration closed on {formatDate(registrationEndDate)}. Cart actions are disabled.
+          {t('courses.registrationClosedNotice', { date: formatDate(registrationEndDate) })}
         </p>
       )}
     </Card>
