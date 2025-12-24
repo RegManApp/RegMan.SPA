@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { instructorApi, scheduleApi } from '../api';
 import { InstructorDetails, InstructorForm } from '../components/instructors';
 import { PageHeader, Loading } from '../components/common';
 
 const InstructorDetailPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
@@ -28,7 +30,7 @@ const InstructorDetailPage = () => {
         setInstructor(res?.data ?? res);
       } catch (error) {
         console.error('Failed to fetch instructor:', error);
-        toast.error('Failed to load instructor details');
+        toast.error(t('instructors.errors.detailsFetchFailed'));
         navigate('/instructors');
       } finally {
         setIsLoading(false);
@@ -68,14 +70,14 @@ const InstructorDetailPage = () => {
       setIsSubmitting(true);
       const instructorId = instructor.instructorId || instructor.id;
       await instructorApi.update(instructorId, data);
-      toast.success('Instructor updated successfully');
+      toast.success(t('instructors.toasts.updated'));
       handleCloseForm();
       // Refresh instructor data
       const updatedRes = await instructorApi.getById(id);
       setInstructor(updatedRes?.data ?? updatedRes);
     } catch (error) {
       console.error('Failed to update instructor:', error);
-      toast.error(error.message || 'Failed to update instructor');
+      toast.error(t('instructors.errors.updateFailed'));
     } finally {
       setIsSubmitting(false);
     }
