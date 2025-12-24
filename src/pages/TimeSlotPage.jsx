@@ -3,6 +3,7 @@ import { timeSlotApi } from "../api/timeSlotApi";
 import { roomApi } from "../api/roomApi";
 import { Button, Card, Input, Modal, Table } from "../components/common";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { useFetch, useForm, useModal } from "../hooks";
 
 const defaultForm = {
@@ -36,6 +37,7 @@ const normalizeDay = (value) => {
 };
 
 const TimeSlotPage = () => {
+  const { t } = useTranslation();
   const modal = useModal(false);
 
   const {
@@ -82,7 +84,7 @@ const TimeSlotPage = () => {
           startTime: values.startTime,
           endTime: values.endTime,
         });
-        toast.success("Time slot updated");
+        toast.success(t('timeSlots.toasts.updated'));
       } else {
         await timeSlotApi.create({
           roomId: Number(values.roomId),
@@ -90,7 +92,7 @@ const TimeSlotPage = () => {
           startTime: values.startTime,
           endTime: values.endTime,
         });
-        toast.success("Time slot created");
+        toast.success(t('timeSlots.toasts.created'));
       }
 
       await refetchTimeSlots();
