@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ChatUnreadProvider } from './contexts/ChatUnreadContext';
 import { ProtectedRoute, RoleGuard } from './components/auth';
 import { Layout } from './components/Layout';
 import {
@@ -46,296 +47,299 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<WelcomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+        <ChatUnreadProvider>
+          <Router>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<WelcomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            {/* Protected Routes */}
-            <Route
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              {/* Dashboard - All authenticated users */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-
-              {/* Students - Admin only */}
+              {/* Protected Routes */}
               <Route
-                path="/academic-plan"
                 element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.STUDENT]}>
-                    <AcademicPlanPage />
-                  </RoleGuard>
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
                 }
-              />
-              <Route
-                path="/transcript"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.STUDENT]}>
-                    <TranscriptPage />
-                  </RoleGuard>
-                }
-              />
-              <Route
-                path="/sections"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <SectionPage />
-                  </RoleGuard>
-                }
-              />
-              <Route
-                path="/students"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <StudentsPage />
-                  </RoleGuard>
-                }
-              />
-              <Route
-                path="/students/:id"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <StudentsPage />
-                  </RoleGuard>
-                }
-              />
+              >
+                {/* Dashboard - All authenticated users */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
 
-              {/* Courses - All authenticated users */}
-              <Route path="/courses" element={<CoursesPage />} />
-              <Route path="/courses/:id" element={<CoursesPage />} />
+                <Route
+                  path="/academic-plan"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.STUDENT]}>
+                      <AcademicPlanPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/transcript"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.STUDENT]}>
+                      <TranscriptPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Enrollments - All authenticated users */}
-              <Route path="/enrollments" element={<EnrollmentsPage />} />
+                <Route
+                  path="/sections"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <SectionPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Users - Admin only */}
-              <Route
-                path="/users"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <UsersPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Students - Admin only */}
+                <Route
+                  path="/students"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <StudentsPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/students/:id"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <StudentsPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Instructors - Admin only */}
-              <Route
-                path="/instructors"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <InstructorsPage />
-                  </RoleGuard>
-                }
-              />
-              <Route
-                path="/instructors/:id"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <InstructorDetailPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Courses - All authenticated users */}
+                <Route path="/courses" element={<CoursesPage />} />
+                <Route path="/courses/:id" element={<CoursesPage />} />
 
-              {/* Schedules - Admin and Instructor */}
-              <Route
-                path="/schedules"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.INSTRUCTOR]}>
-                    <SchedulesPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Enrollments - All authenticated users */}
+                <Route path="/enrollments" element={<EnrollmentsPage />} />
 
-              {/* Advising - Admin and Instructor */}
-              <Route
-                path="/advising"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.INSTRUCTOR]}>
-                    <AdvisingPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Users - Admin only */}
+                <Route
+                  path="/users"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <UsersPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Analytics - Admin only */}
-              <Route
-                path="/analytics"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <AnalyticsPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Instructors - Admin only */}
+                <Route
+                  path="/instructors"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <InstructorsPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/instructors/:id"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <InstructorDetailPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Calendar - All authenticated users */}
-              <Route path="/calendar" element={<CalendarPage />} />
+                {/* Schedules - Admin and Instructor */}
+                <Route
+                  path="/schedules"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.INSTRUCTOR]}>
+                      <SchedulesPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Office Hours - Instructor only */}
-              <Route
-                path="/office-hours"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.INSTRUCTOR]}>
-                    <OfficeHoursPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Advising - Admin and Instructor */}
+                <Route
+                  path="/advising"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.INSTRUCTOR]}>
+                      <AdvisingPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Book Office Hours - Student only */}
-              <Route
-                path="/book-office-hours"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.STUDENT]}>
-                    <BookOfficeHourPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Analytics - Admin only */}
+                <Route
+                  path="/analytics"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <AnalyticsPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Profile - All authenticated users */}
-              <Route path="/profile" element={<ProfilePage />} />
-              {/* Chat - All authenticated users */}
-              <Route path="/chat" element={<ChatPage />} />
+                {/* Calendar - All authenticated users */}
+                <Route path="/calendar" element={<CalendarPage />} />
 
-              {/* Notifications - All authenticated users */}
-              <Route path="/notifications" element={<NotificationsPage />} />
-              
-              {/* GPA - Students view their own, Admin can view any student */}
-              <Route
-                path="/gpa"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <GpaPage />
-                  </RoleGuard>
-                }
-              />
-              <Route
-                path="/students/:studentId/gpa"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.STUDENT]}>
-                    <GpaPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Office Hours - Instructor only */}
+                <Route
+                  path="/office-hours"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.INSTRUCTOR]}>
+                      <OfficeHoursPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Cart - Student only */}
-              <Route
-                path="/cart"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.STUDENT]}>
-                    <CartPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Book Office Hours - Student only */}
+                <Route
+                  path="/book-office-hours"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.STUDENT]}>
+                      <BookOfficeHourPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Time Slots - Admin only */}
-              <Route
-                path="/time-slots"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <TimeSlotPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Profile - All authenticated users */}
+                <Route path="/profile" element={<ProfilePage />} />
+                {/* Chat - All authenticated users */}
+                <Route path="/chat" element={<ChatPage />} />
 
-              {/* Rooms - Admin only */}
+                {/* Notifications - All authenticated users */}
+                <Route path="/notifications" element={<NotificationsPage />} />
 
-              <Route
-                path="/rooms"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <RoomPage />
-                  </RoleGuard>
-                }
-              />
-              <Route
-                path="/rooms/:id"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <RoomDetailsPage />
-                  </RoleGuard>
-                }
-              />
+                {/* GPA - Students view their own, Admin can view any student */}
+                <Route
+                  path="/gpa"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <GpaPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/students/:studentId/gpa"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.STUDENT]}>
+                      <GpaPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Withdraw Request - Student only */}
-              <Route
-                path="/withdraw-request"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.STUDENT]}>
-                    <WithdrawRequestPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Cart - Student only */}
+                <Route
+                  path="/cart"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.STUDENT]}>
+                      <CartPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Withdraw History - Student only */}
-              <Route
-                path="/withdraw-history"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.STUDENT]}>
-                    <WithdrawHistoryPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Time Slots - Admin only */}
+                <Route
+                  path="/time-slots"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <TimeSlotPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Smart Schedule Builder - Student only */}
-              <Route
-                path="/smart-schedule"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.STUDENT]}>
-                    <SmartScheduleBuilderPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Rooms - Admin only */}
+                <Route
+                  path="/rooms"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <RoomPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="/rooms/:id"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <RoomDetailsPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Admin Withdraw Requests - Admin only */}
-              <Route
-                path="/admin/withdraw-requests"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <AdminWithdrawRequestsPage />
-                  </RoleGuard>
-                }
-              />
+                {/* Withdraw Request - Student only */}
+                <Route
+                  path="/withdraw-request"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.STUDENT]}>
+                      <WithdrawRequestPage />
+                    </RoleGuard>
+                  }
+                />
 
-              {/* Settings - Admin only */}
-              <Route
-                path="/settings"
-                element={
-                  <RoleGuard allowedRoles={[ROLES.ADMIN]}>
-                    <AdminSettingsPage />
-                  </RoleGuard>
-                }
-              />
-            </Route>
+                {/* Withdraw History - Student only */}
+                <Route
+                  path="/withdraw-history"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.STUDENT]}>
+                      <WithdrawHistoryPage />
+                    </RoleGuard>
+                  }
+                />
 
-            {/* 404 */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Router>
+                {/* Smart Schedule Builder - Student only */}
+                <Route
+                  path="/smart-schedule"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.STUDENT]}>
+                      <SmartScheduleBuilderPage />
+                    </RoleGuard>
+                  }
+                />
 
-        {/* Toast Notifications */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            className: 'dark:bg-gray-800 dark:text-white',
-            success: {
-              iconTheme: {
-                primary: '#22c55e',
-                secondary: '#fff',
+                {/* Admin Withdraw Requests - Admin only */}
+                <Route
+                  path="/admin/withdraw-requests"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <AdminWithdrawRequestsPage />
+                    </RoleGuard>
+                  }
+                />
+
+                {/* Settings - Admin only */}
+                <Route
+                  path="/settings"
+                  element={
+                    <RoleGuard allowedRoles={[ROLES.ADMIN]}>
+                      <AdminSettingsPage />
+                    </RoleGuard>
+                  }
+                />
+              </Route>
+
+              {/* 404 */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Router>
+
+          {/* Toast Notifications */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              className: 'dark:bg-gray-800 dark:text-white',
+              success: {
+                iconTheme: {
+                  primary: '#22c55e',
+                  secondary: '#fff',
+                },
               },
-            },
-            error: {
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
               },
-            },
-          }}
-        />
+            }}
+          />
+        </ChatUnreadProvider>
       </AuthProvider>
     </ThemeProvider>
   );

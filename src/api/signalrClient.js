@@ -1,6 +1,8 @@
 import * as signalR from "@microsoft/signalr";
 
 let connection = null;
+let connectionRefCount = 0;
+let startingPromise = null;
 
 const getToken = () => {
   return (
@@ -9,8 +11,14 @@ const getToken = () => {
 };
 
 export async function startConnection() {
+  connectionRefCount += 1;
+
   if (connection && connection.state === signalR.HubConnectionState.Connected)
     return connection;
+
+  if (startingPromise) {
+    return startingPromise;
+  }
 
   // If VITE_API_BASE_URL includes '/api', strip it so hub path becomes '/hubs/chat'
   const apiBase = (import.meta.env.VITE_API_BASE_URL || "")
@@ -25,8 +33,14 @@ export async function startConnection() {
     .withAutomaticReconnect()
     .build();
 
-  await connection.start();
-  return connection;
+  startingPromise = connection
+    .start()
+    .then(() => connection)
+    .finally(() => {
+      startingPromise = null;
+    });
+
+  return startingPromise;
 }
 
 export function onReceiveMessage(handler) {
@@ -91,7 +105,9 @@ export async function sendMessage(receiverId, conversationId, textMessage) {
 }
 
 export async function stopConnection() {
+  connectionRefCount = Math.max(0, connectionRefCount - 1);
   if (!connection) return;
+  if (connectionRefCount > 0) return;
   try {
     await connection.stop();
   } catch (e) {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Button from '../common/Button';
 
 export default function MessageComposer({ onSend }) {
   const { t } = useTranslation();
@@ -12,10 +13,10 @@ export default function MessageComposer({ onSend }) {
   };
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-2">
       <input
         type="text"
-        className="flex-1 border rounded px-3 py-2 mr-2"
+        className="flex-1 chat-composer-input"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder={t('chat.composer.placeholder')}
@@ -23,9 +24,7 @@ export default function MessageComposer({ onSend }) {
           if (e.key === 'Enter') handleSend();
         }}
       />
-      <button className="btn btn-primary px-4 py-2" onClick={handleSend}>
-        {t('chat.composer.send')}
-      </button>
+      <Button onClick={handleSend}>{t('chat.composer.send')}</Button>
     </div>
   );
 }

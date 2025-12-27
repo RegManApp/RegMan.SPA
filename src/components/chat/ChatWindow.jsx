@@ -4,6 +4,7 @@ import MessageComposer from './MessageComposer';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { onMessageRead, offMessageRead } from '../../api/signalrClient';
+import { useChatUnread } from '../../contexts/ChatUnreadContext';
 
 export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
   const { t } = useTranslation();
@@ -11,6 +12,7 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
   const [convoDetail, setConvoDetail] = useState(null);
   const [loadError, setLoadError] = useState(false);
   const { user } = useAuth();
+  const { clearConversationUnread } = useChatUnread();
 
   const loadConversation = async () => {
     if (!conversation) {
@@ -58,7 +60,11 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
   }, [conversation?.conversationId]);
 
   if (!conversation) {
-    return <div className="h-full flex items-center justify-center">{t('chat.empty.noSelectionTitle')}</div>;
+    return (
+      <div className="h-full flex items-center justify-center chat-panel">
+        <div className="text-sm chat-muted-strong">{t('chat.empty.noSelectionTitle')}</div>
+      </div>
+    );
   }
 
   // determine receiver id (one-to-one chat assumption)
@@ -78,16 +84,21 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
     if (!conversation?.conversationId) return;
     // Only attempt when we have loaded details (participant enforcement is server-side anyway)
     if (!convoDetail) return;
-    chatApi.markConversationRead(conversation.conversationId).catch(() => {});
-  }, [conversation?.conversationId, convoDetail]);
+    chatApi
+      .markConversationRead(conversation.conversationId)
+      .then(() => {
+        clearConversationUnread(conversation.conversationId);
+      })
+      .catch(() => {});
+  }, [conversation?.conversationId, convoDetail, clearConversationUnread]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+    <div className="flex flex-col h-full chat-panel">
+      <div className="p-4 border-b chat-panel-border">
         <div className="flex items-center gap-2">
           <span
             className={`inline-block h-2 w-2 rounded-full ${
-              isOtherOnline ? 'bg-primary-500' : 'bg-gray-300'
+              isOtherOnline ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
             }`}
             aria-label={isOtherOnline ? t('chat.presence.online') : t('chat.presence.offline')}
             title={isOtherOnline ? t('chat.presence.online') : t('chat.presence.offline')}
@@ -99,19 +110,25 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
       </div>
       <div className="flex-1 p-4 overflow-auto">
         {loadError ? (
-          <div className="text-sm text-gray-600">{t('chat.errors.couldNotLoadDescription')}</div>
+          <div className="text-sm chat-muted">{t('chat.errors.couldNotLoadDescription')}</div>
         ) : null}
 
         {!loadError && messages.length === 0 ? (
-          <div className="text-sm text-gray-600">{t('chat.empty.noMessages')}</div>
+          <div className="text-sm chat-muted">{t('chat.empty.noMessages')}</div>
         ) : null}
 
         {messages.map((m) => (
           <div key={m.messageId} className={`mb-3 ${m.senderId === currentUserId ? 'text-right' : 'text-left'}`}>
-            <div className={`inline-block p-2 rounded ${m.senderId === currentUserId ? 'bg-blue-100' : 'bg-gray-100'}`}>
+            <div
+              className={
+                `chat-bubble ${
+                  m.senderId === currentUserId ? 'chat-bubble-sent' : 'chat-bubble-received'
+                }`
+              }
+            >
               {m.content}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="chat-message-meta">
               {new Date(m.timestamp).toLocaleString()}
               {m.senderId === currentUserId && m.isRead ? (
                 <span className="ml-2">{t('chat.readIndicator')}</span>
@@ -120,7 +137,7 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
           </div>
         ))}
       </div>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t chat-panel-border">
         <MessageComposer
           onSend={async (text) => {
             const receiverId = getReceiverId();

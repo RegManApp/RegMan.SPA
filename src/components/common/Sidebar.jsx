@@ -20,6 +20,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../utils/helpers';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '../../hooks/useDirection';
+import { useChatUnread } from '../../contexts/ChatUnreadContext';
 
 const iconMap = {
   HomeIcon,
@@ -125,6 +126,7 @@ const SidebarContent = ({ navigation, sectionOpen, onToggleSection }) => {
   const location = useLocation();
   const { t } = useTranslation();
   const { isRtl } = useDirection();
+  const { totalUnread } = useChatUnread();
 
   const sectionIdByKey = useMemo(() => ({
     'nav.core': 'sidebar-section-core',
@@ -183,6 +185,8 @@ const SidebarContent = ({ navigation, sectionOpen, onToggleSection }) => {
                     location.pathname === item.href ||
                     (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
 
+                  const showChatBadge = item.href === '/chat' && totalUnread > 0;
+
                   return (
                     <NavLink
                       key={item.labelKey}
@@ -206,6 +210,15 @@ const SidebarContent = ({ navigation, sectionOpen, onToggleSection }) => {
                         />
                       )}
                       <span className="min-w-0 truncate">{t(item.labelKey)}</span>
+
+                      {showChatBadge ? (
+                        <span
+                          className={cn('chat-unread-badge', isRtl ? 'mr-auto' : 'ml-auto')}
+                          aria-hidden="true"
+                        >
+                          {Math.min(99, totalUnread)}
+                        </span>
+                      ) : null}
                     </NavLink>
                   );
                 })}

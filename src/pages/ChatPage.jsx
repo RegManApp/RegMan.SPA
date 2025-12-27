@@ -20,10 +20,12 @@ import ConversationList from '../components/chat/ConversationList';
 import ChatWindow from '../components/chat/ChatWindow';
 import { EmptyState, Loading, Button, SearchInput } from '../components/common';
 import { useTranslation } from 'react-i18next';
+import { useChatUnread } from '../contexts/ChatUnreadContext';
 
 export default function ChatPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { byConversationId, clearConversationUnread } = useChatUnread();
   const [conversations, setConversations] = useState([]);
   const [selectedConvo, setSelectedConvo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -180,6 +182,8 @@ export default function ChatPage() {
           conversationDisplayName: convo.displayName,
         });
 
+        clearConversationUnread(convo.conversationId);
+
         setSearchQuery('');
         setSearchResults([]);
         await loadConversations();
@@ -187,13 +191,13 @@ export default function ChatPage() {
         // axios interceptor already surfaces toast
       }
     },
-    [loadConversations]
+    [loadConversations, clearConversationUnread]
   );
 
   return (
-    <div className="flex h-full">
-      <div className="w-1/3 border-r">
-        <div className="p-4 border-b">
+    <div className="flex h-full chat-panel">
+      <div className="w-1/3 border-r chat-panel-border">
+        <div className="p-4 border-b chat-panel-border">
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
@@ -208,21 +212,21 @@ export default function ChatPage() {
           {searchQuery.trim() ? (
             <div className="mt-3">
               {isSearching ? (
-                <div className="text-sm text-gray-600">{t('chat.search.loading')}</div>
+                <div className="text-sm chat-muted">{t('chat.search.loading')}</div>
               ) : searchError ? (
-                <div className="text-sm text-gray-600">{t('chat.search.error')}</div>
+                <div className="text-sm chat-muted">{t('chat.search.error')}</div>
               ) : searchResults.length === 0 ? (
-                <div className="text-sm text-gray-600">{t('chat.search.noResults')}</div>
+                <div className="text-sm chat-muted">{t('chat.search.noResults')}</div>
               ) : (
                 <ul>
                   {searchResults.map((u) => (
                     <li
                       key={u.userId}
                       onClick={() => openConversationWithUser(u.userId)}
-                      className="p-2 rounded mb-1 cursor-pointer hover:bg-gray-50"
+                      className="p-2 rounded-lg mb-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/60"
                     >
                       <div className="font-medium">{u.fullName || t('common.notAvailable')}</div>
-                      <div className="text-xs text-gray-600">{u.email}</div>
+                      <div className="text-xs chat-muted">{u.email}</div>
                     </li>
                   ))}
                 </ul>
@@ -235,12 +239,14 @@ export default function ChatPage() {
           conversations={conversations}
           onSelect={async (c) => {
             setSelectedConvo(c);
+            clearConversationUnread(c.conversationId);
             try {
               await startConnection();
               await joinConversationGroup(c.conversationId);
             } catch (e) {}
           }}
           selectedId={selectedConvo?.conversationId}
+          unreadByConversationId={byConversationId}
         />
       </div>
       <div className="w-2/3">
