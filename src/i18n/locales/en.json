@@ -694,6 +694,68 @@
   },
   "academicPlan": {
     "confirmDelete": "Delete this academic plan?",
+    "actions": {
+      "addPlan": "Add Plan",
+      "assign": "Assign",
+      "courses": "Courses"
+    },
+    "fields": {
+      "academicPlanId": "Academic Plan ID",
+      "majorName": "Major",
+      "totalCreditsRequired": "Total Credits Required",
+      "expectedYearsToComplete": "Expected Years",
+      "description": "Description",
+      "studentId": "Student ID"
+    },
+    "status": {
+      "completed": "Completed",
+      "completedNotPassed": "Completed (Not Passed)",
+      "inProgress": "In Progress",
+      "planned": "Planned"
+    },
+    "courseTable": {
+      "courseCode": "Course Code",
+      "title": "Course",
+      "credits": "Credits",
+      "status": "Status",
+      "grade": "Grade",
+      "type": "Type",
+      "recommendedYear": "Recommended Year",
+      "recommendedSemester": "Recommended Term",
+      "required": "Required"
+    },
+    "student": {
+      "title": "Academic Plan",
+      "subtitle": "Degree progress",
+      "major": "Major",
+      "expectedGraduationYear": "Expected Graduation Year",
+      "currentGpa": "Current GPA",
+      "percentComplete": "{{percent}}% complete",
+      "creditsOf": "{{completed}} / {{total}} credits",
+      "earnedCredits": "Earned Credits",
+      "requiredCourses": "Required Courses",
+      "requiredCoursesCompletedOf": "{{completed}} / {{total}} completed",
+      "prerequisiteWarnings": "Prerequisite Warnings",
+      "missing": "missing",
+      "noPrereqWarnings": "No prerequisite warnings detected.",
+      "warningsNote": "Warnings are inferred from plan ordering vs completed transcript courses.",
+      "completedCourses": "Completed Courses",
+      "inProgressCourses": "In-Progress Courses",
+      "plannedCourses": "Planned Courses",
+      "empty": {
+        "completed": "No completed courses.",
+        "inProgress": "No in-progress courses.",
+        "planned": "No planned courses."
+      }
+    },
+    "admin": {
+      "title": "Academic Plans",
+      "addTitle": "Add Academic Plan",
+      "editTitle": "Edit Academic Plan",
+      "assignTitle": "Assign Plan to Student",
+      "coursesFor": "Courses for plan {{id}}",
+      "emptyCourses": "No courses found for this plan."
+    },
     "errors": {
       "progressFetchFailed": "Failed to fetch academic progress",
       "fetchFailed": "Failed to fetch academic plans",

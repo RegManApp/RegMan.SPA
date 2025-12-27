@@ -22,6 +22,10 @@ const transcriptApi = {
   // Admin: Get all transcripts with filters
   getAll: (params) => axiosInstance.get("/transcript", { params }),
 
+  // Admin: Search students by name/email/id
+  searchStudents: (params) =>
+    axiosInstance.get("/transcript/students/search", { params }),
+
   // Admin: Create transcript
   create: (data) => axiosInstance.post("/transcript", data),
 

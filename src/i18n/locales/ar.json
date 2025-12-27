@@ -696,6 +696,68 @@
   },
   "academicPlan": {
     "confirmDelete": "هل تريد حذف هذه الخطة الأكاديمية؟",
+    "actions": {
+      "addPlan": "إضافة خطة",
+      "assign": "تعيين",
+      "courses": "المقررات"
+    },
+    "fields": {
+      "academicPlanId": "معرّف الخطة الأكاديمية",
+      "majorName": "التخصص",
+      "totalCreditsRequired": "إجمالي الساعات المطلوبة",
+      "expectedYearsToComplete": "السنوات المتوقعة",
+      "description": "الوصف",
+      "studentId": "رقم الطالب"
+    },
+    "status": {
+      "completed": "مكتمل",
+      "completedNotPassed": "مكتمل (غير ناجح)",
+      "inProgress": "قيد الدراسة",
+      "planned": "مخطط"
+    },
+    "courseTable": {
+      "courseCode": "رمز المقرر",
+      "title": "المقرر",
+      "credits": "الساعات",
+      "status": "الحالة",
+      "grade": "التقدير",
+      "type": "النوع",
+      "recommendedYear": "السنة الموصى بها",
+      "recommendedSemester": "الفصل الموصى به",
+      "required": "إلزامي"
+    },
+    "student": {
+      "title": "الخطة الأكاديمية",
+      "subtitle": "تقدم الدرجة",
+      "major": "التخصص",
+      "expectedGraduationYear": "سنة التخرج المتوقعة",
+      "currentGpa": "المعدل الحالي",
+      "percentComplete": "{{percent}}% مكتمل",
+      "creditsOf": "{{completed}} / {{total}} ساعة",
+      "earnedCredits": "الساعات المكتسبة",
+      "requiredCourses": "المقررات المطلوبة",
+      "requiredCoursesCompletedOf": "{{completed}} / {{total}} مكتمل",
+      "prerequisiteWarnings": "تنبيهات المتطلبات السابقة",
+      "missing": "ناقص",
+      "noPrereqWarnings": "لا توجد تنبيهات للمتطلبات السابقة.",
+      "warningsNote": "يتم استنتاج التنبيهات من ترتيب الخطة مقارنة بالمقررات المكتملة في السجل.",
+      "completedCourses": "المقررات المكتملة",
+      "inProgressCourses": "المقررات قيد الدراسة",
+      "plannedCourses": "المقررات المخططة",
+      "empty": {
+        "completed": "لا توجد مقررات مكتملة.",
+        "inProgress": "لا توجد مقررات قيد الدراسة.",
+        "planned": "لا توجد مقررات مخططة."
+      }
+    },
+    "admin": {
+      "title": "الخطط الأكاديمية",
+      "addTitle": "إضافة خطة أكاديمية",
+      "editTitle": "تعديل الخطة الأكاديمية",
+      "assignTitle": "تعيين خطة لطالب",
+      "coursesFor": "مقررات الخطة {{id}}",
+      "emptyCourses": "لا توجد مقررات لهذه الخطة."
+    },
     "errors": {
       "progressFetchFailed": "فشل جلب التقدم الأكاديمي",
       "fetchFailed": "فشل جلب الخطط الأكاديمية",
