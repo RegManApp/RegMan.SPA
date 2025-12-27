@@ -56,7 +56,7 @@ const WelcomePage = () => {
                               Home
                           </button>
                           <button onClick={() => scrollToSection('features')} className="hover:underline">
-                              Key Features
+                              Features
                           </button>
                           <button onClick={() => scrollToSection('about')} className="hover:underline">
                               About
@@ -124,7 +124,7 @@ const WelcomePage = () => {
 
       {/* Features Section */}
       <div id="features" className="py-16 bg-gray-50 dark:bg-gray-800">
-        <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           <div className="p-6 bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg transition">
             <FaBook className="text-primary-600 text-4xl mb-4" />
@@ -253,7 +253,7 @@ const WelcomePage = () => {
           <img src="/regman-logo.png" alt="RegMan Logo" className="w-12 h-12" />
           <div className="space-x-4">
             <button onClick={() => scrollToSection('hero')} className="hover:underline">Home</button>
-            <button onClick={() => scrollToSection('features')} className="hover:underline">Key Features</button>
+            <button onClick={() => scrollToSection('features')} className="hover:underline">Features</button>
             <button onClick={() => scrollToSection('about')} className="hover:underline">About</button>
             <button onClick={() => scrollToSection('contact-form')} className="hover:underline">Contact</button>
           </div>
