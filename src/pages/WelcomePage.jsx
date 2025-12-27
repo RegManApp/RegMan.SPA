@@ -25,20 +25,72 @@ const WelcomePage = () => {
   return (
     <div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow-md z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-16">
-            <div className="space-x-4">
-              <button onClick={() => scrollToSection('hero')} className="hover:underline">Home</button>
-              <button onClick={() => scrollToSection('features')} className="hover:underline">Key Features</button>
-              <button onClick={() => scrollToSection('about')} className="hover:underline">About</button>
-              <button onClick={() => scrollToSection('contact-form')} className="hover:underline">Contact</button>
-              <button onClick={() => scrollToSection('contribute')} className="hover:underline">Contribute</button>
-              <Link to="/login" className="hover:underline">Login</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/*<nav className="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow-md z-50">*/}
+      {/*  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">*/}
+      {/*    <div className="flex justify-center items-center h-16">*/}
+      {/*      <div className="space-x-4">*/}
+      {/*        <button onClick={() => scrollToSection('hero')} className="hover:underline">Home</button>*/}
+      {/*        <button onClick={() => scrollToSection('features')} className="hover:underline">Key Features</button>*/}
+      {/*        <button onClick={() => scrollToSection('about')} className="hover:underline">About</button>*/}
+      {/*        <button onClick={() => scrollToSection('contact-form')} className="hover:underline">Contact</button>*/}
+      {/*        <button onClick={() => scrollToSection('contribute')} className="hover:underline">Contribute</button>*/}
+      {/*        <Link to="/login" className="hover:underline">Login</Link>*/}
+      {/*        <Link to="/register" className="hover:underline">Register</Link>*/}
+      {/*      </div>*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+          {/*</nav>*/}
+          <nav className="fixed top-0 left-0 w-full bg-white dark:bg-gray-800 shadow-md z-50">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex items-center h-16">
+
+                      {/* Left spacer / Logo */}
+                      <div className="flex-1">
+                          {/* Optional logo or title */}
+                          <span className="font-bold text-lg">RegMan</span>
+                      </div>
+
+                      {/* Center navigation */}
+                      <div className="flex space-x-6">
+                          <button onClick={() => scrollToSection('hero')} className="hover:underline">
+                              Home
+                          </button>
+                          <button onClick={() => scrollToSection('features')} className="hover:underline">
+                              Key Features
+                          </button>
+                          <button onClick={() => scrollToSection('about')} className="hover:underline">
+                              About
+                          </button>
+                          <button onClick={() => scrollToSection('contact-form')} className="hover:underline">
+                              Contact
+                          </button>
+                          <button onClick={() => scrollToSection('contribute')} className="hover:underline">
+                              Contribute
+                          </button>
+                      </div>
+
+                      {/* Right auth buttons */}
+                      <div className="flex-1 flex justify-end space-x-4">
+                          <Link
+                              to="/login"
+                              className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition"
+                          >
+                              Login
+                          </Link>
+
+                          {/* Only include Register if needed */}
+                          <Link
+                              to="/register"
+                              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                          >
+                              Register
+                          </Link>
+                      </div>
+
+                  </div>
+              </div>
+          </nav>
+
 
       {/* Hero Section */}
       <div id="hero" className="flex items-center justify-center min-h-screen bg-gradient-to-b from-primary-600 to-primary-400 text-white">
@@ -59,6 +111,12 @@ const WelcomePage = () => {
               className="px-6 py-3 bg-white text-primary-600 rounded-lg hover:bg-gray-200 transition"
             >
               Login
+            </Link>
+            <Link
+              to="/register"
+              className="px-6 py-3 bg-white text-primary-600 rounded-lg hover:bg-gray-200 transition"
+            >
+              Register
             </Link>
           </div>
         </div>
