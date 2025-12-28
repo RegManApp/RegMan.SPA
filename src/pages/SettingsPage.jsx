@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
@@ -7,19 +7,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { adminApi } from "../api/adminApi";
 import { googleCalendarIntegrationApi } from "../api/googleCalendarIntegrationApi";
 import { Card, Button, Input, Breadcrumb } from "../components/common";
-
-const normalizeApiBase = (raw) => {
-  const trimmed = String(raw || "").replace(/\/$/, "");
-
-  // Default to relative /api when no env is set.
-  if (!trimmed) return "/api";
-
-  // If caller already provided /api, use it.
-  if (/\/api$/i.test(trimmed)) return trimmed;
-
-  // If caller provided origin-only (e.g. https://localhost:7025), append /api.
-  return `${trimmed}/api`;
-};
 
 const SettingsPage = () => {
   const { t } = useTranslation();
@@ -31,16 +18,6 @@ const SettingsPage = () => {
   const [gcLoading, setGcLoading] = useState(true);
   const [gcConnected, setGcConnected] = useState(false);
   const [gcEmail, setGcEmail] = useState(null);
-
-  const apiBase = useMemo(
-    () => normalizeApiBase(import.meta.env.VITE_API_BASE_URL),
-    []
-  );
-
-  const connectUrl = useMemo(() => {
-    const returnUrl = encodeURIComponent("/settings");
-    return `${apiBase}/integrations/google-calendar/connect?returnUrl=${returnUrl}`;
-  }, [apiBase]);
 
   const loadGoogleCalendarStatus = async () => {
     setGcLoading(true);
@@ -61,6 +38,25 @@ const SettingsPage = () => {
     loadGoogleCalendarStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleGoogleConnect = async () => {
+    try {
+      const authUrl = await googleCalendarIntegrationApi.getConnectUrl(
+        "/settings"
+      );
+      if (authUrl) {
+        window.location.assign(authUrl);
+      } else {
+        toast.error(t("settings.googleCalendar.errors.connectFailed"));
+      }
+    } catch (err) {
+      // axiosInstance already handles 401 -> redirect to login.
+      const status = err?.response?.status;
+      if (status !== 401) {
+        toast.error(t("settings.googleCalendar.errors.connectFailed"));
+      }
+    }
+  };
 
   // =================
   // Admin-only section
@@ -146,7 +142,7 @@ const SettingsPage = () => {
             <p className="text-sm text-gray-700 dark:text-gray-300">
               {t("settings.googleCalendar.notConnectedDescription")}
             </p>
-            <Button onClick={() => window.location.assign(connectUrl)}>
+            <Button onClick={handleGoogleConnect}>
               {t("settings.googleCalendar.connectButton")}
             </Button>
           </div>

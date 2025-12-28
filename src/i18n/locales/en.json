@@ -1080,7 +1080,10 @@
       "connectButton": "Connect Google Calendar",
       "connected": "Google Calendar Connected",
       "connectedEmail": "Connected as {{email}}",
-      "syncWarning": "Calendar sync failed, booking saved successfully"
+      "syncWarning": "Calendar sync failed, booking saved successfully",
+      "errors": {
+        "connectFailed": "Failed to start Google Calendar connection"
+      }
     }
   },
   "users": {

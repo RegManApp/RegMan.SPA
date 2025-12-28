@@ -1079,7 +1079,10 @@
       "connectButton": "ربط تقويم Google",
       "connected": "تم ربط تقويم Google",
       "connectedEmail": "تم الربط باستخدام {{email}}",
-      "syncWarning": "فشلت مزامنة التقويم، تم حفظ الحجز بنجاح"
+      "syncWarning": "فشلت مزامنة التقويم، تم حفظ الحجز بنجاح",
+      "errors": {
+        "connectFailed": "تعذر بدء ربط تقويم Google"
+      }
     }
   },
   "courses": {
