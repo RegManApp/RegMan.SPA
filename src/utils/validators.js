@@ -202,7 +202,23 @@ export const courseSchema = yup.object({
     .min(1, "Credit hours must be at least 1")
     .max(6, "Credit hours must be at most 6")
     .required("Credit hours is required"),
-  courseCategoryId: yup.number().required("Course category is required"),
+  courseCategoryId: yup
+    .number()
+    // HTML/select components often provide "" until a choice is made.
+    // Without this, Yup casts "" -> NaN and users see an unhelpful NaN message.
+    .transform((value, originalValue) => {
+      if (
+        originalValue === "" ||
+        originalValue === null ||
+        originalValue === undefined
+      ) {
+        return undefined;
+      }
+      return value;
+    })
+    .typeError("Course category is required")
+    .integer("Course category is required")
+    .required("Course category is required"),
   description: yup
     .string()
     .max(500, "Description must be less than 500 characters")

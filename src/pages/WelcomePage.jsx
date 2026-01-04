@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaArrowUp, FaBook, FaChartLine, FaClock, FaEnvelope, FaGraduationCap, FaLaptop, FaLightbulb, FaUsers } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '../hooks/useDirection';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
 const WelcomePage = () => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
@@ -74,7 +75,8 @@ const WelcomePage = () => {
                       </div>
 
                       {/* Right auth buttons */}
-                        <div className={`flex-1 flex ${isRtl ? 'justify-start' : 'justify-end'} space-x-4 ${isRtl ? 'space-x-reverse' : ''}`}>
+                        <div className={`flex-1 flex ${isRtl ? 'justify-start' : 'justify-end'} items-center space-x-4 ${isRtl ? 'space-x-reverse' : ''}`}>
+                          <LanguageSwitcher />
                           <Link
                               to="/login"
                             className="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors duration-200 ease-out"

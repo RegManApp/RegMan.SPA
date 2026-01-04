@@ -89,7 +89,10 @@ const CoursesPage = () => {
         pageSize,
         search: searchQuery,
       };
-      if (categoryFilter) params.courseCategoryId = categoryFilter;
+      if (categoryFilter !== '') {
+        const parsed = Number(categoryFilter);
+        if (!Number.isNaN(parsed)) params.courseCategoryId = parsed;
+      }
       const response = await courseApi.getAll(params);
       const data = response.data;
       let items = [];
@@ -404,7 +407,7 @@ const CoursesPage = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search courses..."
+              placeholder={t('courses.page.searchPlaceholder')}
               className="w-full sm:w-80 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
             />
             {!isInstructor() && categories.length > 0 && (
@@ -413,28 +416,28 @@ const CoursesPage = () => {
                 onChange={e => setCategoryFilter(e.target.value)}
                 className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
               >
-                <option value="">All Categories</option>
+                <option value="">{t('courses.page.allCategories')}</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             )}
             {isAdmin() && (
-              <Button onClick={() => handleEdit({})}>Create Course</Button>
+              <Button onClick={() => handleEdit({})}>{t('common.create')}</Button>
             )}
           </div>
 
           {!isLoading && courses.length === 0 ? (
             <EmptyState
-              title="No courses found"
+              title={t('courses.page.empty.title')}
               description={
                 searchQuery || categoryFilter
-                  ? 'No courses match your search or filter.'
-                  : 'Courses will appear here once they are created.'
+                  ? t('courses.page.empty.descriptionFiltered')
+                  : t('courses.page.empty.descriptionDefault')
               }
               action={
                 isAdmin() ? (
-                  <Button onClick={() => handleEdit({})}>Create Course</Button>
+                  <Button onClick={() => handleEdit({})}>{t('common.create')}</Button>
                 ) : undefined
               }
             />

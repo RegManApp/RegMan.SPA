@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginForm } from '../components/auth';
 import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import { useDirection } from '../hooks/useDirection';
+import { cn } from '../utils/helpers';
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,6 +13,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const { isRtl } = useDirection();
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -27,6 +31,9 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className={cn('absolute top-4', isRtl ? 'left-4' : 'right-4')}>
+        <LanguageSwitcher />
+      </div>
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400">

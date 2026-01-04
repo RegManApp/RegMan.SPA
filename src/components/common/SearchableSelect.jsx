@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import i18n from '../../i18n';
 
 const SearchableSelect = ({
   label,
@@ -8,7 +9,7 @@ const SearchableSelect = ({
   onChange,
   error,
   required,
-  placeholder = 'Select...',
+  placeholder = `${i18n.t('common.select') || 'Select'}...`,
   getOptionLabel,
   getOptionValue,
   disabled,

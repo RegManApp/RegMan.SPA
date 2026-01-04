@@ -643,12 +643,48 @@
     "addToCart": "Add to Cart",
     "adding": "Adding...",
     "registrationClosedNotice": "Registration closed on {{date}}",
+    "page": {
+      "searchPlaceholder": "Search courses...",
+      "allCategories": "All Categories",
+      "empty": {
+        "title": "No courses found",
+        "descriptionDefault": "Courses will appear here once they are created.",
+        "descriptionFiltered": "No courses match your search or filter."
+      },
+      "emptyAdminHint": "Get started by creating your first course.",
+      "emptyStudentHint": "No courses are available at the moment."
+    },
     "confirmDeleteTitle": "Delete Course",
     "confirmDeleteMessage": "Are you sure you want to delete \"{{courseName}}\"? This will also remove all enrollments. This action cannot be undone.",
     "confirmDeleteNameFallback": "this course",
     "enroll": "Enroll",
     "actions": {
       "edit": "Edit Course"
+    },
+    "table": {
+      "code": "Code",
+      "courseName": "Course Name",
+      "credits": "Credits",
+      "category": "Category",
+      "enrolled": "Enrolled",
+      "actions": "Actions"
+    },
+    "form": {
+      "createTitle": "Create New Course",
+      "editTitle": "Edit Course",
+      "fields": {
+        "courseCode": "Course Code",
+        "courseName": "Course Name",
+        "creditHours": "Credit Hours",
+        "courseCategory": "Course Category",
+        "description": "Description"
+      },
+      "placeholders": {
+        "courseCode": "e.g., CS101",
+        "courseName": "e.g., Introduction to Computer Science",
+        "courseCategory": "Select a category...",
+        "description": "Enter course description..."
+      }
     },
     "details": {
       "creditHours": "Credit Hours",

@@ -48,49 +48,6 @@
       "monday": "الاثنين",
       "tuesday": "الثلاثاء",
       "wednesday": "الأربعاء",
-    "schedules": {
-      "form": {
-        "titles": {
-          "create": "إنشاء جدول",
-          "edit": "تعديل الجدول"
-        },
-        "fields": {
-          "instructor": "المدرس",
-          "course": "المقرر",
-          "section": "الشعبة",
-          "day": "اليوم",
-          "type": "النوع",
-          "startTime": "وقت البدء",
-          "endTime": "وقت الانتهاء",
-          "room": "القاعة"
-        },
-        "placeholders": {
-          "selectInstructor": "اختر مدرسًا",
-          "selectCourse": "اختر مقررًا",
-          "selectSection": "اختر شعبة",
-          "selectDay": "اختر يومًا",
-          "selectType": "اختر نوعًا",
-          "selectStartTime": "اختر وقت البدء",
-          "selectEndTime": "اختر وقت الانتهاء",
-          "enterRoom": "أدخل القاعة"
-        },
-        "validation": {
-          "instructorRequired": "المدرس مطلوب",
-          "courseRequired": "المقرر مطلوب",
-          "sectionRequired": "الشعبة مطلوبة",
-          "dayRequired": "اليوم مطلوب",
-          "typeRequired": "النوع مطلوب",
-          "startTimeRequired": "وقت البدء مطلوب",
-          "endTimeRequired": "وقت الانتهاء مطلوب",
-          "roomRequired": "القاعة مطلوبة",
-          "endAfterStart": "يجب أن يكون وقت الانتهاء بعد وقت البدء"
-        },
-        "actions": {
-          "createSchedule": "إنشاء جدول",
-          "updateSchedule": "تحديث الجدول"
-        }
-      }
-    },
       "thursday": "الخميس",
       "friday": "الجمعة",
       "saturday": "السبت"
@@ -1091,17 +1048,53 @@
     "enrolledWithValue": "{{count}} مسجل",
     "viewDetails": "عرض التفاصيل",
     "removeFromCart": "إزالة من السلة",
-    "drop": "حذف",
-    "dropping": "جارٍ الحذف...",
+    "drop": "انسحاب",
+    "dropping": "جارٍ الانسحاب...",
     "addToCart": "إضافة إلى السلة",
     "adding": "جارٍ الإضافة...",
     "registrationClosedNotice": "أُغلِق التسجيل في {{date}}",
+    "page": {
+      "searchPlaceholder": "ابحث عن المقررات...",
+      "allCategories": "كل الفئات",
+      "empty": {
+        "title": "لا توجد مقررات",
+        "descriptionDefault": "ستظهر المقررات هنا بعد إنشائها.",
+        "descriptionFiltered": "لا توجد مقررات تطابق البحث أو التصفية."
+      },
+      "emptyAdminHint": "ابدأ بإنشاء أول مقرر لك.",
+      "emptyStudentHint": "لا توجد مقررات متاحة حاليًا."
+    },
     "confirmDeleteTitle": "حذف المقرر",
     "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف \"{{courseName}}\"؟ سيتم أيضًا حذف جميع التسجيلات. لا يمكن التراجع عن هذا الإجراء.",
     "confirmDeleteNameFallback": "هذا المقرر",
     "enroll": "تسجيل",
     "actions": {
       "edit": "تعديل المقرر"
+    },
+    "table": {
+      "code": "الرمز",
+      "courseName": "اسم المقرر",
+      "credits": "الساعات",
+      "category": "الفئة",
+      "enrolled": "المسجلون",
+      "actions": "الإجراءات"
+    },
+    "form": {
+      "createTitle": "إنشاء مقرر جديد",
+      "editTitle": "تعديل المقرر",
+      "fields": {
+        "courseCode": "رمز المقرر",
+        "courseName": "اسم المقرر",
+        "creditHours": "الساعات المعتمدة",
+        "courseCategory": "فئة المقرر",
+        "description": "الوصف"
+      },
+      "placeholders": {
+        "courseCode": "مثال: CS101",
+        "courseName": "مثال: مقدمة في علوم الحاسوب",
+        "courseCategory": "اختر فئة...",
+        "description": "أدخل وصف المقرر..."
+      }
     },
     "details": {
       "creditHours": "ساعات معتمدة",

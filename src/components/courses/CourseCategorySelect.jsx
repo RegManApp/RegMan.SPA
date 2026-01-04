@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import SearchableSelect from '../common/SearchableSelect';
 import { courseCategoryApi } from '../../api';
 import { normalizeCategories } from '../../utils/helpers';
+import { useTranslation } from 'react-i18next';
 
 const CourseCategorySelect = ({
   value,
@@ -10,6 +11,7 @@ const CourseCategorySelect = ({
   isAdmin = false,
   ...props
 }) => {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,13 +35,14 @@ const CourseCategorySelect = ({
 
   return (
     <SearchableSelect
-      label="Course Category"
+      label={t('courses.form.fields.courseCategory')}
       value={value}
       onChange={onChange}
       options={options}
       getOptionLabel={cat => cat.name}
       getOptionValue={cat => cat.id}
       error={error}
+      placeholder={t('courses.form.placeholders.courseCategory')}
       required={props.required}
       disabled={isLoading}
       {...props}
