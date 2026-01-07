@@ -108,6 +108,62 @@ export async function sendMessage(receiverId, conversationId, textMessage) {
   );
 }
 
+export async function sendMessageIdempotent(
+  receiverId,
+  conversationId,
+  textMessage,
+  clientMessageId
+) {
+  if (!connection) await startConnection();
+  return connection.invoke(
+    "SendMessageAsync",
+    receiverId ?? null,
+    conversationId ?? null,
+    textMessage,
+    clientMessageId ?? null
+  );
+}
+
+export function onUserTyping(handler) {
+  if (!connection) return;
+  connection.on("UserTyping", handler);
+}
+
+export function offUserTyping(handler) {
+  if (!connection) return;
+  connection.off("UserTyping", handler);
+}
+
+export function onMessageDeletedForMe(handler) {
+  if (!connection) return;
+  connection.on("MessageDeletedForMe", handler);
+}
+
+export function offMessageDeletedForMe(handler) {
+  if (!connection) return;
+  connection.off("MessageDeletedForMe", handler);
+}
+
+export function onMessageDeletedForEveryone(handler) {
+  if (!connection) return;
+  connection.on("MessageDeletedForEveryone", handler);
+}
+
+export function offMessageDeletedForEveryone(handler) {
+  if (!connection) return;
+  connection.off("MessageDeletedForEveryone", handler);
+}
+
+export async function typingStarted(conversationId) {
+  if (!connection) await startConnection();
+  return connection.invoke("TypingStarted", conversationId);
+}
+
+export async function typingStopped(conversationId) {
+  if (!connection) await startConnection();
+  return connection.invoke("TypingStopped", conversationId);
+}
+
 export async function stopConnection() {
   connectionRefCount = Math.max(0, connectionRefCount - 1);
   if (!connection) return;

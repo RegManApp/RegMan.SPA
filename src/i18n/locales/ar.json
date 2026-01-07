@@ -11,6 +11,8 @@
     "open": "فتح",
     "cancel": "إلغاء",
     "save": "حفظ",
+    "yes": "نعم",
+    "no": "لا",
     "remove": "إزالة",
     "add": "إضافة",
     "reset": "إعادة ضبط",
@@ -916,6 +918,14 @@
       "withdrawStarts": "بداية الانسحاب",
       "withdrawEnds": "نهاية الانسحاب"
     },
+    "conflicts": {
+      "title": "التعارضات",
+      "count": "{{count}} تعارض",
+      "item": "تعارض",
+      "severity": {
+        "unknown": "غير معروف"
+      }
+    },
     "errors": {
       "fetchFailed": "فشل تحميل أحداث التقويم"
     }
@@ -1034,11 +1044,61 @@
       "title": "تكامل تقويم Google",
       "notConnectedDescription": "اربط تقويم Google لمزامنة ساعات المكتب",
       "connectButton": "ربط تقويم Google",
+      "disconnectButton": "إلغاء الربط",
       "connected": "تم ربط تقويم Google",
       "connectedEmail": "تم الربط باستخدام {{email}}",
       "syncWarning": "فشلت مزامنة التقويم، تم حفظ الحجز بنجاح",
       "errors": {
-        "connectFailed": "تعذر بدء ربط تقويم Google"
+        "connectFailed": "تعذر بدء ربط تقويم Google",
+        "disconnectFailed": "تعذر إلغاء ربط تقويم Google"
+      },
+      "toasts": {
+        "disconnected": "تم إلغاء ربط تقويم Google"
+      }
+    },
+    "calendarPreferences": {
+      "title": "تفضيلات التقويم",
+      "fields": {
+        "weekStartDay": "يبدأ الأسبوع يوم",
+        "hideWeekends": "إخفاء عطلة نهاية الأسبوع",
+        "defaultReminderMinutes": "التذكير الافتراضي (بالدقائق)"
+      },
+      "options": {
+        "weekStartDay": {
+          "mon": "الاثنين",
+          "sun": "الأحد"
+        }
+      },
+      "placeholders": {
+        "defaultReminderMinutes": "اتركه فارغًا لاستخدام قواعد التذكير"
+      },
+      "errors": {
+        "saveFailed": "فشل حفظ تفضيلات التقويم"
+      },
+      "toasts": {
+        "saved": "تم حفظ تفضيلات التقويم"
+      }
+    },
+    "reminderRules": {
+      "title": "قواعد التذكير",
+      "subtitle": "تذكيرات داخل التطبيق فقط",
+      "empty": "لا توجد قواعد تذكير",
+      "inAppOnly": "داخل التطبيق",
+      "fields": {
+        "enabled": "مفعّل",
+        "minutesBefore": "دقائق قبل"
+      },
+      "trigger": {
+        "class": "الحصص",
+        "officeHour": "الساعات المكتبية",
+        "registrationDeadline": "موعد انتهاء التسجيل",
+        "withdrawDeadline": "موعد انتهاء الانسحاب"
+      },
+      "errors": {
+        "saveFailed": "فشل حفظ قواعد التذكير"
+      },
+      "toasts": {
+        "saved": "تم حفظ قواعد التذكير"
       }
     }
   },

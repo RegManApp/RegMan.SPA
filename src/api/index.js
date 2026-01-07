@@ -21,3 +21,5 @@ export { smartScheduleApi } from "./smartScheduleApi";
 export { devToolsApi } from "./devToolsApi";
 export { withdrawRequestsApi } from "./withdrawRequestsApi";
 export { googleCalendarIntegrationApi } from "./googleCalendarIntegrationApi";
+export { calendarPreferencesApi } from "./calendarPreferencesApi";
+export { reminderRulesApi } from "./reminderRulesApi";

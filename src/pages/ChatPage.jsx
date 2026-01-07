@@ -14,7 +14,7 @@ import {
   offUserPresenceChanged,
   joinConversationGroup,
   getOnlineUsers,
-  sendMessage as hubSend,
+  sendMessageIdempotent,
 } from '../api/signalrClient';
 import ConversationList from '../components/chat/ConversationList';
 import ChatWindow from '../components/chat/ChatWindow';
@@ -276,7 +276,10 @@ export default function ChatPage() {
             onSend={async (conversationId, receiverId, text) => {
               try {
                 // Try via SignalR hub first
-                await hubSend(null, conversationId, text);
+                const clientMessageId =
+                  (typeof crypto !== 'undefined' && crypto.randomUUID && crypto.randomUUID()) ||
+                  `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                await sendMessageIdempotent(null, conversationId, text, clientMessageId);
                 loadConversations();
               } catch (e) {
                 // Fallback to REST

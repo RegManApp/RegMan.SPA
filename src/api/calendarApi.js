@@ -32,6 +32,41 @@ const transformEvents = (backendEvents) => {
   }));
 };
 
+const toIsoDate = (value) => {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().split("T")[0];
+};
+
+const transformViewEvents = (backendEvents) => {
+  if (!Array.isArray(backendEvents)) return [];
+
+  return backendEvents.map((event) => {
+    const start = event.startUtc || event.start || event.StartUtc || null;
+    const end = event.endUtc || event.end || event.EndUtc || null;
+
+    return {
+      ...event,
+      start,
+      end,
+      date: toIsoDate(start),
+      startTime: formatTime(start),
+      endTime: formatTime(end),
+      location: event.extendedProps?.room || event.extendedProps?.Room || null,
+      instructorName:
+        event.extendedProps?.instructorName ||
+        event.extendedProps?.InstructorName ||
+        null,
+      description:
+        event.extendedProps?.purpose ||
+        event.extendedProps?.courseCode ||
+        event.extendedProps?.CourseCode ||
+        null,
+    };
+  });
+};
+
 // Get all calendar events for the current user
 export const getCalendarEvents = async (params = {}) => {
   const response = await axiosInstance.get("/calendar/events", { params });
@@ -58,6 +93,18 @@ export const calendarApi = {
   getCalendarEvents,
   getTodayEvents,
   getUpcomingEvents,
+  getCalendarView: async (params = {}) => {
+    const response = await axiosInstance.get("/calendar/view", { params });
+    const view = response.data;
+    return {
+      viewRole: view?.viewRole,
+      dateRange: view?.dateRange,
+      conflicts: Array.isArray(view?.conflicts) ? view.conflicts : [],
+      events: transformViewEvents(
+        Array.isArray(view?.events) ? view.events : []
+      ),
+    };
+  },
   getTimeline: async () => {
     const response = await axiosInstance.get("/calendar/timeline");
     return response.data;

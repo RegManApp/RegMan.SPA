@@ -22,6 +22,12 @@ export const getGoogleCalendarConnectUrl = async (returnUrl) => {
 export const googleCalendarIntegrationApi = {
   getStatus: getGoogleCalendarIntegrationStatus,
   getConnectUrl: getGoogleCalendarConnectUrl,
+  disconnect: async () => {
+    const response = await axiosInstance.post(
+      "/integrations/google-calendar/disconnect"
+    );
+    return response.data;
+  },
 };
 
 export default googleCalendarIntegrationApi;

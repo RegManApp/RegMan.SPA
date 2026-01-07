@@ -23,9 +23,14 @@ export const chatApi = {
   },
 
   // Get a specific conversation by ID with messages
-  getConversation: (conversationId, page = 1, pageSize = 20) => {
+  getConversation: (
+    conversationId,
+    page = 1,
+    pageSize = 20,
+    beforeMessageId = null
+  ) => {
     return axiosInstance.get(`/chat/${conversationId}`, {
-      params: { page, pageSize },
+      params: { page, pageSize, beforeMessageId },
     });
   },
 

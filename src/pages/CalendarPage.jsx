@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { calendarApi } from '../api/calendarApi';
+import { calendarPreferencesApi } from '../api/calendarPreferencesApi';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import {
@@ -20,6 +21,8 @@ const CalendarPage = () => {
   const locale = i18n.language?.toLowerCase().startsWith('ar') ? 'ar' : 'en-US';
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
+  const [conflicts, setConflicts] = useState([]);
+  const [calendarPrefs, setCalendarPrefs] = useState({ weekStartDay: 1, hideWeekends: false });
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(null);
   const [viewMode, setViewMode] = useState('month'); // 'month' or 'list'
@@ -31,13 +34,42 @@ const CalendarPage = () => {
     fetchEvents();
   }, [year, month]);
 
+  useEffect(() => {
+    loadPreferences();
+  }, []);
+
+  const loadPreferences = async () => {
+    try {
+      const prefs = await calendarPreferencesApi.get();
+      if (prefs && typeof prefs === 'object') {
+        const weekStartRaw = prefs.weekStartDay;
+        const weekStartDay =
+          weekStartRaw === 'Mon'
+            ? 1
+            : weekStartRaw === 'Sun'
+            ? 0
+            : Number.isFinite(Number(weekStartRaw))
+            ? Number(weekStartRaw)
+            : 1;
+
+        setCalendarPrefs({
+          weekStartDay,
+          hideWeekends: Boolean(prefs.hideWeekends),
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const fetchEvents = async () => {
     try {
       setLoading(true);
       const startDate = new Date(year, month, 1).toISOString().split('T')[0];
       const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
-      const data = await calendarApi.getCalendarEvents({ startDate, endDate });
-      setEvents(data);
+      const view = await calendarApi.getCalendarView({ startDate, endDate });
+      setEvents(view?.events || []);
+      setConflicts(view?.conflicts || []);
     } catch (error) {
       console.error(error);
       toast.error(t('calendar.errors.fetchFailed'));
@@ -46,12 +78,14 @@ const CalendarPage = () => {
     }
   };
 
+  const normalizeType = (value) => String(value || '').trim().toLowerCase();
+
   const getEventTypeKey = (value) => {
-    const v = String(value || '');
-    if (v === 'OfficeHour') return 'officeHour';
-    if (v === 'Booking') return 'booking';
-    if (v === 'Class') return 'class';
-    if (v === 'Teaching') return 'teaching';
+    const v = normalizeType(value);
+    if (v === 'officehour' || v === 'office-hour') return 'officeHour';
+    if (v === 'booking' || v === 'office-hour-booking' || v === 'officehourbooking') return 'booking';
+    if (v === 'class') return 'class';
+    if (v === 'teaching') return 'teaching';
     if (v === 'registration') return 'registration';
     if (v === 'withdraw') return 'withdraw';
     return null;
@@ -70,46 +104,107 @@ const CalendarPage = () => {
     return renderEventType(event.type);
   };
 
+  const effectiveWeekStartDay = useMemo(() => {
+    const weekStartDay = Number(calendarPrefs?.weekStartDay);
+    const hideWeekends = Boolean(calendarPrefs?.hideWeekends);
+
+    if (!Number.isFinite(weekStartDay)) return hideWeekends ? 1 : 0;
+    if (hideWeekends && (weekStartDay === 0 || weekStartDay === 6)) return 1;
+    return weekStartDay;
+  }, [calendarPrefs]);
+
+  const showDaysOfWeek = useMemo(() => {
+    const hideWeekends = Boolean(calendarPrefs?.hideWeekends);
+    const result = [];
+    for (let i = 0; i < 7; i++) {
+      const day = (effectiveWeekStartDay + i) % 7;
+      if (hideWeekends && (day === 0 || day === 6)) continue;
+      result.push(day);
+    }
+    return result;
+  }, [calendarPrefs, effectiveWeekStartDay]);
+
   const daysInMonth = useMemo(() => {
-    const days = [];
+    const hideWeekends = Boolean(calendarPrefs?.hideWeekends);
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
+    const gridStart = new Date(firstDay);
 
-    // Add days from previous month to fill the first week
-    const startDayOfWeek = firstDay.getDay();
-    for (let i = startDayOfWeek - 1; i >= 0; i--) {
-      const date = new Date(year, month, -i);
-      days.push({ date, isCurrentMonth: false });
+    while (gridStart.getDay() !== effectiveWeekStartDay) {
+      gridStart.setDate(gridStart.getDate() - 1);
     }
 
-    // Add days of current month
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+    const days = [];
+    for (let i = 0; i < 42; i++) {
+      const date = new Date(gridStart);
+      date.setDate(gridStart.getDate() + i);
+      days.push({ date, isCurrentMonth: date.getMonth() === month });
     }
 
-    // Add days from next month to complete the grid
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-      days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+    if (hideWeekends) {
+      return days.filter(({ date }) => {
+        const dow = date.getDay();
+        return dow !== 0 && dow !== 6;
+      });
     }
 
     return days;
-  }, [year, month]);
+  }, [year, month, calendarPrefs, effectiveWeekStartDay]);
 
   const getEventsForDate = (date) => {
     const dateStr = date.toISOString().split('T')[0];
     return events.filter((event) => event.date === dateStr);
   };
 
+  const getConflictsForDate = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return conflicts.filter((c) => {
+      const conflictDate =
+        c?.date ||
+        c?.day ||
+        c?.dateUtc ||
+        (c?.startUtc ? new Date(c.startUtc).toISOString().split('T')[0] : null) ||
+        (c?.start ? new Date(c.start).toISOString().split('T')[0] : null);
+      return conflictDate === dateStr;
+    });
+  };
+
+  const normalizeSeverity = (value) => String(value || '').trim().toLowerCase();
+
+  const getConflictBadgeClass = (severity) => {
+    const s = normalizeSeverity(severity);
+    if (s === 'high' || s === 'critical') {
+      return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
+    }
+    if (s === 'medium' || s === 'warning') {
+      return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300';
+    }
+    return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
+  };
+
+  const getWorstSeverity = (items) => {
+    const levels = { critical: 3, high: 3, warning: 2, medium: 2, low: 1, info: 1 };
+    let best = 'low';
+    let bestScore = 0;
+    for (const item of items || []) {
+      const s = normalizeSeverity(item?.severity);
+      const score = levels[s] || 0;
+      if (score > bestScore) {
+        bestScore = score;
+        best = s || 'low';
+      }
+    }
+    return best;
+  };
+
   const getEventTypeColor = (type) => {
-    switch (type) {
-      case 'OfficeHour':
+    switch (getEventTypeKey(type)) {
+      case 'officeHour':
         return 'bg-green-500';
-      case 'Booking':
+      case 'booking':
         return 'bg-blue-500';
-      case 'Class':
+      case 'class':
         return 'bg-purple-500';
-      case 'Teaching':
+      case 'teaching':
         return 'bg-orange-500';
       case 'registration':
         return 'bg-red-500';
@@ -121,14 +216,14 @@ const CalendarPage = () => {
   };
 
   const getEventTypeBgColor = (type) => {
-    switch (type) {
-      case 'OfficeHour':
+    switch (getEventTypeKey(type)) {
+      case 'officeHour':
         return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400';
-      case 'Booking':
+      case 'booking':
         return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400';
-      case 'Class':
+      case 'class':
         return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400';
-      case 'Teaching':
+      case 'teaching':
         return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400';
       case 'registration':
         return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400';
@@ -140,14 +235,14 @@ const CalendarPage = () => {
   };
 
   const getEventIcon = (type) => {
-    switch (type) {
-      case 'OfficeHour':
+    switch (getEventTypeKey(type)) {
+      case 'officeHour':
         return <FiClock className="w-4 h-4" />;
-      case 'Booking':
+      case 'booking':
         return <FiCalendar className="w-4 h-4" />;
-      case 'Class':
+      case 'class':
         return <FiBook className="w-4 h-4" />;
-      case 'Teaching':
+      case 'teaching':
         return <FiUsers className="w-4 h-4" />;
       case 'registration':
         return <FiUser className="w-4 h-4" />;
@@ -187,6 +282,7 @@ const CalendarPage = () => {
   };
 
   const selectedDateEvents = selectedDate ? getEventsForDate(selectedDate) : [];
+  const selectedDateConflicts = selectedDate ? getConflictsForDate(selectedDate) : [];
 
   const upcomingEvents = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -288,18 +384,22 @@ const CalendarPage = () => {
             </div>
 
             {/* Day Headers */}
-            <div className="grid grid-cols-7 border-b border-gray-200 dark:border-gray-700">
-              {Array.from({ length: 7 }).map((_, dayIndex) => {
+            <div
+              className={`grid ${
+                calendarPrefs?.hideWeekends ? 'grid-cols-5' : 'grid-cols-7'
+              } border-b border-gray-200 dark:border-gray-700`}
+            >
+              {showDaysOfWeek.map((dayIndex) => {
                 const d = new Date(2024, 0, 7 + dayIndex);
                 const label = d.toLocaleDateString(locale, { weekday: 'short' });
                 return (
-                <div
-                  key={dayIndex}
-                  className="py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400"
-                >
-                  {label}
-                </div>
-              );
+                  <div
+                    key={dayIndex}
+                    className="py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400"
+                  >
+                    {label}
+                  </div>
+                );
               })}
             </div>
 
@@ -309,9 +409,11 @@ const CalendarPage = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-7">
+              <div className={`grid ${calendarPrefs?.hideWeekends ? 'grid-cols-5' : 'grid-cols-7'}`}>
                 {daysInMonth.map(({ date, isCurrentMonth }, index) => {
                   const dayEvents = getEventsForDate(date);
+                  const dayConflicts = getConflictsForDate(date);
+                  const worst = dayConflicts.length > 0 ? getWorstSeverity(dayConflicts) : null;
                   return (
                     <button
                       key={index}
@@ -335,6 +437,16 @@ const CalendarPage = () => {
                       >
                         {date.getDate()}
                       </span>
+                      {dayConflicts.length > 0 && (
+                        <span
+                          className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${getConflictBadgeClass(
+                            worst
+                          )}`}
+                          title={t('calendar.conflicts.title')}
+                        >
+                          {t('calendar.conflicts.count', { count: dayConflicts.length })}
+                        </span>
+                      )}
                       <div className="mt-1 space-y-1">
                         {dayEvents.slice(0, 2).map((event, i) => (
                           <div
@@ -373,49 +485,78 @@ const CalendarPage = () => {
               </div>
               <div className="max-h-[500px] overflow-y-auto">
                 {selectedDate ? (
-                  selectedDateEvents.length > 0 ? (
-                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                      {selectedDateEvents.map((event, index) => (
-                        <div key={index} className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className={`p-2 rounded-lg ${getEventTypeBgColor(event.type)}`}>
-                              {getEventIcon(event.type)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-900 dark:text-white">{renderEventTitle(event)}</h4>
-                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                {event.description}
-                              </p>
-                              <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                {event.startTime && event.endTime && (
-                                  <span className="flex items-center gap-1">
-                                    <FiClock className="w-3 h-3" />
-                                    {event.startTime} - {event.endTime}
-                                  </span>
-                                )}
-                                {event.location && (
-                                  <span className="flex items-center gap-1">
-                                    <FiMapPin className="w-3 h-3" />
-                                    {event.location}
-                                  </span>
+                  <>
+                    {selectedDateConflicts.length > 0 && (
+                      <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {t('calendar.conflicts.title')}
+                        </h4>
+                        <div className="mt-2 space-y-2">
+                          {selectedDateConflicts.map((c, idx) => (
+                            <div key={idx} className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="text-xs font-medium text-gray-900 dark:text-white truncate">
+                                  {c?.message || c?.title || c?.conflictType || t('calendar.conflicts.item')}
+                                </p>
+                                {(c?.details || c?.description) && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {c.details || c.description}
+                                  </p>
                                 )}
                               </div>
-                              {event.instructorName && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                                  <FiUser className="w-3 h-3" />
-                                  {event.instructorName}
+                              <span className={`shrink-0 px-2 py-0.5 rounded text-[10px] font-medium ${getConflictBadgeClass(c?.severity)}`}>
+                                {String(c?.severity || t('calendar.conflicts.severity.unknown'))}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedDateEvents.length > 0 ? (
+                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {selectedDateEvents.map((event, index) => (
+                          <div key={index} className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-lg ${getEventTypeBgColor(event.type)}`}>
+                                {getEventIcon(event.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-900 dark:text-white">{renderEventTitle(event)}</h4>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                  {event.description}
                                 </p>
-                              )}
+                                <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                  {event.startTime && event.endTime && (
+                                    <span className="flex items-center gap-1">
+                                      <FiClock className="w-3 h-3" />
+                                      {event.startTime} - {event.endTime}
+                                    </span>
+                                  )}
+                                  {event.location && (
+                                    <span className="flex items-center gap-1">
+                                      <FiMapPin className="w-3 h-3" />
+                                      {event.location}
+                                    </span>
+                                  )}
+                                </div>
+                                {event.instructorName && (
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                                    <FiUser className="w-3 h-3" />
+                                    {event.instructorName}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                      {t('calendar.empty.noEventsOnDay')}
-                    </div>
-                  )
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                        {t('calendar.empty.noEventsOnDay')}
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                     {t('calendar.empty.selectDateHint')}

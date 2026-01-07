@@ -11,6 +11,8 @@
     "open": "Open",
     "cancel": "Cancel",
     "save": "Save",
+    "yes": "Yes",
+    "no": "No",
     "remove": "Remove",
     "add": "Add",
     "reset": "Reset",
@@ -996,6 +998,14 @@
       "withdrawStarts": "Withdraw Starts",
       "withdrawEnds": "Withdraw Ends"
     },
+    "conflicts": {
+      "title": "Conflicts",
+      "count": "{{count}} conflicts",
+      "item": "Conflict",
+      "severity": {
+        "unknown": "Unknown"
+      }
+    },
     "errors": {
       "fetchFailed": "Failed to load calendar events"
     }
@@ -1114,11 +1124,61 @@
       "title": "Google Calendar Integration",
       "notConnectedDescription": "Connect your Google Calendar to sync office hours",
       "connectButton": "Connect Google Calendar",
+      "disconnectButton": "Disconnect",
       "connected": "Google Calendar Connected",
       "connectedEmail": "Connected as {{email}}",
       "syncWarning": "Calendar sync failed, booking saved successfully",
       "errors": {
-        "connectFailed": "Failed to start Google Calendar connection"
+        "connectFailed": "Failed to start Google Calendar connection",
+        "disconnectFailed": "Failed to disconnect Google Calendar"
+      },
+      "toasts": {
+        "disconnected": "Google Calendar disconnected"
+      }
+    },
+    "calendarPreferences": {
+      "title": "Calendar Preferences",
+      "fields": {
+        "weekStartDay": "Week starts on",
+        "hideWeekends": "Hide weekends",
+        "defaultReminderMinutes": "Default reminder (minutes)"
+      },
+      "options": {
+        "weekStartDay": {
+          "mon": "Monday",
+          "sun": "Sunday"
+        }
+      },
+      "placeholders": {
+        "defaultReminderMinutes": "Leave empty to use rule defaults"
+      },
+      "errors": {
+        "saveFailed": "Failed to save calendar preferences"
+      },
+      "toasts": {
+        "saved": "Calendar preferences saved"
+      }
+    },
+    "reminderRules": {
+      "title": "Reminder Rules",
+      "subtitle": "In-app reminders only",
+      "empty": "No reminder rules found",
+      "inAppOnly": "In-app",
+      "fields": {
+        "enabled": "Enabled",
+        "minutesBefore": "Minutes before"
+      },
+      "trigger": {
+        "class": "Classes",
+        "officeHour": "Office Hours",
+        "registrationDeadline": "Registration deadline",
+        "withdrawDeadline": "Withdraw deadline"
+      },
+      "errors": {
+        "saveFailed": "Failed to save reminder rules"
+      },
+      "toasts": {
+        "saved": "Reminder rules saved"
       }
     }
   },

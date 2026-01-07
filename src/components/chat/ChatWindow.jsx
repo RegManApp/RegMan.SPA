@@ -1,9 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { chatApi } from '../../api';
 import MessageComposer from './MessageComposer';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { onMessageRead, offMessageRead } from '../../api/signalrClient';
+import {
+  onMessageRead,
+  offMessageRead,
+  onUserTyping,
+  offUserTyping,
+  typingStarted,
+  typingStopped,
+  onMessageDeletedForMe,
+  offMessageDeletedForMe,
+  onMessageDeletedForEveryone,
+  offMessageDeletedForEveryone,
+} from '../../api/signalrClient';
 import { useChatUnread } from '../../contexts/ChatUnreadContext';
 
 export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
@@ -11,26 +22,79 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
   const [messages, setMessages] = useState([]);
   const [convoDetail, setConvoDetail] = useState(null);
   const [loadError, setLoadError] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [typingUserIds, setTypingUserIds] = useState({});
   const { user } = useAuth();
   const { clearConversationUnread } = useChatUnread();
+
+  const listRef = useRef(null);
+  const pageSize = 20;
 
   const loadConversation = async () => {
     if (!conversation) {
       setMessages([]);
       setConvoDetail(null);
       setLoadError(false);
+      setHasMore(true);
       return;
     }
     try {
       setLoadError(false);
-      const res = await chatApi.getConversation(conversation.conversationId);
-      setMessages(res.data?.messages || []);
+      const res = await chatApi.getConversation(conversation.conversationId, 1, pageSize);
+      const initial = res.data?.messages || [];
+      setMessages(initial);
       setConvoDetail(res.data || null);
+      setHasMore((initial || []).length >= pageSize);
     } catch (e) {
       setLoadError(true);
       setMessages([]);
     }
   };
+
+  const oldestMessageId = useMemo(() => {
+    if (!messages || messages.length === 0) return null;
+    return messages.reduce((min, m) => (min == null ? m.messageId : Math.min(min, m.messageId)), null);
+  }, [messages]);
+
+  const loadMore = useCallback(async () => {
+    if (!conversation?.conversationId) return;
+    if (!hasMore || isLoadingMore) return;
+    if (!oldestMessageId) return;
+
+    const el = listRef.current;
+    const prevScrollHeight = el ? el.scrollHeight : 0;
+
+    try {
+      setIsLoadingMore(true);
+      const res = await chatApi.getConversation(conversation.conversationId, 1, pageSize, oldestMessageId);
+      const older = res.data?.messages || [];
+      if (!older.length) {
+        setHasMore(false);
+        return;
+      }
+
+      setMessages((prev) => {
+        const map = new Map();
+        (older || []).forEach((m) => map.set(m.messageId, m));
+        (prev || []).forEach((m) => map.set(m.messageId, m));
+        return Array.from(map.values()).sort((a, b) => a.messageId - b.messageId);
+      });
+
+      setHasMore(older.length >= pageSize);
+    } catch (e) {
+      // ignore paging failures; user can retry by scrolling
+    } finally {
+      setIsLoadingMore(false);
+
+      // Keep the viewport anchored after prepending
+      const el2 = listRef.current;
+      if (el2) {
+        const newScrollHeight = el2.scrollHeight;
+        el2.scrollTop = newScrollHeight - prevScrollHeight;
+      }
+    }
+  }, [conversation?.conversationId, hasMore, isLoadingMore, oldestMessageId]);
 
   useEffect(() => {
     loadConversation();
@@ -59,6 +123,52 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
     };
   }, [conversation?.conversationId]);
 
+  useEffect(() => {
+    const typingHandler = (evt) => {
+      try {
+        if (!evt || evt.conversationId !== conversation?.conversationId) return;
+        const uid = evt.userId;
+        if (!uid) return;
+        const isTyping = !!evt.isTyping;
+        setTypingUserIds((prev) => ({ ...prev, [uid]: isTyping }));
+      } catch (e) {}
+    };
+
+    onUserTyping(typingHandler);
+    return () => {
+      offUserTyping(typingHandler);
+    };
+  }, [conversation?.conversationId]);
+
+  useEffect(() => {
+    const delForMe = (evt) => {
+      try {
+        if (!evt || evt.conversationId !== conversation?.conversationId) return;
+        const mid = evt.messageId;
+        if (!mid) return;
+        setMessages((prev) => (prev || []).filter((m) => m.messageId !== mid));
+      } catch (e) {}
+    };
+
+    const delForEveryone = (evt) => {
+      try {
+        if (!evt || evt.conversationId !== conversation?.conversationId) return;
+        const mid = evt.messageId;
+        if (!mid) return;
+        setMessages((prev) =>
+          (prev || []).map((m) => (m.messageId === mid ? { ...m, isDeletedForEveryone: true, content: '[deleted]' } : m))
+        );
+      } catch (e) {}
+    };
+
+    onMessageDeletedForMe(delForMe);
+    onMessageDeletedForEveryone(delForEveryone);
+    return () => {
+      offMessageDeletedForMe(delForMe);
+      offMessageDeletedForEveryone(delForEveryone);
+    };
+  }, [conversation?.conversationId]);
+
   if (!conversation) {
     return (
       <div className="h-full flex items-center justify-center chat-panel">
@@ -78,6 +188,7 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
   const currentUserId = user?.userId || user?.id || '';
   const otherUserId = convoDetail?.participantIds?.find((id) => id !== currentUserId) || '';
   const isOtherOnline = otherUserId ? !!onlineUsers[otherUserId] : false;
+  const isOtherTyping = otherUserId ? !!typingUserIds[otherUserId] : false;
 
   // Mark messages read when opening (receiver-only enforced by backend)
   useEffect(() => {
@@ -108,7 +219,13 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
           </h3>
         </div>
       </div>
-      <div className="flex-1 p-4 overflow-auto">
+      <div className="flex-1 p-4">
+        <div ref={listRef} className="h-full overflow-auto" onScroll={(e) => {
+          const el = e.currentTarget;
+          if (el.scrollTop <= 10) {
+            loadMore();
+          }
+        }}>
         {loadError ? (
           <div className="text-sm chat-muted">{t('chat.errors.couldNotLoadDescription')}</div>
         ) : null}
@@ -136,6 +253,16 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
             </div>
           </div>
         ))}
+
+        {isOtherTyping ? (
+          <div className="text-xs chat-muted mt-2">{t('chat.typingIndicator', 'Typing…')}</div>
+        ) : null}
+
+        {isLoadingMore ? (
+          <div className="text-xs chat-muted mt-2">{t('chat.loadingOlder', 'Loading…')}</div>
+        ) : null}
+
+        </div>
       </div>
       <div className="p-4 border-t chat-panel-border">
         <MessageComposer
@@ -143,6 +270,12 @@ export default function ChatWindow({ conversation, onSend, onlineUsers = {} }) {
             const receiverId = getReceiverId();
             await onSend(conversation.conversationId, receiverId, text);
             await loadConversation();
+          }}
+          onTypingStart={() => {
+            if (conversation?.conversationId) typingStarted(conversation.conversationId).catch(() => {});
+          }}
+          onTypingStop={() => {
+            if (conversation?.conversationId) typingStopped(conversation.conversationId).catch(() => {});
           }}
         />
       </div>
