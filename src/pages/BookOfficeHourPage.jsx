@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { officeHourApi } from '../api/officeHourApi';
+import courseApi from '../api/courseApi';
+import sectionApi from '../api/sectionApi';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +25,8 @@ const BookOfficeHourPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [providers, setProviders] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [sections, setSections] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,15 +35,33 @@ const BookOfficeHourPage = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [bookingData, setBookingData] = useState({
     purpose: '',
-    studentNotes: '',
+    bookerNotes: '',
   });
   const [activeTab, setActiveTab] = useState('browse'); // 'browse' or 'my-bookings'
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    role: '',
+    courseId: '',
+    sectionId: '',
+  });
 
   useEffect(() => {
     fetchProviders();
     fetchMyBookings();
+    fetchCourses();
   }, []);
+
+  useEffect(() => {
+    fetchProviders();
+  }, [filters.role, filters.courseId, filters.sectionId]);
+
+  useEffect(() => {
+    if (!filters.courseId) {
+      setSections([]);
+      return;
+    }
+    fetchSectionsByCourse(filters.courseId);
+  }, [filters.courseId]);
 
   useEffect(() => {
     if (selectedProvider) {
@@ -47,10 +69,49 @@ const BookOfficeHourPage = () => {
     }
   }, [selectedProvider]);
 
+  const normalizeItems = (data) => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.Items)) return data.Items;
+    return [];
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const res = await courseApi.getAll({ pageSize: 1000 });
+      const items = normalizeItems(res?.data);
+      setCourses(items);
+    } catch {
+      // Non-blocking for booking; filters will still work without dropdown data.
+      setCourses([]);
+    }
+  };
+
+  const fetchSectionsByCourse = async (courseId) => {
+    try {
+      const res = await sectionApi.getAll({ courseId });
+      const items = normalizeItems(res?.data);
+      setSections(items);
+    } catch {
+      setSections([]);
+    }
+  };
+
   const fetchProviders = async () => {
     try {
-      const data = await officeHourApi.getProvidersWithOfficeHours();
+      const params = {};
+      if (filters.role) params.role = filters.role;
+      if (filters.courseId) params.courseId = Number(filters.courseId);
+      if (filters.sectionId) params.sectionId = Number(filters.sectionId);
+
+      const data = await officeHourApi.getProvidersWithOfficeHours(params);
       setProviders(data);
+
+      // Clear selection if filtered away
+      if (selectedProvider && !data.some((p) => p.provider.userId === selectedProvider.provider.userId)) {
+        setSelectedProvider(null);
+        setAvailableSlots([]);
+      }
     } catch (error) {
       console.error('Error fetching providers:', error);
       toast.error(t('bookOfficeHours.errors.instructorsFetchFailed'));
@@ -88,7 +149,7 @@ const BookOfficeHourPage = () => {
       toast.success(t('bookOfficeHours.toasts.booked'));
       setShowBookingModal(false);
       setSelectedSlot(null);
-      setBookingData({ purpose: '', studentNotes: '' });
+      setBookingData({ purpose: '', bookerNotes: '' });
       if (selectedProvider) {
         fetchAvailableSlots(selectedProvider.provider.userId);
       }
@@ -122,6 +183,12 @@ const BookOfficeHourPage = () => {
       p.provider.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.provider.department?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const roleOptions = [
+    { value: '', label: 'All roles' },
+    { value: 'Instructor', label: 'Instructor' },
+    { value: 'Admin', label: 'Admin' },
+  ];
 
   const getDegreeLabel = (degree) => {
     const labels = {
@@ -165,7 +232,7 @@ const BookOfficeHourPage = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Book Office Hours</h1>
-        <p className="text-gray-600 dark:text-gray-400">Find and book office hours with your instructors</p>
+        <p className="text-gray-600 dark:text-gray-400">Find and book office hours with providers</p>
       </div>
 
       {/* Tabs */}
@@ -201,6 +268,77 @@ const BookOfficeHourPage = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Providers List */}
           <div className="lg:col-span-1 space-y-4">
+            {/* Filters */}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+                <select
+                  value={filters.role}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, role: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {roleOptions.map((opt) => (
+                    <option key={opt.value || 'all'} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={filters.courseId}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      courseId: e.target.value,
+                      sectionId: '',
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">All courses</option>
+                  {courses.map((c) => {
+                    const id = c.courseId ?? c.CourseId;
+                    const name = c.courseName ?? c.CourseName;
+                    const code = c.courseCode ?? c.CourseCode;
+                    return (
+                      <option key={id} value={id}>
+                        {code ? `${code} - ${name}` : name}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                <select
+                  value={filters.sectionId}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, sectionId: e.target.value }))}
+                  disabled={!filters.courseId}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-60"
+                >
+                  <option value="">All sections</option>
+                  {sections.map((s) => {
+                    const id = s.sectionId ?? s.SectionId;
+                    const name = s.sectionName ?? s.SectionName;
+                    return (
+                      <option key={id} value={id}>
+                        {name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              {(filters.role || filters.courseId || filters.sectionId) && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setFilters({ role: '', courseId: '', sectionId: '' })}
+                    className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="relative">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -214,12 +352,12 @@ const BookOfficeHourPage = () => {
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
               <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="font-medium text-gray-900 dark:text-white">Providers with Available Slots</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white">Providers</h3>
               </div>
               <div className="max-h-[500px] overflow-y-auto">
                 {filteredProviders.length === 0 ? (
                   <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-                    No providers with available office hours
+                    No providers found
                   </div>
                 ) : (
                   filteredProviders.map((item) => (
@@ -503,8 +641,8 @@ const BookOfficeHourPage = () => {
                   Additional Notes (optional)
                 </label>
                 <textarea
-                  value={bookingData.studentNotes}
-                  onChange={(e) => setBookingData({ ...bookingData, studentNotes: e.target.value })}
+                  value={bookingData.bookerNotes}
+                  onChange={(e) => setBookingData({ ...bookingData, bookerNotes: e.target.value })}
                   rows={3}
                   placeholder="Any additional information..."
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -516,7 +654,7 @@ const BookOfficeHourPage = () => {
                 onClick={() => {
                   setShowBookingModal(false);
                   setSelectedSlot(null);
-                  setBookingData({ purpose: '', studentNotes: '' });
+                  setBookingData({ purpose: '', bookerNotes: '' });
                 }}
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >

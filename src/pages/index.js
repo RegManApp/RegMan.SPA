@@ -16,6 +16,7 @@ export { default as AdvisingPage } from "./AdvisingPage";
 export { default as AnalyticsPage } from "./AnalyticsPage";
 export { default as OfficeHoursPage } from "./OfficeHoursPage";
 export { default as BookOfficeHourPage } from "./BookOfficeHourPage";
+export { default as OfficeHoursHubPage } from "./OfficeHoursHubPage";
 export { default as CalendarPage } from "./CalendarPage";
 export { default as ChatPage } from "./ChatPage";
 export { default as GpaPage } from "./GpaPage";

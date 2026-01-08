@@ -21,7 +21,7 @@ import {
 
 const OfficeHoursPage = () => {
   const { t, i18n } = useTranslation();
-  const { user, isInstructor, isAdmin } = useAuth();
+  const { isStudent } = useAuth();
   const locale = i18n.language?.toLowerCase().startsWith('ar') ? 'ar' : 'en-US';
   const [officeHours, setOfficeHours] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -251,13 +251,15 @@ const OfficeHoursPage = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('officeHours.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('officeHours.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          <FiPlus className="w-5 h-5" />
-          {t('officeHours.actions.addOfficeHour')}
-        </button>
+        {!isStudent && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <FiPlus className="w-5 h-5" />
+            {t('officeHours.actions.addOfficeHour')}
+          </button>
+        )}
       </div>
 
       {/* Week Navigation */}

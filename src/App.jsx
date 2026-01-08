@@ -22,8 +22,7 @@ import {
   AdvisingPage,
   AnalyticsPage,
   ChatPage,
-  OfficeHoursPage,
-  BookOfficeHourPage,
+  OfficeHoursHubPage,
   CalendarPage,
   GpaPage,
   AcademicPlanPage,   
@@ -184,25 +183,11 @@ function App() {
                 {/* Calendar - All authenticated users */}
                 <Route path="/calendar" element={<CalendarPage />} />
 
-                {/* Office Hours - Instructor only */}
-                <Route
-                  path="/office-hours"
-                  element={
-                    <RoleGuard allowedRoles={[ROLES.INSTRUCTOR]}>
-                      <OfficeHoursPage />
-                    </RoleGuard>
-                  }
-                />
+                {/* Office Hours - All authenticated users (role-aware within page) */}
+                <Route path="/office-hours" element={<OfficeHoursHubPage />} />
 
-                {/* Book Office Hours - Student only */}
-                <Route
-                  path="/book-office-hours"
-                  element={
-                    <RoleGuard allowedRoles={[ROLES.STUDENT]}>
-                      <BookOfficeHourPage />
-                    </RoleGuard>
-                  }
-                />
+                {/* Back-compat redirect */}
+                <Route path="/book-office-hours" element={<Navigate to="/office-hours" replace />} />
 
                 {/* Profile - All authenticated users */}
                 <Route path="/profile" element={<ProfilePage />} />

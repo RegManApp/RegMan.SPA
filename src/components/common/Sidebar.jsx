@@ -52,6 +52,7 @@ const adminNavigation = [
       { labelKey: 'nav.schedules', href: '/schedules', icon: 'CalendarDaysIcon' },
       { labelKey: 'nav.rooms', href: '/rooms', icon: 'ClipboardDocumentListIcon' },
       { labelKey: 'nav.enrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
+      { labelKey: 'nav.officeHours', href: '/office-hours', icon: 'ClockIcon' },
       { labelKey: 'nav.calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
     ],
   },
@@ -112,7 +113,7 @@ const studentNavigation = [
       { labelKey: 'nav.cart', href: '/cart', icon: 'ClipboardDocumentListIcon' },
       { labelKey: 'nav.myEnrollments', href: '/enrollments', icon: 'ClipboardDocumentListIcon' },
       { labelKey: 'nav.calendar', href: '/calendar', icon: 'CalendarDaysIcon' },
-      { labelKey: 'nav.bookOfficeHours', href: '/book-office-hours', icon: 'ClockIcon' },
+      { labelKey: 'nav.officeHours', href: '/office-hours', icon: 'ClockIcon' },
     ],
   },
   {

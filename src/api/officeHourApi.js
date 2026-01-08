@@ -89,9 +89,9 @@ export const getAvailableOfficeHours = async (params = {}) => {
   return response.data;
 };
 
-// Get all providers with their available office hours count (role-agnostic)
-export const getProvidersWithOfficeHours = async () => {
-  const response = await axiosInstance.get("/officehour/providers");
+// Get providers (role-agnostic). Optional filters: role, courseId, sectionId
+export const getProvidersWithOfficeHours = async (params = {}) => {
+  const response = await axiosInstance.get("/officehour/providers", { params });
   return response.data;
 };
 
