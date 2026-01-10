@@ -3,6 +3,46 @@ import toast from "react-hot-toast";
 import i18n from "../i18n";
 import { getApiErrorMessageKey } from "../utils/i18nError";
 
+const shouldHttpTrace = (() => {
+  // Enable verbose HTTP tracing only in dev. You can force-enable/disable via env.
+  // - VITE_HTTP_TRACE=true  -> enable
+  // - VITE_HTTP_TRACE=false -> disable
+  const flag = String(import.meta.env.VITE_HTTP_TRACE || "").toLowerCase();
+  if (flag === "true" || flag === "1" || flag === "yes") return true;
+  if (flag === "false" || flag === "0" || flag === "no") return false;
+  return !!import.meta.env.DEV;
+})();
+
+const redactAuthHeader = (value) => {
+  if (!value) return value;
+  const s = String(value);
+  if (!s.toLowerCase().startsWith("bearer ")) return "<redacted>";
+  const token = s.slice(7);
+  if (token.length <= 12) return "Bearer <redacted>";
+  return `Bearer ${token.slice(0, 6)}…${token.slice(-4)} (len=${token.length})`;
+};
+
+const buildAbsoluteUrl = (baseURL, url) => {
+  try {
+    // url may already be absolute.
+    return new URL(url, baseURL || window.location.origin).toString();
+  } catch {
+    return `${baseURL || ""}${url || ""}`;
+  }
+};
+
+const safeJsonParse = (v) => {
+  if (typeof v !== "string") return v;
+  const trimmed = v.trim();
+  if (!trimmed) return v;
+  if (!(trimmed.startsWith("{") || trimmed.startsWith("["))) return v;
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return v;
+  }
+};
+
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   // Required for Google Calendar OAuth binding cookie (SameSite=None; Secure)
@@ -28,6 +68,24 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if (shouldHttpTrace) {
+      const method = (config.method || "get").toUpperCase();
+      const absoluteUrl = buildAbsoluteUrl(config.baseURL, config.url);
+      const headers = { ...(config.headers || {}) };
+      if (headers.Authorization)
+        headers.Authorization = redactAuthHeader(headers.Authorization);
+
+      // Store a snapshot so the error interceptor can report the exact request.
+      config.__trace = {
+        method,
+        url: absoluteUrl,
+        headers,
+        body: safeJsonParse(config.data),
+        ts: new Date().toISOString(),
+      };
+    }
+
     return config;
   },
   (error) => {
@@ -59,6 +117,49 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     const { response } = error;
+
+    if (shouldHttpTrace) {
+      const trace = error?.config?.__trace;
+      const status = response?.status;
+
+      // Capture the very first 400 to avoid masking the real root cause.
+      if (
+        status === 400 &&
+        typeof window !== "undefined" &&
+        !window.__FIRST_HTTP_400__
+      ) {
+        const first = {
+          request: trace || {
+            method: (error?.config?.method || "get").toUpperCase(),
+            url: buildAbsoluteUrl(error?.config?.baseURL, error?.config?.url),
+            headers: (() => {
+              const h = { ...(error?.config?.headers || {}) };
+              if (h.Authorization)
+                h.Authorization = redactAuthHeader(h.Authorization);
+              return h;
+            })(),
+            body: safeJsonParse(error?.config?.data),
+            ts: new Date().toISOString(),
+          },
+          response: {
+            status,
+            headers: response?.headers || null,
+            body: response?.data ?? null,
+          },
+        };
+
+        window.__FIRST_HTTP_400__ = first;
+
+        // This is designed to be copy-pasted back for debugging.
+        console.group("[HTTP FIRST 400] Capture");
+        console.log("Request:", first.request);
+        console.log("Response:", first.response);
+        console.log(
+          "Tip: You can also run `copy(window.__FIRST_HTTP_400__)` in DevTools console to copy this object."
+        );
+        console.groupEnd();
+      }
+    }
 
     if (response) {
       const apiResponse = response.data;
