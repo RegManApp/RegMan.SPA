@@ -1,5 +1,28 @@
 import axiosInstance from "./axiosInstance";
 
+const normalizeOfficeHourDate = (date) => {
+  if (!date) return date;
+
+  // Backend expects DateTime; enforce ISO 8601 to avoid JSON DateTime binding failures.
+  if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return new Date(`${date}T00:00:00`).toISOString();
+  }
+
+  return date;
+};
+
+const normalizeNullableInt = (value) => {
+  if (value === "" || value === undefined) return null;
+  if (value === null) return null;
+
+  if (typeof value === "string") {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : value;
+  }
+
+  return value;
+};
+
 // =============================================
 // INSTRUCTOR ENDPOINTS
 // =============================================
@@ -14,7 +37,12 @@ export const getMyOfficeHours = async (params = {}) => {
 
 // Create a new office hour slot
 export const createOfficeHour = async (data) => {
-  const response = await axiosInstance.post("/officehour", data);
+  const payload = {
+    ...data,
+    date: normalizeOfficeHourDate(data?.date),
+    roomId: normalizeNullableInt(data?.roomId),
+  };
+  const response = await axiosInstance.post("/officehour", payload);
   return response.data;
 };
 
@@ -26,7 +54,12 @@ export const createBatchOfficeHours = async (officeHours) => {
 
 // Update an office hour
 export const updateOfficeHour = async (id, data) => {
-  const response = await axiosInstance.put(`/officehour/${id}`, data);
+  const payload = {
+    ...data,
+    date: normalizeOfficeHourDate(data?.date),
+    roomId: normalizeNullableInt(data?.roomId),
+  };
+  const response = await axiosInstance.put(`/officehour/${id}`, payload);
   return response.data;
 };
 

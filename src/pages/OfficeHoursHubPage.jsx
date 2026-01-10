@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import OfficeHoursPage from './OfficeHoursPage';
 import BookOfficeHourPage from './BookOfficeHourPage';
+import AdminOfficeHoursPage from './AdminOfficeHoursPage';
 
 const OfficeHoursHubPage = () => {
-  const { isStudent } = useAuth();
+  const { isStudent, isAdmin } = useAuth();
   const canProvide = !isStudent();
 
-  const [activeTab, setActiveTab] = useState(canProvide ? 'my-office-hours' : 'book');
+  const [activeTab, setActiveTab] = useState(
+    isAdmin() ? 'all-office-hours' : (canProvide ? 'my-office-hours' : 'book')
+  );
 
   return (
     <div className="space-y-6">
@@ -17,6 +20,20 @@ const OfficeHoursHubPage = () => {
       </div>
 
       <div className="flex border-b border-gray-200 dark:border-gray-700">
+        {isAdmin() && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('all-office-hours')}
+            className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+              activeTab === 'all-office-hours'
+                ? 'text-primary-600 border-primary-600 dark:text-primary-400 dark:border-primary-400'
+                : 'text-gray-500 border-transparent hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            }`}
+          >
+            All Office Hours
+          </button>
+        )}
+
         {canProvide && (
           <button
             type="button"
@@ -44,6 +61,7 @@ const OfficeHoursHubPage = () => {
         </button>
       </div>
 
+      {activeTab === 'all-office-hours' && isAdmin() ? <AdminOfficeHoursPage /> : null}
       {activeTab === 'my-office-hours' && canProvide ? <OfficeHoursPage /> : null}
       {activeTab === 'book' ? <BookOfficeHourPage /> : null}
     </div>
